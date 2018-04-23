@@ -4,7 +4,7 @@
 
 # OnlyToolsAndForces toolkit:
 
-![alt text](https://github.com/professor-calculus/OnlyToolsAndForces/raw/Experimental/Logo.jpg)
+![alt text](https://github.com/professor-calculus/OnlyToolsAndForces/raw/master/Logo.jpg)
 
 To download it just do "git clone https://github.com/professor-calculus/OnlyToolsAndForces.git'' in whatever directory you want to install it. 
 
