@@ -53,40 +53,52 @@ print(args.signal)
 df_sig_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
-    list.append(df)
+    df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 
-print '\nSuccessfully read root files into dataframe\n'
+if args.verbose:
+    print('Signal:')
+    print(df_sig)
+
+print '\nSuccessfully read dataframe\n'
 
 #Make the output directories
 directory = 'Signal_vs_Background'
+temp_dir = directory
 suffix = 1
-while os.path.exists(directory):
+while os.path.exists(temp_dir):
     suffix += 1
-    directory = args.OutDir + '_{0}'.format(suffix)
-print('Files will be written to: {0}'.format(directory))
-os.makedirs(directory)
+    temp_dir = directory + '_{0}'.format(suffix)
+if not args.NoOutput:
+    print('Files will be written to: {0}'.format(temp_dir))
+    os.makedirs(temp_dir)
 
-df_sig_masses = df_sig[['Truth_Msq', 'Truth_Mlsp']].drop_duplicates()
-df_sig_masses = df_sig_masses.sort_values(by=['Truth_Msq', 'Truth_Mlsp'])
+df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates()
+df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
 print(df_sig_masses.head())
 
 if args.HT_cut:
-    df_sig = df_sig.loc[(df_sig['Uncut_HT'] > args.HT_cut)]
+    df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
 
 if args.QCD:
     df_QCD = pd.read_csv(args.QCD, delimiter=r'\s+')
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
+    if args.verbose:
+        print('QCD:')
+        print(df_QCD)
 if args.TTJets:
     df_TTJets = pd.read_csv(args.TTJets, delimiter=r'\s+')
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
+    if args.verbose:
+        print('TTJets:')
+        print(df_TTJets)
 
-bins_HT = np.linspace(0.,8000.,160)
-bins_MHT = np.linspace(0.,2000.,200)
-bins_DelR = np.linspace(0.,5.,100)
-bins_BMass = np.linspace(0.,500.,100)
+bins_HT = np.linspace(0.,8000.,80)
+bins_MHT = np.linspace(0.,2000.,50)
+bins_DelR = np.linspace(0.,5.,50)
+bins_BMass = np.linspace(0.,500.,50)
 bins_njet = np.arange(0, 20, 1)
 bins_nbjet = np.arange(0, 14, 1)
 bins_BDP = np.linspace(0., 3., 60)
@@ -98,40 +110,49 @@ dict = {'MET': {'branch': 'MET', 'bins': bins_MHT, 'title': 'Missing $E_{T}$ / G
         'DelR': {'branch': 'bJetsDelR', 'bins': bins_DelR, 'title': 'b-Jets $\Delta R$'},
         'NJet': {'branch': 'NJet', 'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of Bottom Quark Jets'},
-        'BDP': {'branch': 'bDPhi', 'bins': bins_BDP, 'title': '$\Delta\Phi^{\*}$'},
+        'BDP': {'branch': 'bDPhi', 'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
         }
 
-variables = ['MET', 'MHT', 'HT', 'DelR', 'NJet', 'NBJet', 'BMass', '2BMass']
+variables = ['MET', 'MHT', 'HT', 'DelR', 'NJet', 'NBJet', 'BDP']
 signal_only_vars = ['DelR', 'BMass', '2BMass']
 
 n_signal = len(args.signal)
 
 for var in variables:
     plt.figure()
+    f, ax = plt.subplots()
+    if var in ['NJet', 'NBJet']:
+        ax.set(yscale="log")
     for index, row in df_sig_masses.iterrows():
-        label='$M_{\mathrm{Squark}}$ = ' + str(row["Truth_Msq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["Truth_Mlsp"])
-        df_temp = df_sig.loc[(df_sig['Truth_Msq'] == row['Truth_Msq']) & (df_sig['Truth_Mlsp'] == row['Truth_Mlsp'])]
-        if args.kdeplot:
-            sns.kdeplot(df_temp[dict[var]['branch']], label=label, shade=args.kdeplot_fill)
+        label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
+        df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+        if args.kdeplot and var not in ['NJet', 'NBJet']:
+            sns.kdeplot(df_temp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill)
         else:
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, label=label, density=True, log=True)
+            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True)
+            #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label=label, log=True, histtype="step")
 
     if args.QCD and var not in signal_only_vars:
-        if args.kdeplot:
-            sns.kdeplot(df_QCD[dict[var]['branch']], label='QCD background', shade=args.kdeplot_fill)
+        if args.kdeplot and var not in ['NJet', 'NBJet']:
+            sns.kdeplot(df_QCD[dict[var]['branch']], ax=ax, label='QCD background', shade=args.kdeplot_fill)
         else:
-            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, label='QCD background', density=True, log=True)
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label='QCD background', log=True)
+            #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label='QCD background', log=True, histtype="step")
     if args.TTJets and var not in signal_only_vars:
-        if args.kdeplot:
-            sns.kdeplot(df_TTJets[dict[var]['branch']], label='$t \overline{t}$ + $jets$ background', shade=args.kdeplot_fill)
+        if args.kdeplot and var not in ['NJet', 'NBJet']:
+            sns.kdeplot(df_TTJets[dict[var]['branch']], ax=ax, label='$t \overline{t}$ + $jets$ background', shade=args.kdeplot_fill)
         else:
-            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, label='$t \overline{t}$ + $jets$ background', density=True, log=True)
-            
+            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label='$t \overline{t}$ + $jets$ background', log=True)
+            #plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step")
+
 
     plt.xlabel(dict[var]['title'])
     plt.legend(loc='best', fontsize='small')
+    if var in ['NJet', 'NBJet']:
+        plt.ylim(0.0001, None)
+        plt.xlim(0., None)
     if not args.NoOutput:
-        plt.savefig(os.path.join(directory, var + '.pdf'))
+        plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
     if not args.NoX:
         plt.show()
