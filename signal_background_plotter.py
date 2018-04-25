@@ -121,7 +121,7 @@ n_signal = len(args.signal)
 for var in variables:
     plt.figure()
     f, ax = plt.subplots()
-    if var in ['NJet', 'NBJet']:
+    if var not in ['NJet', 'NBJet']:
         ax.set(yscale="log")
     for index, row in df_sig_masses.iterrows():
         label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
@@ -148,7 +148,7 @@ for var in variables:
 
     plt.xlabel(dict[var]['title'])
     plt.legend(loc='best', fontsize='small')
-    if var in ['NJet', 'NBJet']:
+    if var not in ['NJet', 'NBJet']:
         plt.ylim(0.0001, None)
         plt.xlim(0., None)
     if not args.NoOutput:
