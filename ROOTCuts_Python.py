@@ -298,7 +298,7 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
             if UIDj < UIDk and abs(PIDj) == 5 and abs(PIDk) == 5 and M1j == M1k and M1j in d and d[M1j]['PID'] == 35:
                 DeltaR.append(math.sqrt(Delta_R(Etaj, Phij, Etak, Phik))
     if len(DeltaR) > 0:
-        del_R.append(float(sum(DeltaR))/float(len(DeltaR)))
+        del_R.append(min(DeltaR))
     else:
         del_R.append(-1.)
     if len(HiggsPT) > 0:
