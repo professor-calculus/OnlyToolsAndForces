@@ -18,9 +18,10 @@ import warnings
 #Get Options
 
 parser = a.ArgumentParser(description='Signal vs Background plot')
-parser.add_argument('-s', '--signal', nargs='*', required=True, help='Path to signal .root file(s) from ROOTCuts')
-parser.add_argument('-q', '--QCD', default=None, help='Path to QCD .root file from ROOTCuts')
-parser.add_argument('-t', '--TTJets', default=None, help='Path to TTJets .root file from ROOTCuts')
+parser.add_argument('-s', '--signal', nargs='*', required=True, help='Path to signal dataframe file(s) from ROOTCuts')
+parser.add_argument('-q', '--QCD', default=None, help='Path to QCD dataframe file from ROOTCuts')
+parser.add_argument('-m', '--MSSM', default=None, help='Path to MSSM dataframe file from ROOTCuts')
+parser.add_argument('-t', '--TTJets', default=None, help='Path to TTJets dataframe file from ROOTCuts')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
@@ -80,6 +81,14 @@ print(df_sig_masses.head())
 if args.HT_cut:
     df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
 
+if args.MSSM:
+    df_MSSM = pd.read_csv(args.MSSM, delimiter=r'\s+')
+    if args.HT_cut:
+        df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
+    if args.verbose:
+        print('MSSM:')
+        print(df_MSSM)
+
 if args.QCD:
     df_QCD = pd.read_csv(args.QCD, delimiter=r'\s+')
     if args.HT_cut:
@@ -129,21 +138,29 @@ for var in variables:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_temp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill)
         else:
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True)
-            #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label=label, log=True, histtype="step")
+            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True)
+            #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step")
+
+    if args.MSSM and var not in signal_only_vars:
+        label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
+        if args.kdeplot and var not in ['NJet', 'NBJet']:
+            sns.kdeplot(df_MSSM[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill)
+        else:
+            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True)
+            #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step")
 
     if args.QCD and var not in signal_only_vars:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_QCD[dict[var]['branch']], ax=ax, label='QCD background', shade=args.kdeplot_fill)
         else:
-            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label='QCD background', log=True)
-            #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label='QCD background', log=True, histtype="step")
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.4, density=True, label='QCD background', log=True)
+            #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step")
     if args.TTJets and var not in signal_only_vars:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_TTJets[dict[var]['branch']], ax=ax, label='$t \overline{t}$ + $jets$ background', shade=args.kdeplot_fill)
         else:
-            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label='$t \overline{t}$ + $jets$ background', log=True)
-            #plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.5, density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step")
+            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.2, density=True, label='$t \overline{t}$ + $jets$ background', log=True)
+            #plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step")
 
 
     plt.xlabel(dict[var]['title'])
