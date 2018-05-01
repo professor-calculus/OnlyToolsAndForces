@@ -296,7 +296,7 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
     for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
         for PIDk, UIDk, M1k, PTk, Etak, Phik in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
             if UIDj < UIDk and abs(PIDj) == 5 and abs(PIDk) == 5 and M1j == M1k and M1j in d and d[M1j]['PID'] == 35:
-                DeltaR.append(math.sqrt(Delta_R(Etaj, Phij, Etak, Phik))
+                DeltaR.append(Delta_R(Etaj, Phij, Etak, Phik))
     if len(DeltaR) > 0:
         del_R.append(min(DeltaR))
     else:
