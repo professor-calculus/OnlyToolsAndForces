@@ -450,8 +450,8 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
 
     # Missing-ET
     for METj in METi:
-        met.append(METj)
         met_temp = METj
+    met.append(met_temp)
     if met_temp != 0:
         if mht_temp/met_temp < 1.25:
             MhtOverMet1p25 = True
