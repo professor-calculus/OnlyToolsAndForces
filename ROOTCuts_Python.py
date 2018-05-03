@@ -362,7 +362,7 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
             higgs2_pt.append(HiggsPT[1])
 
     # Number of jets, number of b-tagged jets, HT, MHT
-    for PTj, BTagj, Etaj, Phij in zip(jet_pti, jet_btagi, jet_etai, jet_phii):
+    for PTj, BTagj, Etaj, Phij, Massj in zip(jet_pti, jet_btagi, jet_etai, jet_phii, jet_massi):
         if PTj > 40. and abs(Etaj) < 2.4:
             n_jet += 1
             goodjets_eta.append(Etaj)
@@ -404,7 +404,7 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
             LeadJetCHF = True
         if jet_pti[0] > 100.:
             LeadJetPT100 = True
-        for PTj, Etaj, Phij, Massj in zip(jet_pti, jet_etai, jet_phii, jet_massi):
+        for PTj, Etaj, Phij in zip(jet_pti, jet_etai, jet_phii):
             if PTj > 40. and abs(Etaj) < 2.4:
                 jet_px, jet_py = PTj*math.cos(Phij),-PTj*math.sin(Phij)
                 newPhi = math.atan2(-mht_y-jet_py, mht_x+jet_px)
