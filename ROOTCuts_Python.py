@@ -548,7 +548,7 @@ df = pd.DataFrame({
     'bJetsDelR': del_R,
     'Mbb': Mbb,
     'bDPhi': biased_d_phi,
-    'alphaT': alphaT
+    'alphaT': alphaT,
     'NJet': N_jet,
     'NBJet': N_bjet,
     'NVeto': N_veto,
