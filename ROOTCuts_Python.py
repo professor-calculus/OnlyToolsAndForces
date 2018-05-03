@@ -149,7 +149,7 @@ def Delta_Phi( Phi1, Phi2 ):
         delPhi = Phi1 - Phi2 + 2.*math.pi
     else:
         delPhi = Phi1 - Phi2
-    return abs(delPhi);
+    return math.fabs(delPhi);
 
 def Delta_R( eta1, phi1, eta2, phi2 ):
     dR2 = (eta1 - eta2)**2 + (Delta_Phi(phi1, phi2))**2
@@ -187,10 +187,10 @@ def makeAlphaT(jets_phi, jets_pt, jets_eta, jets_mass, mht, ht):
         # loop over jets
         for j in range(nJet):
             deltaHt += et[j] * ( 1 - 2 * (int(i>>j)&1) )
-        if fabs(deltaHt) < minDeltaHt or minDeltaHt < 0:
-            minDeltaHt = fabs(deltaHt)
+        if math.fabs(deltaHt) < minDeltaHt or minDeltaHt < 0:
+            minDeltaHt = math.fabs(deltaHt)
 
-    return 0.5 * ( ht - minDeltaHt ) / sqrt( ht*ht - mht*mht );
+    return 0.5 * ( ht - minDeltaHt ) / math.sqrt( ht*ht - mht*mht );
 
 def alphaT_Thresholds(HT):
     if 200. < HT < 250.:
