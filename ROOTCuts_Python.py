@@ -546,7 +546,7 @@ df = pd.DataFrame({
     'Higgs1_PT': higgs1_pt,
     'Higgs2_PT': higgs2_pt,
     'bJetsDelR': del_R,
-    'Mbb': Mbb
+    'Mbb': Mbb,
     'bDPhi': biased_d_phi,
     'alphaT': alphaT
     'NJet': N_jet,
