@@ -77,8 +77,8 @@ n_bJet_bins = np.array([2,3,99])
 M_Z = 91.188
 
 
-evtweight, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET,\
-PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi = tree.arrays(["Event.Weight", "Jet.PT", "Jet.Phi", "Jet.Eta", "Jet.BTag", "Jet.NCharged", "Jet.NNeutrals", "MissingET.MET", "Particle.PID",
+evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET,\
+PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi = tree.arrays(["Event.Weight", "Jet.Mass", "Jet.PT", "Jet.Phi", "Jet.Eta", "Jet.BTag", "Jet.NCharged", "Jet.NNeutrals", "MissingET.MET", "Particle.PID",
                                                                                             "Particle.fUniqueID", "Particle.M1", "Particle.PT", "Particle.Eta", "Particle.Phi", "Electron.Eta", "Electron.PT",
                                                                                             "Muon.Eta", "Muon.PT", "Muon.Phi", "Photon.Eta", "Photon.PT", "Photon.Phi"], outputtype=tuple)
 
@@ -149,7 +149,7 @@ def Delta_Phi( Phi1, Phi2 ):
         delPhi = Phi1 - Phi2 + 2.*math.pi
     else:
         delPhi = Phi1 - Phi2
-    return abs(delPhi);
+    return math.fabs(delPhi);
 
 def Delta_R( eta1, phi1, eta2, phi2 ):
     dR2 = (eta1 - eta2)**2 + (Delta_Phi(phi1, phi2))**2
@@ -167,8 +167,48 @@ def Invariant_Mass(PT1, PT2, Eta1, Eta2, Phi1, Phi2):
     m = math.sqrt(m2)
     return m;
 
+def makeAlphaT(jets_phi, jets_pt, jets_eta, jets_mass, mht, ht):
 
-for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, PIDi, UIDi, M1i, PTi, Etai, Phii, eEtai, ePTi, uEtai, uPTi, uPhii, pEtai, pPTi, pPhii in tqdm(zip(evtweight, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET, PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi), total=int(nentries), desc='Go Go Go!'):
+    if len(jets_phi) < 2:
+        return -1;
+
+    et = []
+
+    for pt, eta, phi, mass in zip(jets_pt, jets_eta, jets_phi, jets_mass):
+        theta = 2*math.atan(math.exp(-1.*eta))
+        et.append(math.sqrt(pt**2 + (mass*math.sin(theta))**2))
+
+    nJet   = len(jets_pt)
+
+    minDeltaHt = -1
+    # loop over possible combinations
+    for i in range( 1 << (nJet-1) ):
+        deltaHt = 0
+        # loop over jets
+        for j in range(nJet):
+            deltaHt += et[j] * ( 1 - 2 * (int(i>>j)&1) )
+        if math.fabs(deltaHt) < minDeltaHt or minDeltaHt < 0:
+            minDeltaHt = math.fabs(deltaHt)
+
+    return 0.5 * ( ht - minDeltaHt ) / math.sqrt( ht*ht - mht*mht );
+
+def alphaT_Thresholds(HT):
+    if 200. < HT < 250.:
+        threshold = 0.65
+    elif 250. < HT < 300.:
+        threshold = 0.6
+    elif 300. < HT < 350.:
+        threshold = 0.55
+    elif 350. < HT < 400.:
+        threshold = 0.53
+    elif 400. < HT < 900.:
+        threshold = 0.52
+    else:
+        threshold = 0.
+    return threshold;
+
+
+for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, PIDi, UIDi, M1i, PTi, Etai, Phii, eEtai, ePTi, uEtai, uPTi, uPhii, pEtai, pPTi, pPhii in tqdm(zip(evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET, PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi), total=int(nentries), desc='Go Go Go!'):
     mht_x = 0.
     mht_y = 0.
     HT = 0.
@@ -190,6 +230,17 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
     DeltaR = []
     HiggsPT = []
     BDP = []
+    alphaT = []
+    Mbb = []
+
+    goodjets_eta = []
+    goodjets_phi = []
+    goodjets_pt = []
+    goodjets_mass = []
+
+    bjets_eta = []
+    bjets_phi = []
+    bjets_pt = []
 
     weight = eventweight*evtweighti[0]
     if args.verbose:
@@ -296,9 +347,9 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
     for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
         for PIDk, UIDk, M1k, PTk, Etak, Phik in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
             if UIDj < UIDk and abs(PIDj) == 5 and abs(PIDk) == 5 and M1j == M1k and M1j in d and d[M1j]['PID'] == 35:
-                DeltaR.append(math.sqrt((Phij - Phik)**2 + (Etaj - Etak)**2))
+                DeltaR.append(Delta_R(Etaj, Phij, Etak, Phik))
     if len(DeltaR) > 0:
-        del_R.append(float(sum(DeltaR))/float(len(DeltaR)))
+        del_R.append(min(DeltaR))
     else:
         del_R.append(-1.)
     if len(HiggsPT) > 0:
@@ -311,11 +362,18 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
             higgs2_pt.append(HiggsPT[1])
 
     # Number of jets, number of b-tagged jets, HT, MHT
-    for PTj, BTagj, Etaj, Phij in zip(jet_pti, jet_btagi, jet_etai, jet_phii):
+    for PTj, BTagj, Etaj, Phij, Massj in zip(jet_pti, jet_btagi, jet_etai, jet_phii, jet_massi):
         if PTj > 40. and abs(Etaj) < 2.4:
             n_jet += 1
+            goodjets_eta.append(Etaj)
+            goodjets_phi.append(Phij)
+            goodjets_pt.append(PTj)
+            goodjets_mass.append(Massj)
             if BTagj:
                 n_bjet += 1
+                bjets_eta.append(Etaj)
+                bjets_phi.append(Phij)
+                bjets_pt.append(PTj)
             mht_x += -1.*PTj*math.cos(Phij)
             mht_y += PTj*math.sin(Phij)
             HT += PTj
@@ -365,6 +423,24 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
     if BDP_temp > 0.5:
         BDPhi0p5 = True
 
+    # Closest b-jets in DeltaR invariant mass:
+    if n_bjet < 2:
+        temp_Mbb = -1.
+    else:
+        temp_Mbb = -1.
+        temp_dR = 99.
+        for i in range(1, n_bjet):
+            for j in range(i):
+                if Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j]) < temp_dR:
+                    temp_dR = Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j])
+                    temp_Mbb = Invariant_Mass(bjets_pt[i], bjets_pt[j], bjets_eta[i], bjets_eta[j], bjets_phi[i], bjets_phi[j])
+            
+    Mbb.append(temp_Mbb)
+
+    # alpha_T
+    temp_alpha_T = makeAlphaT(goodjets_phi, goodjets_pt, goodjets_eta, goodjets_mass, mht_temp, HT)
+    alphaT.append(temp_alpha_T)
+
     # Missing-ET
     for METj in METi:
         met.append(METj)
@@ -373,10 +449,10 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
         if mht_temp/met_temp < 1.25:
             MhtOverMet1p25 = True
 
-    All_Cuts = [LeadJetPT100, NoVetoObjects, NJet6, MhtOverMet1p25, HT1200, MHT200, BDPhi0p5, LeadJetCHF]
+    All_Cuts = [LeadJetPT100, NoVetoObjects, NJet6, MhtOverMet1p25, MHT200, BDPhi0p5, LeadJetCHF]
     if args.verbose:
         print(All_Cuts)
-    if All_Cuts.count(False) == 0 and n_bjet in [2, 3]:
+    if All_Cuts.count(False) == 0 and n_bjet in [2, 3] and HT > 1200.:
         #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
         binned_msq.append(args.Msq)
         binned_mlsp.append(args.Mlsp)
@@ -387,6 +463,19 @@ for evtweighti, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, 
         binned_MHT_bin.append(MHT_bins[np.digitize([mht_temp], MHT_bins)[0] - 1])
         binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
         binned_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
+        binned_yield.append(weight)
+        eventpass += 1.
+    elif All_Cuts.count(False) == 0 and n_bjet >3 and ((HT > 400. and temp_alpha_T > alphaT_Thresholds(HT)) or HT > 1200.):
+        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+        binned_msq.append(args.Msq)
+        binned_mlsp.append(args.Mlsp)
+        if args.verbose:
+            print(HT)
+            print(HT_bins)
+        binned_HT_bin.append(400.)
+        binned_MHT_bin.append(200.)
+        binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
+        binned_N_bjet_bin.append(4)
         binned_yield.append(weight)
         eventpass += 1.
 
@@ -443,20 +532,6 @@ if not args.NoOutput:
     df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
     df_CR.to_csv(os.path.join(directory, 'ROOTCuts_CR.txt'), sep='\t', index=False)
 
-print(len(msq))
-print(len(mlsp))
-print(len(crosssec))
-print(len(met))
-print(len(mht))
-print(len(ht))
-print(len(higgs_pt))
-print(len(higgs1_pt))
-print(len(higgs2_pt))
-print(len(del_R))
-print(len(biased_d_phi))
-print(len(N_jet))
-print(len(N_bjet))
-
 #columns = ['M_sq', 'M_lsp', 'crosssec', 'MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi']
 df = pd.DataFrame({
     'M_sq': msq,
@@ -467,7 +542,9 @@ df = pd.DataFrame({
     'HT': ht,
     'Higgs_PT': higgs_pt,
     'bJetsDelR': del_R,
+    'Mbb': Mbb,
     'bDPhi': biased_d_phi,
+    'alphaT': alphaT,
     'NJet': N_jet,
     'NBJet': N_bjet,
     })
@@ -476,14 +553,15 @@ print(df)
 if not args.NoOutput:
     df.to_csv(os.path.join(directory, 'ROOTCuts.txt'), sep='\t', index=False)
 
-plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi', 'NJet', 'NBJet']
-bins_HT = np.linspace(0.,8000.,160)
+plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
+bins_HT = np.linspace(0.,5000.,160)
 bins_MHT = np.linspace(0.,2000.,200)
 bins_DelR = np.linspace(0.,5.,100)
 bins_BMass = np.linspace(0.,500.,100)
 bins_njet = np.arange(0, 20, 1)
 bins_nbjet = np.arange(0, 14, 1)
 bins_BDP = np.linspace(0.,3.,60)
+bins_alphaT = np.linspace(0.,2.5,50)
 
 
 dict = {'MET': {'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
@@ -491,7 +569,9 @@ dict = {'MET': {'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
         'bJetsDelR': {'bins': bins_DelR, 'title': 'b-Jets $\Delta R$'},
         'Higgs_PT': {'bins': bins_MHT, 'title': 'Higgs $p_{T}$'},
+        'Mbb': {'bins': bins_BMass, 'title': '$M_{\text{inv., }bb}$'},
         'bDPhi': {'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
+        'alphaT': {'bins': bins_alphaT, 'title': '$\alpha_{\text{T}}$'},
         'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'bins': bins_nbjet, 'title': 'Number of Bottom Quark Jets'},
         }
