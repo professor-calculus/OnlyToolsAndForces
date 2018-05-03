@@ -438,7 +438,7 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
     Mbb.append(temp_Mbb)
 
     # alpha_T
-    temp_alpha_T = makeAlphaT(goodjets_phi, goodjets_pt, goodjets_eta, goodjets_mass, mht, HT)
+    temp_alpha_T = makeAlphaT(goodjets_phi, goodjets_pt, goodjets_eta, goodjets_mass, mht_temp, HT)
     alphaT.append(temp_alpha_T)
 
     # Missing-ET
