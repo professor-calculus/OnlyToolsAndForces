@@ -139,6 +139,13 @@ for mhtBin in [200, 400, 600, 900]:
                 CR_N_jet_bin.append(nJetBin)
                 CR_N_bjet_bin.append(nBJetBin)
                 CR_yield.append(0.)
+CR_msq.append(args.Msq)
+CR_mlsp.append(args.Mlsp)
+CR_HT_bin.append(400)
+CR_MHT_bin.append(200)
+CR_N_jet_bin.append(6)
+CR_N_bjet_bin.append(4)
+CR_yield.append(0.)
 
 eventpass = 0.
 
@@ -387,6 +394,7 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
     N_jet.append(n_jet)
     N_bjet.append(n_bjet)
 
+    N_veto.append(nVeto)
 
     if mht_temp > 200.:
         MHT200 = True
@@ -396,7 +404,6 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
         NJet6 = True
     if nVeto == 0:
         NoVetoObjects = True
-    N_veto.append(nVeto)
 
     # Biased Delta-Phi and Lead Jet CHF
     if n_jet > 1:
@@ -532,7 +539,6 @@ if not args.NoOutput:
     df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
     df_CR.to_csv(os.path.join(directory, 'ROOTCuts_CR.txt'), sep='\t', index=False)
 
-print(N_veto)
 
 #columns = ['M_sq', 'M_lsp', 'crosssec', 'MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi']
 df = pd.DataFrame({
