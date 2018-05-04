@@ -11,6 +11,7 @@ matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
+matplotlib.rcParams['text.usetex'] = True
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
@@ -121,6 +122,13 @@ for mhtBin in [200, 400, 600, 900]:
                 binned_N_jet_bin.append(nJetBin)
                 binned_N_bjet_bin.append(nBJetBin)
                 binned_yield.append(0.)
+binned_msq.append(args.Msq)
+binned_mlsp.append(args.Mlsp)
+binned_HT_bin.append(400)
+binned_MHT_bin.append(200)
+binned_N_jet_bin.append(6)
+binned_N_bjet_bin.append(4)
+binned_yield.append(0.)
 
 CR_msq = []
 CR_mlsp = []
@@ -498,6 +506,17 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
         CR_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
         CR_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
         CR_yield.append(weight)
+    elif (LeadJetPT100 and NJet6 and (HT > 400.) and MHT200 and LeadJetCHF and (n_bjet > 3)) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
+        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+        if BDP_temp < 0.5 and args.verbose:
+            print('BDP')
+        CR_msq.append(args.Msq)
+        CR_mlsp.append(args.Mlsp)
+        CR_HT_bin.append(400)
+        CR_MHT_bin.append(200)
+        CR_N_jet_bin.append(6)
+        CR_N_bjet_bin.append(4)
+        CR_yield.append(weight)
 
     if args.verbose:
         print('{0} events passed so far...'.format(eventpass))
@@ -580,9 +599,9 @@ dict = {'MET': {'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
         'bJetsDelR': {'bins': bins_DelR, 'title': 'b-Jets $\Delta R$'},
         'Higgs_PT': {'bins': bins_MHT, 'title': 'Higgs $p_{T}$'},
-        'Mbb': {'bins': bins_BMass, 'title': '$M_{\text{inv., }bb}$'},
+        'Mbb': {'bins': bins_BMass, 'title': '$M_{\\text{inv., }bb}$'},
         'bDPhi': {'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
-        'alphaT': {'bins': bins_alphaT, 'title': '$\alpha_{\text{T}}$'},
+        'alphaT': {'bins': bins_alphaT, 'title': '$\\alpha_{\\text{T}}$'},
         'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'bins': bins_nbjet, 'title': 'Number of Bottom Quark Jets'},
         }
