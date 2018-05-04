@@ -97,6 +97,8 @@ higgs1_pt = []
 higgs2_pt = []
 cut_mht = []
 N_veto = []
+alphaT = []
+Mbb = []
 
 Yield = []
 
@@ -237,8 +239,6 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
     DeltaR = []
     HiggsPT = []
     BDP = []
-    alphaT = []
-    Mbb = []
 
     goodjets_eta = []
     goodjets_phi = []
