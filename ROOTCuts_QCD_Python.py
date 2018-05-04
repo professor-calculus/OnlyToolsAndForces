@@ -11,6 +11,7 @@ matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
+matplotlib.rcParams['text.usetex'] = True
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
@@ -97,6 +98,8 @@ higgs1_pt = []
 higgs2_pt = []
 cut_mht = []
 N_veto = []
+alphaT = []
+Mbb = []
 
 Yield = []
 
@@ -119,6 +122,13 @@ for mhtBin in [200, 400, 600, 900]:
                 binned_N_jet_bin.append(nJetBin)
                 binned_N_bjet_bin.append(nBJetBin)
                 binned_yield.append(0.)
+binned_msq.append(args.Msq)
+binned_mlsp.append(args.Mlsp)
+binned_HT_bin.append(400)
+binned_MHT_bin.append(200)
+binned_N_jet_bin.append(6)
+binned_N_bjet_bin.append(4)
+binned_yield.append(0.)
 
 CR_msq = []
 CR_mlsp = []
@@ -139,6 +149,13 @@ for mhtBin in [200, 400, 600, 900]:
                 CR_N_jet_bin.append(nJetBin)
                 CR_N_bjet_bin.append(nBJetBin)
                 CR_yield.append(0.)
+CR_msq.append(args.Msq)
+CR_mlsp.append(args.Mlsp)
+CR_HT_bin.append(400)
+CR_MHT_bin.append(200)
+CR_N_jet_bin.append(6)
+CR_N_bjet_bin.append(4)
+CR_yield.append(0.)
 
 eventpass = 0.
 
@@ -230,8 +247,6 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
     DeltaR = []
     HiggsPT = []
     BDP = []
-    alphaT = []
-    Mbb = []
 
     goodjets_eta = []
     goodjets_phi = []
@@ -387,6 +402,7 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
     N_jet.append(n_jet)
     N_bjet.append(n_bjet)
 
+    N_veto.append(nVeto)
 
     if mht_temp > 200.:
         MHT200 = True
@@ -396,7 +412,6 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
         NJet6 = True
     if nVeto == 0:
         NoVetoObjects = True
-    N_veto.append(nVeto)
 
     # Biased Delta-Phi and Lead Jet CHF
     if n_jet > 1:
@@ -443,8 +458,8 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
 
     # Missing-ET
     for METj in METi:
-        met.append(METj)
         met_temp = METj
+    met.append(met_temp)
     if met_temp != 0:
         if mht_temp/met_temp < 1.25:
             MhtOverMet1p25 = True
@@ -491,6 +506,17 @@ for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_
         CR_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
         CR_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
         CR_yield.append(weight)
+    elif (LeadJetPT100 and NJet6 and (HT > 400.) and MHT200 and LeadJetCHF and (n_bjet > 3)) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
+        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+        if BDP_temp < 0.5 and args.verbose:
+            print('BDP')
+        CR_msq.append(args.Msq)
+        CR_mlsp.append(args.Mlsp)
+        CR_HT_bin.append(400)
+        CR_MHT_bin.append(200)
+        CR_N_jet_bin.append(6)
+        CR_N_bjet_bin.append(4)
+        CR_yield.append(weight)
 
     if args.verbose:
         print('{0} events passed so far...'.format(eventpass))
@@ -532,6 +558,7 @@ if not args.NoOutput:
     df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
     df_CR.to_csv(os.path.join(directory, 'ROOTCuts_CR.txt'), sep='\t', index=False)
 
+
 #columns = ['M_sq', 'M_lsp', 'crosssec', 'MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi']
 df = pd.DataFrame({
     'M_sq': msq,
@@ -553,7 +580,7 @@ print(df)
 if not args.NoOutput:
     df.to_csv(os.path.join(directory, 'ROOTCuts.txt'), sep='\t', index=False)
 
-plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
+plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
 bins_HT = np.linspace(0.,5000.,160)
 bins_MHT = np.linspace(0.,2000.,200)
 bins_DelR = np.linspace(0.,5.,100)
@@ -569,9 +596,9 @@ dict = {'MET': {'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
         'bJetsDelR': {'bins': bins_DelR, 'title': 'b-Jets $\Delta R$'},
         'Higgs_PT': {'bins': bins_MHT, 'title': 'Higgs $p_{T}$'},
-        'Mbb': {'bins': bins_BMass, 'title': '$M_{\text{inv., }bb}$'},
+        'Mbb': {'bins': bins_BMass, 'title': '$M_{\\text{inv., }bb}$'},
         'bDPhi': {'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
-        'alphaT': {'bins': bins_alphaT, 'title': '$\alpha_{\text{T}}$'},
+        'alphaT': {'bins': bins_alphaT, 'title': '$\\alpha_{\\text{T}}$'},
         'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'bins': bins_nbjet, 'title': 'Number of Bottom Quark Jets'},
         }
