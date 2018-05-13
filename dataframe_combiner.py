@@ -2,55 +2,51 @@
 import pandas as pd
 import numpy as np
 import argparse as a
-import pydoop.hdfs as hd
+from snakebite.client import AutoConfigClient
+from pandas.compat import StringIO
 
 parser = a.ArgumentParser(description='Dataframe txt adder')
 parser.add_argument('-f', '--files', required=True, help='Path to dataframe file(s)')
 args=parser.parse_args()
 
 df_list = []
-file_list = []
 
-for path in hd.ls(args.files):
-    newpath = '{0}/ROOTCuts_output/ROOTCuts_binned.txt'.format(path)
-    print(newpath)
-    file_list.append(newpath)
+fs = AutoConfigClient()
 
-for f in file_list:
-    with hd.open(f) as file:
-        binned_msq = []
-        binned_mlsp = []
-        binned_HT_bin = []
-        binned_MHT_bin = []
-        binned_N_jet_bin = []
-        binned_N_bjet_bin = []
-        binned_yield = []
-        df_temp = pd.read_csv(file, delimiter=r'\s+')
-        for mhtBin in [200, 400, 600, 900]:
-            for htBin in [1200]:
-                for nJetBin in [6]:
-                    for nBJetBin in [2,3]:
-                        binned_msq.append(df_temp['M_sq'][0])
-                        binned_mlsp.append(df_temp['M_lsp'][0])
-                        binned_HT_bin.append(htBin)
-                        binned_MHT_bin.append(mhtBin)
-                        binned_N_jet_bin.append(nJetBin)
-                        binned_N_bjet_bin.append(nBJetBin)
-                        binned_yield.append(0.)
-        df_binned = pd.DataFrame({
-        'M_sq': binned_msq,
-        'M_lsp': binned_mlsp,
-        'HT_bin': binned_HT_bin,
-        'MHT_bin': binned_MHT_bin,
-        'n_Jet_bin': binned_N_jet_bin,
-        'n_bJet_bin': binned_N_bjet_bin,
-        'Yield': binned_yield,
-        })
-        df_new = df_binned.append(df_temp)
-        df_new = df_new.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin']).sum()
-        df_new.reset_index(inplace=True)
-        #print(df_new)    
-        df_list.append(df_new)
+for f in fs.text([args.files+'/ROOTCuts_output/ROOTCuts_binned.txt']):
+    binned_msq = []
+    binned_mlsp = []
+    binned_HT_bin = []
+    binned_MHT_bin = []
+    binned_N_jet_bin = []
+    binned_N_bjet_bin = []
+    binned_yield = []
+    df_temp = pd.read_csv(StringIO(f), delimiter=r'\s+')
+    for mhtBin in [200, 400, 600, 900]:
+        for htBin in [1200]:
+            for nJetBin in [6]:
+                for nBJetBin in [2,3]:
+                    binned_msq.append(df_temp['M_sq'][0])
+                    binned_mlsp.append(df_temp['M_lsp'][0])
+                    binned_HT_bin.append(htBin)
+                    binned_MHT_bin.append(mhtBin)
+                    binned_N_jet_bin.append(nJetBin)
+                    binned_N_bjet_bin.append(nBJetBin)
+                    binned_yield.append(0.)
+    df_binned = pd.DataFrame({
+    'M_sq': binned_msq,
+    'M_lsp': binned_mlsp,
+    'HT_bin': binned_HT_bin,
+    'MHT_bin': binned_MHT_bin,
+    'n_Jet_bin': binned_N_jet_bin,
+    'n_bJet_bin': binned_N_bjet_bin,
+    'Yield': binned_yield,
+    })
+    df_new = df_binned.append(df_temp)
+    df_new = df_new.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin']).sum()
+    df_new.reset_index(inplace=True)
+    #print(df_new)    
+    df_list.append(df_new)
 
 df_big = pd.concat(df_list)
 df_big['M_sq'] = df_big['M_sq'].astype(int)
