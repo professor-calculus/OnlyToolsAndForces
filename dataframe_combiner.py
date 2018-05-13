@@ -13,7 +13,7 @@ df_list = []
 
 fs = AutoConfigClient()
 
-for f in fs.text([args.files+'/ROOTCuts_output/ROOTCuts_binned.txt']):
+for f in fs.text([args.files+'/*/ROOTCuts_output/ROOTCuts_binned.txt']):
     binned_msq = []
     binned_mlsp = []
     binned_HT_bin = []
