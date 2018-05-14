@@ -37,6 +37,13 @@ for f in file_list:
                         binned_N_jet_bin.append(nJetBin)
                         binned_N_bjet_bin.append(nBJetBin)
                         binned_yield.append(0.)
+        binned_msq.append(df_temp['M_sq'][0])
+        binned_mlsp.append(df_temp['M_lsp'][0])
+        binned_HT_bin.append(400)
+        binned_MHT_bin.append(200)
+        binned_N_jet_bin.append(6)
+        binned_N_bjet_bin.append(4)
+        binned_yield.append(0.)
         df_binned = pd.DataFrame({
         'M_sq': binned_msq,
         'M_lsp': binned_mlsp,
@@ -66,7 +73,12 @@ for mht in [200, 400, 600, 900]:
         name = '{0}b_MHT{1}.txt'.format(n_b, mht)
         df.to_csv(name, sep='\t', index=False, header=False)
 
-for n_b in [2,3]:
+df = df_big.loc[((df_big['MHT_bin'] == 200) & (df_big['n_bJet_bin'] == 4))]
+df = df.drop(['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin'], axis=1)
+name = '4b_MHT200.txt'
+df.to_csv(name, sep='\t', index=False, header=False)
+
+for n_b in [2,3,4]:
     df = df_big.loc[(df_big['n_bJet_bin'] == n_b)]
     df = df.groupby(by=['M_sq', 'M_lsp']).sum()
     df.reset_index(inplace=True)
