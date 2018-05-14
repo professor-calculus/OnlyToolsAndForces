@@ -116,7 +116,7 @@ dict_upper = {'MET': 2500.,
               'Mbb': 160.,
              }
 
-labels = [P1, P2, P3, P4, P5, P6, P7, P8]
+labels = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8']
 
 dict = {'MET': {'branch': 'MET', 'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
@@ -134,6 +134,7 @@ signal_only_vars = ['DelR', 'BMass', '2BMass']
 
 n_signal = len(args.signal)
 
+linewidth=3.
 for var in variables:
     plt.figure()
     f, ax = plt.subplots()

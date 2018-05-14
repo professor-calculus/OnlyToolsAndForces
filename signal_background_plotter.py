@@ -52,7 +52,6 @@ print '\nPython Signal vs Background Plotter\n'
 print(args.signal)
 
 df_sig_list = []
-df_bkg_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
     df_sig_list.append(df)
@@ -101,25 +100,17 @@ if args.TTJets:
     df_TTJets = pd.read_csv(args.TTJets, delimiter=r'\s+')
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
+    if args.verbose:
+        print('TTJets:')
+        print(df_TTJets)
 
-bins_HT = np.linspace(0.,8000.,80)
-bins_MHT = np.linspace(0.,2000.,50)
+bins_HT = np.linspace(0.,5000.,50)
+bins_MHT = np.linspace(0.,2500.,25)
 bins_DelR = np.linspace(0.,5.,50)
-bins_BMass = np.linspace(0.,500.,50)
+bins_BMass = np.linspace(50.,200.,50)
 bins_njet = np.arange(0, 20, 1)
 bins_nbjet = np.arange(0, 14, 1)
-bins_BDP = np.linspace(0., 3., 60)
-
-dict_upper = {'MET': 2500.,
-              'MHT': 2500.,
-              'HiggsPT': 2000.,
-              'HT': 5000.,
-              'DelR': 5.,
-              'NJet': 20.,
-              'NBJet': 14.,
-              'BDP': 3.,
-              'Mbb': 160.,
-             }
+bins_BDP = np.linspace(0., 3., 30)
 
 dict = {'MET': {'branch': 'MET', 'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
@@ -129,39 +120,48 @@ dict = {'MET': {'branch': 'MET', 'bins': bins_MHT, 'title': 'Missing $E_{T}$ / G
         'NJet': {'branch': 'NJet', 'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of Bottom Quark Jets'},
         'BDP': {'branch': 'bDPhi', 'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
-        'Mbb': {'branch': 'Mbb', 'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
         }
+
+dict_upper = {'MET': 2000.,
+              'MHT': 2000.,
+       	      'HiggsPT': 2000.,
+       	      'HT': 5000.,
+       	      'DelR': 5.,
+       	      'NJet': 20.,
+       	      'NBJet': 14.,
+       	      'BDP': 3.,
+             }
 
 variables = ['MET', 'MHT', 'HT', 'DelR', 'NJet', 'NBJet', 'BDP']
 signal_only_vars = ['DelR', 'BMass', '2BMass']
 
 n_signal = len(args.signal)
+linewidth = 3.
 
 for var in variables:
     plt.figure()
     f, ax = plt.subplots()
     if var not in ['NJet', 'NBJet']:
         ax.set(yscale="log")
+
     if (args.QCD and not args.TTJets) and var not in signal_only_vars:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_QCD[dict[var]['branch']], ax=ax, label='QCD background', shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.3, density=True, label='QCD background', log=True, histtype="stepfilled")
-            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth)
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, zorder=0)
     if (args.TTJets and not args.QCD) and var not in signal_only_vars:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_TTJets[dict[var]['branch']], ax=ax, label='$t \overline{t}$ + $jets$ background', shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.3, density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled")
-            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth)
-    '''
+            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, zorder=5)
     if (args.QCD and args.TTJets) and var not in signal_only_vars:
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_QCD[dict[var]['branch']], ax=ax, label='QCD background', shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.3, density=True, label='QCD + $t \overline{t}$ background', log=True, histtype="stepfilled")
-            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD + $t \overline{t}$ background', log=True, histtype="step", linewidth=linewidth, hatch="\\\\")
-    '''
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD + $t \overline{t}$ background', log=True, histtype="step", linewidth=linewidth, hatch="\\\\", zorder=5)
 
     if args.MSSM and var not in signal_only_vars:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
@@ -169,21 +169,23 @@ for var in variables:
             sns.kdeplot(df_MSSM[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="///")
+            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="//", zorder=10)
 
 
+    temp_i = 0
     for index, row in df_sig_masses.iterrows():
+        temp_i += 5
         label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
         df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
         if args.kdeplot and var not in ['NJet', 'NBJet']:
             sns.kdeplot(df_temp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="++++")
-
+            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="+++", zorder=35-temp_i)
 
     plt.xlabel(dict[var]['title'])
-    plt.legend(loc='best', fontsize='small')
+    handles, labels = ax.get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], loc='best', fontsize='medium')
     if var not in ['NJet', 'NBJet']:
         plt.ylim(0.0001, None)
         plt.xlim(0., None)
