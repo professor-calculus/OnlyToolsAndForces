@@ -55,6 +55,8 @@ df_sig_list = []
 df_bkg_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
+    if args.HT_cut:
+        df = df.loc[(df['HT'] > args.HT_cut)]
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 
@@ -65,7 +67,7 @@ if args.verbose:
 print '\nSuccessfully read dataframe\n'
 
 #Make the output directories
-directory = 'Signal_vs_Background'
+directory = 'Signal_Compare'
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
@@ -74,13 +76,6 @@ while os.path.exists(temp_dir):
 if not args.NoOutput:
     print('Files will be written to: {0}'.format(temp_dir))
     os.makedirs(temp_dir)
-
-df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates()
-df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
-print(df_sig_masses.head())
-
-if args.HT_cut:
-    df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
 
 if args.MSSM:
     df_MSSM = pd.read_csv(args.MSSM, delimiter=r'\s+')
@@ -120,6 +115,8 @@ dict_upper = {'MET': 2500.,
               'BDP': 3.,
               'Mbb': 160.,
              }
+
+labels = [P1, P2, P3, P4, P5, P6, P7, P8]
 
 dict = {'MET': {'branch': 'MET', 'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
         'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
@@ -171,15 +168,15 @@ for var in variables:
             #plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
             plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="///")
 
-
-    for index, row in df_sig_masses.iterrows():
-        label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
-        df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+    j=0
+    for df_tmp in df_sig_list:
+        label=labels[j]
+        j+=1
         if args.kdeplot and var not in ['NJet', 'NBJet']:
-            sns.kdeplot(df_temp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
+            sns.kdeplot(df_tmp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="++++")
+            plt.hist(df_tmp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="++++")
 
 
     plt.xlabel(dict[var]['title'])
