@@ -23,6 +23,7 @@ from text_histogram import histogram
 
 parser = a.ArgumentParser(description='ROOTCuts in Python')
 parser.add_argument('-d', '--delphes', nargs='*', required=True, help='Path to Delphes .root file(s)')
+parser.add_argument('-b', '--BKG', action='store_true', help='Flag to indicate sample is BKG and not Signal')
 parser.add_argument('-l', '--Lumi', type=float, default=1., help='Luminosity in pb')
 parser.add_argument('--Msq', type=float, default=1000., help='Squark mass in GeV/c')
 parser.add_argument('--Mlsp', type=float, default=10., help='LSP mass in GeV/c')
@@ -35,6 +36,10 @@ parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument
 parser.add_argument('--OutDir', default='ROOTCuts_output', help='Where to write the output')
 parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode, shows lepton vetoes, no of events which pass cuts etc.')
 args=parser.parse_args()
+
+#If not running on signal:
+if args.BKG:
+    print('Notice: Running over Background events (e.g. QCD, TTJets etc), not Signal!')
 
 #First we open the Delphes root file.
 tree = uproot.open(args.delphes[0])["Delphes"]
@@ -559,31 +564,50 @@ if not args.NoOutput:
     df_CR.to_csv(os.path.join(directory, 'ROOTCuts_CR.txt'), sep='\t', index=False)
 
 
-#columns = ['M_sq', 'M_lsp', 'crosssec', 'MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi']
-df = pd.DataFrame({
-    'M_sq': msq,
-    'M_lsp': mlsp,
-    'crosssec': crosssec,
-    'MET': met,
-    'MHT': mht,
-    'HT': ht,
-    'Higgs_PT': higgs_pt,
-    'Higgs1_PT': higgs1_pt,
-    'Higgs2_PT': higgs2_pt,
-    'bJetsDelR': del_R,
-    'Mbb': Mbb,
-    'bDPhi': biased_d_phi,
-    'alphaT': alphaT,
-    'NJet': N_jet,
-    'NBJet': N_bjet,
-    'NVeto': N_veto,
-    })
+if not args.BKG:
+    df = pd.DataFrame({
+        'M_sq': msq,
+        'M_lsp': mlsp,
+        'crosssec': crosssec,
+        'MET': met,
+        'MHT': mht,
+        'HT': ht,
+        'Higgs_PT': higgs_pt,
+        'Higgs1_PT': higgs1_pt,
+        'Higgs2_PT': higgs2_pt,
+        'bJetsDelR': del_R,
+        'Mbb': Mbb,
+        'bDPhi': biased_d_phi,
+        'alphaT': alphaT,
+        'NJet': N_jet,
+        'NBJet': N_bjet,
+        'NVeto': N_veto,
+        })
+else:
+    df = pd.DataFrame({
+        'M_sq': msq,
+        'M_lsp': mlsp,
+        'crosssec': crosssec,
+        'MET': met,
+        'MHT': mht,
+        'HT': ht,
+        'Mbb': Mbb,
+        'bDPhi': biased_d_phi,
+        'alphaT': alphaT,
+        'NJet': N_jet,
+        'NBJet': N_bjet,
+        'NVeto': N_veto,
+        })
 
 print(df)
 if not args.NoOutput:
     df.to_csv(os.path.join(directory, 'ROOTCuts.txt'), sep='\t', index=False)
 
-plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
+if not args.BKG:
+    plottables = ['MET', 'MHT', 'HT', 'Higgs_PT', 'bJetsDelR', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
+else:
+    plottables = ['MET', 'MHT', 'HT', 'bDPhi', 'alphaT', 'Mbb', 'NJet', 'NBJet']
+
 bins_HT = np.linspace(0.,5000.,160)
 bins_MHT = np.linspace(0.,2000.,200)
 bins_DelR = np.linspace(0.,5.,100)

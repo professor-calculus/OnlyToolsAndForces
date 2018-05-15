@@ -97,8 +97,8 @@ if args.TTJets:
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
 
-bins_HT = np.linspace(0.,8000.,80)
-bins_MHT = np.linspace(0.,2000.,50)
+bins_HT = np.linspace(0.,5000.,80)
+bins_MHT = np.linspace(0.,800.,50)
 bins_DelR = np.linspace(0.,5.,50)
 bins_BMass = np.linspace(0.,500.,50)
 bins_njet = np.arange(0, 20, 1)
@@ -177,7 +177,7 @@ for var in variables:
             sns.kdeplot(df_tmp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
         else:
             #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_tmp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth, hatch="++++")
+            plt.hist(df_tmp[dict[var]['branch']], bins=dict[var]['bins'], density=True, label=label, log=True, histtype="step", linewidth=linewidth)
 
 
     plt.xlabel(dict[var]['title'])
