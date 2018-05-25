@@ -46,9 +46,9 @@ events = uproot.open(args.files[0])["eventCountTree"]
 #tree.recover()
 
 nentries = 0.
-nEvents = events.arrays(["nEvtsRunOver"])
+nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
 for nevts in nEvents:
-    nentries += nevts
+    nentries += nevts[0]
 
 #Let's create a dataframe to store the output in...
 columns = ['Type', 'M_sq', 'M_lsp', 'crosssec', 'evtWeight', 'HT', 'MHT', 'NJet', 'NSlimBJet', 'NDoubleBTag', 'FatBJetMass_A', 'FatBJetMass_B']
@@ -68,11 +68,11 @@ print('Cross-section = {}pb'.format(xsec))
 
 
 #Make the output directories
-directory = args.OutDir
+directory = args.OutDir + '_{0}'.format(args.type)
 suffix = 1
 while os.path.exists(directory):
     suffix += 1
-    directory = args.OutDir + '_{0}'.format(suffix)
+    directory = args.OutDir + '_{0}_{1}'.format(args.type, suffix)
 print('Files will be written to: {0}'.format(directory))
 os.makedirs(directory)
 
@@ -212,7 +212,7 @@ print('{0} of {1}, or {2} percent of events passed cuts'.format(int(eventpass), 
 
 print('\n Signal Region:')
 df_binned = pd.DataFrame({
-    'Type': binned_type
+    'Type': binned_type,
     'M_sq': binned_msq,
     'M_lsp': binned_mlsp,
     'HT_bin': binned_HT_bin,
@@ -232,7 +232,7 @@ if not args.NoOutput:
 
 
 df = pd.DataFrame({
-    'Type': sample_type
+    'Type': sample_type,
     'M_sq': msq,
     'M_lsp': mlsp,
     'crosssec': crosssec,
