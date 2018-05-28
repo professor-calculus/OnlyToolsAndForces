@@ -19,6 +19,7 @@ import argparse as a
 import warnings
 from tqdm import tqdm
 from text_histogram import histogram
+import itertools
 
 
 parser = a.ArgumentParser(description='ROOTCuts for Experimental Analysis')
@@ -137,7 +138,7 @@ DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
 
 for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i \
-                                                 in tqdm(zip(combined_weight, HT, MHT, NJet, NSlimBJet), total=int(nentries), desc='Go Go Go!'):
+                                                 in tqdm(itertools.izip(combined_weight, HT, MHT, NJet, NSlimBJet), total=int(nentries), desc='Go Go Go!'):
     n_doublebjet = 0
     NJet6 = False
     HT1500 = False
