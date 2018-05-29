@@ -42,7 +42,11 @@ args=parser.parse_args()
 print('Running on {0} MC sample'.format(args.type))
 
 #First we open the Delphes root file.
+<<<<<<< HEAD
 tree = uproot.open(args.files[0])["doubleBFatJetPairTree"]["weight_combined", "ht", "mht", "nrSlimJets", "nrSlimBJets", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi"]
+=======
+#tree = uproot.open(args.files[0])["doubleBFatJetPairTree"]
+>>>>>>> iterate
 events = uproot.open(args.files[0])["eventCountTree"]
 #tree.recover()
 
@@ -99,6 +103,7 @@ met = []
 ht = []
 N_doubleBJet = []
 N_jet = []
+N_bjet = []
 eventWeight = []
 
 fatDoubleBJet_A_mass = []
@@ -129,13 +134,84 @@ for mhtBin in [200, 400, 600, 900]:
                 binned_N_jet_bin.append(nJetBin)
                 binned_N_doublebjet_bin.append(nDoubleBJetBin)
                 binned_yield.append(0.)
-binned_msq.append(args.Msq)
-binned_mlsp.append(args.Mlsp)
 
 eventpass = 0.
 
 DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
+<<<<<<< HEAD
+=======
+for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass \
+                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "nrSlimJets", "nrSlimBJets", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi"], entrysteps=10000, outputtype=tuple)):
+    for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i \
+                                                    in tqdm(zip(combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass), total=10000, desc='Go Go Go!'):
+        n_doublebjet = 0
+        NJet6 = False
+        HT1500 = False
+        MHT200 = False
+        DoubleBJet_pass = False
+
+        weight = eventweight
+        if args.verbose:
+            print(weight)
+
+        #The easy, pre-calculated variables:
+        sample_type.append(args.type)
+        msq.append(args.Msq)
+        mlsp.append(args.Mlsp)
+        crosssec.append(xsec)
+        eventWeight.append(eventweight)
+        mht.append(MHT_i)
+        ht.append(HT_i)
+        N_jet.append(NJet_i)
+        N_bjet.append(NSlimBJet_i)
+        fatDoubleBJet_A_discrim.append(fatJetA_bTagDiscrim_i)
+        fatDoubleBJet_B_discrim.append(fatJetB_bTagDiscrim_i)
+
+        # Number of double b-tagged jets
+        if fatJetA_bTagDiscrim_i > DoubleBDiscrim:
+            fatDoubleBJet_A_mass.append(fatJetA_mass_i)
+            if (85. < fatJetA_mass_i < 145.):
+                n_doublebjet += 1
+        else:
+            fatDoubleBJet_A_mass.append(-1.)
+        if fatJetB_bTagDiscrim_i > DoubleBDiscrim:
+            fatDoubleBJet_B_mass.append(fatJetB_mass_i)
+            if (85. < fatJetB_mass_i < 145.):
+                n_doublebjet += 1
+        else:
+            fatDoubleBJet_B_mass.append(-1.)
+        
+        N_doubleBJet.append(n_doublebjet)
+
+        if MHT_i > 200.:
+            MHT200 = True
+        if HT_i > 1500.:
+            HT1500 = True
+        if NJet_i > 5:
+            NJet6 = True
+
+        if n_doublebjet > 0 or NSlimBJet_i > 1:
+            DoubleBJet_pass = True
+
+        All_Cuts = [NJet6, HT1500, MHT200, DoubleBJet_pass]
+        if args.verbose:
+            print(All_Cuts)
+        if All_Cuts.count(False) == 0:
+            #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+            binned_msq.append(args.Msq)
+            binned_mlsp.append(args.Mlsp)
+            binned_type.append(args.type)
+            if args.verbose:
+                print(HT)
+                print(HT_bins)
+            binned_HT_bin.append(HT_bins[np.digitize([HT_i], HT_bins)[0] - 1])
+            binned_MHT_bin.append(MHT_bins[np.digitize([MHT_i], MHT_bins)[0] - 1])
+            binned_N_jet_bin.append(n_Jet_bins[np.digitize([NJet_i], n_Jet_bins)[0] - 1])
+            binned_N_doublebjet_bin.append(n_doubleBJet_bins[np.digitize([n_doublebjet], n_doubleBJet_bins)[0] - 1])
+            binned_yield.append(weight)
+            eventpass += 1.
+>>>>>>> iterate
 
 for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i \
                                                  in tqdm(itertools.izip(combined_weight, HT, MHT, NJet, NSlimBJet), total=int(nentries), desc='Go Go Go!'):
