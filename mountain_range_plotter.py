@@ -31,18 +31,18 @@ if args.verbose:
 else:
     warnings.filterwarnings("ignore")
 
-if args.kdeplot_fill:
-    args.kdeplot = True
-
 if args.style:
     plt.style.use(args.style)
 
 print '\nPython Mountain Range Plotter\n'
 print(args.signal)
 
+x = range(36)
+
 df_sig_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
+    df['Bin'] = x
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 
@@ -71,39 +71,49 @@ if args.QCD:
     df_list = []
     for file in args.QCD:
         df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
         df_list.append(df)
     df_QCD = pd.concat(df_list)
 if args.TTJets:
     df_list = []
     for file in args.TTJets:
         df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
         df_list.append(df)
     df_TTJets = pd.concat(df_list)
 
 n_signal = len(args.signal)
-linewidth = 3.
+linewidth = 4.
 
-for var in variables:
-    plt.figure()
-    temp_i = 0
-    for index, row in df_sig_masses.iterrows():
-        temp_i += 5
-        label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
-        df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
-        plt.hist(df_temp['Bin'], label=label, weights=df['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+if args.verbose:
+    print(df_QCD)
+    print(df_TTJets)
 
-    if (args.QCD):
-        plt.hist(df_QCD['Bin'], weights=df_QCD['Yield'], label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="//", zorder=0)
-    if (args.TTJets):
-        plt.hist(df_TTJets['Bin'], weights=df_TTJets['Yield'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="\\\\", zorder=5)
+plt.figure()
+temp_i = 0
+for index, row in df_sig_masses.iterrows():
+    temp_i += 5
+    label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
+    df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+    df_temp = df_temp.replace(0., 1e-5) 
+    plt.hist(df_temp['Bin'], bins=range(37), label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
+if (args.QCD):
+    df_QCD = df_QCD.replace(0., 1e-5) 
+    plt.hist(df_QCD['Bin'], bins=x, weights=df_QCD['Yield'], label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="////", zorder=0)
+    #plt.hist(df_QCD['Bin'], bins=range(37), weights=df_QCD['Yield'], label='QCD background', log=True, histtype="stepfilled", zorder=0)
+if (args.TTJets):
+    df_TTJets = df_TTJets.replace(0., 1e-5)
+    plt.hist(df_TTJets['Bin'], bins=x, weights=df_TTJets['Yield'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="\\\\\\\\", zorder=5)
+    #plt.hist(df_TTJets['Bin'], bins=range(37), weights=df_TTJets['Yield'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=5)
 
-
-    plt.xlabel('Bin Number', size=14)
-    leg = plt.legend(loc='upper right', fontsize='medium')
-    leg.set_zorder(100)
-    if not args.NoOutput:
-        plt.savefig(os.path.join(temp_dir, 'MountainRange.pdf'))
-        print('Saved MountainRange.pdf output file')
-    if not args.NoX:
-        plt.show()
+plt.xlabel('Bin Number', size=14)
+plt.xticks(range(37))
+plt.ylim(0.005, None)
+leg = plt.legend(loc='upper right', fontsize='medium')
+leg.set_zorder(100)
+if not args.NoOutput:
+    plt.savefig(os.path.join(temp_dir, 'MountainRange.pdf'))
+    print('Saved MountainRange.pdf output file')
+if not args.NoX:
+    plt.show()

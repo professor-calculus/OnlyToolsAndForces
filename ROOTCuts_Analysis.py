@@ -47,8 +47,8 @@ events = uproot.open(args.files[0])["eventCountTree"]
 
 nentries = 0.
 nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
-for nevts in nEvents:
-    nentries += nevts[0]
+for nevts in nEvents[0]:
+    nentries += nevts
 
 #Let's create a dataframe to store the output in...
 columns = ['Type', 'M_sq', 'M_lsp', 'crosssec', 'evtWeight', 'HT', 'MHT', 'NJet', 'NSlimBJet', 'NDoubleBTag', 'FatBJetMass_A', 'FatBJetMass_B']
