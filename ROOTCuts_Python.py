@@ -83,11 +83,6 @@ n_bJet_bins = np.array([2,3,99])
 M_Z = 91.188
 
 
-evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET,\
-PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi = tree.arrays(["Event.Weight", "Jet.Mass", "Jet.PT", "Jet.Phi", "Jet.Eta", "Jet.BTag", "Jet.NCharged", "Jet.NNeutrals", "MissingET.MET", "Particle.PID",
-                                                                                            "Particle.fUniqueID", "Particle.M1", "Particle.PT", "Particle.Eta", "Particle.Phi", "Electron.Eta", "Electron.PT",
-                                                                                            "Muon.Eta", "Muon.PT", "Muon.Phi", "Photon.Eta", "Photon.PT", "Photon.Phi"], outputtype=tuple)
-
 msq = []
 mlsp = []
 crosssec = []
@@ -229,302 +224,305 @@ def alphaT_Thresholds(HT):
         threshold = 0.
     return threshold;
 
+for evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET,\
+    PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi in tree.iterate(["Event.Weight", "Jet.Mass", "Jet.PT", "Jet.Phi", "Jet.Eta", "Jet.BTag", "Jet.NCharged", "Jet.NNeutrals", "MissingET.MET", "Particle.PID",
+                                                                                            "Particle.fUniqueID", "Particle.M1", "Particle.PT", "Particle.Eta", "Particle.Phi", "Electron.Eta", "Electron.PT",
+                                                                                            "Muon.Eta", "Muon.PT", "Muon.Phi", "Photon.Eta", "Photon.PT", "Photon.Phi"], entrysteps=5000, outputtype=tuple):
+    for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, PIDi, UIDi, M1i, PTi, Etai, Phii, eEtai, ePTi, uEtai, uPTi, uPhii, pEtai, pPTi, pPhii in tqdm(zip(evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET, PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi), total=5000, desc='Go Go Go!'):
+        mht_x = 0.
+        mht_y = 0.
+        HT = 0.
+        n_bjet = 0
+        n_jet = 0
+        nVeto = 0
+        nMuon_CR = 0
+        SingleMuon_CR = 0
+        DoubleMuon_CR = 0
+        LeadJetPT100 = False
+        NoVetoObjects = False
+        NJet6 = False
+        MhtOverMet1p25 = False
+        HT1200 = False
+        MHT200 = False
+        BDPhi0p5 = False
+        LeadJetCHF = False
 
-for evtweighti, jet_massi, jet_pti, jet_phii, jet_etai, jet_btagi, jet_nci, jet_nni, METi, PIDi, UIDi, M1i, PTi, Etai, Phii, eEtai, ePTi, uEtai, uPTi, uPhii, pEtai, pPTi, pPhii in tqdm(zip(evtweight, jet_mass, jet_pt, jet_phi, jet_eta, jet_btag, jet_nc, jet_nn, MET, PID, UID, M1, PT, Eta, Phi, eEta, ePT, uEta, uPT, uPhi, pEta, pPT, pPhi), total=int(nentries), desc='Go Go Go!'):
-    mht_x = 0.
-    mht_y = 0.
-    HT = 0.
-    n_bjet = 0
-    n_jet = 0
-    nVeto = 0
-    nMuon_CR = 0
-    SingleMuon_CR = 0
-    DoubleMuon_CR = 0
-    LeadJetPT100 = False
-    NoVetoObjects = False
-    NJet6 = False
-    MhtOverMet1p25 = False
-    HT1200 = False
-    MHT200 = False
-    BDPhi0p5 = False
-    LeadJetCHF = False
+        DeltaR = []
+        HiggsPT = []
+        BDP = []
 
-    DeltaR = []
-    HiggsPT = []
-    BDP = []
+        goodjets_eta = []
+        goodjets_phi = []
+        goodjets_pt = []
+        goodjets_mass = []
 
-    goodjets_eta = []
-    goodjets_phi = []
-    goodjets_pt = []
-    goodjets_mass = []
+        bjets_eta = []
+        bjets_phi = []
+        bjets_pt = []
 
-    bjets_eta = []
-    bjets_phi = []
-    bjets_pt = []
+        weight = eventweight*evtweighti[0]
+        if args.verbose:
+            print(weight)
 
-    weight = eventweight*evtweighti[0]
-    if args.verbose:
-        print(weight)
+        bPID=[]
+        bUID = []
+        bM1 = []
+        bPT = []
+        bEta = []
+        bPhi = []
 
-    bPID=[]
-    bUID = []
-    bM1 = []
-    bPT = []
-    bEta = []
-    bPhi = []
+        muonPT = []
+        muonEta = []
+        muonPhi = []
 
-    muonPT = []
-    muonEta = []
-    muonPhi = []
+        higgs_UID = []
 
-    higgs_UID = []
+        d = {}
+        d_jet = {}
 
-    d = {}
-    d_jet = {}
+        msq.append(args.Msq)
+        mlsp.append(args.Mlsp)
+        crosssec.append(xsec)
 
-    msq.append(args.Msq)
-    mlsp.append(args.Mlsp)
-    crosssec.append(xsec)
-
-    # Object event vetoes
-    for eEtaj, ePTj in zip(eEtai, ePTi):
-        if abs(eEtaj) < 2.5 and ePTj > 10.:
-            if args.verbose:
-                print('electron PT: {0}, Eta: {1}'.format(ePTj, eEtaj))
-            nVeto += 1
-    for uEtaj, uPTj in zip(uEtai, uPTi):
-        if abs(uEtaj) < 2.5 and uPTj > 10.:
-            if args.verbose:
-                print('muon PT: {0}, Eta: {1}'.format(uPTj, uEtaj))
-            nVeto += 1
-    for pEtaj, pPTj in zip(pEtai, pPTi):
-        if abs(pEtaj) < 2.5 and pPTj > 25.:
-            if args.verbose:
-                print('photon PT: {0}, Eta: {1}'.format(pPTj, pEtaj))
-            nVeto += 1
-
-    # Control region
-    isMuon = False
-    isSingleMuon = False
-    isDoubleMuon = False
-    for uEtaj, uPTj, uPhij in zip(uEtai, uPTi, uPhii):
-        if uPTj > 30.:
-            for eta, phi, pt in zip(jet_etai, jet_phii, jet_pti):
-                if abs(eta) < 2.4 and pt > 40.:
-                    if Delta_R(uEtaj, uPTj, eta, phi) > 0.5:
-                        isMuon = True
-                    else:
-                        isMuon = False
-            if isMuon:
-                nMuon_CR += 1
-                muonPT.append(uPTj)
-                muonEta.append(uEtaj)
-                muonPhi.append(uPhij)
-            for pt, phi, eta in zip(jet_pti, jet_phii, jet_etai):
-                if pt > 40. and eta < 2.4:
-                    if 30. < Transverse_Mass(uPTj, pt, uPhij, phi) < 125.:
-                        isSingleMuon = True
-                    else:
-                        isSingleMuon = False
-            if isMuon and isSingleMuon:
-                SingleMuon_CR += 1
+        # Object event vetoes
+        for eEtaj, ePTj in zip(eEtai, ePTi):
+            if abs(eEtaj) < 2.5 and ePTj > 10.:
                 if args.verbose:
-                    print('Single Muon')
+                    print('electron PT: {0}, Eta: {1}'.format(ePTj, eEtaj))
+                nVeto += 1
+        for uEtaj, uPTj in zip(uEtai, uPTi):
+            if abs(uEtaj) < 2.5 and uPTj > 10.:
+                if args.verbose:
+                    print('muon PT: {0}, Eta: {1}'.format(uPTj, uEtaj))
+                nVeto += 1
+        for pEtaj, pPTj in zip(pEtai, pPTi):
+            if abs(pEtaj) < 2.5 and pPTj > 25.:
+                if args.verbose:
+                    print('photon PT: {0}, Eta: {1}'.format(pPTj, pEtaj))
+                nVeto += 1
 
-    if nMuon_CR == 2:
-        if abs(Invariant_Mass(muonPT[0], muonPT[1], muonEta[0], muonEta[1], muonPhi[0], muonPhi[1]) - M_Z) < 25.:
-            DoubleMuon_CR += 1
-            if args.verbose:
-                print('Double Muon')
+        # Control region
+        isMuon = False
+        isSingleMuon = False
+        isDoubleMuon = False
+        for uEtaj, uPTj, uPhij in zip(uEtai, uPTi, uPhii):
+            if uPTj > 30.:
+                for eta, phi, pt in zip(jet_etai, jet_phii, jet_pti):
+                    if abs(eta) < 2.4 and pt > 40.:
+                        if Delta_R(uEtaj, uPTj, eta, phi) > 0.5:
+                            isMuon = True
+                        else:
+                            isMuon = False
+                if isMuon:
+                    nMuon_CR += 1
+                    muonPT.append(uPTj)
+                    muonEta.append(uEtaj)
+                    muonPhi.append(uPhij)
+                for pt, phi, eta in zip(jet_pti, jet_phii, jet_etai):
+                    if pt > 40. and eta < 2.4:
+                        if 30. < Transverse_Mass(uPTj, pt, uPhij, phi) < 125.:
+                            isSingleMuon = True
+                        else:
+                            isSingleMuon = False
+                if isMuon and isSingleMuon:
+                    SingleMuon_CR += 1
+                    if args.verbose:
+                        print('Single Muon')
+
+        if nMuon_CR == 2:
+            if abs(Invariant_Mass(muonPT[0], muonPT[1], muonEta[0], muonEta[1], muonPhi[0], muonPhi[1]) - M_Z) < 25.:
+                DoubleMuon_CR += 1
+                if args.verbose:
+                    print('Double Muon')
 
 
-    
-    #Reduced array of b-quarks and Higgs bosons
-    for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(PIDi, UIDi, M1i, PTi, Etai, Phii):
-        if abs(PIDj) == 5 or PIDj == 35:
-            bPID.append(PIDj)
-            bUID.append(UIDj)
-            bM1.append(M1j)
-            bPT.append(PTj)
-            bEta.append(Etaj)
-            bPhi.append(Phij)
+        
+        #Reduced array of b-quarks and Higgs bosons
+        for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(PIDi, UIDi, M1i, PTi, Etai, Phii):
+            if abs(PIDj) == 5 or PIDj == 35:
+                bPID.append(PIDj)
+                bUID.append(UIDj)
+                bM1.append(M1j)
+                bPT.append(PTj)
+                bEta.append(Etaj)
+                bPhi.append(Phij)
 
-    #Dictionary of particles so we can look up by unique ID per event
-    UID_temp = 0
-    for PIDj, M1j, PTj, Etaj, Phij in zip(PIDi, M1i, PTi, Etai, Phii):
-        d[UID_temp] = {}
-        d[UID_temp]['PID'] = PIDj
-        d[UID_temp]['PT'] = PTj
-        d[UID_temp]['Eta'] = Etaj
-        d[UID_temp]['Phi'] = Phij
-        d[UID_temp]['M1'] = M1j
-        UID_temp += 1
+        #Dictionary of particles so we can look up by unique ID per event
+        UID_temp = 0
+        for PIDj, M1j, PTj, Etaj, Phij in zip(PIDi, M1i, PTi, Etai, Phii):
+            d[UID_temp] = {}
+            d[UID_temp]['PID'] = PIDj
+            d[UID_temp]['PT'] = PTj
+            d[UID_temp]['Eta'] = Etaj
+            d[UID_temp]['Phi'] = Phij
+            d[UID_temp]['M1'] = M1j
+            UID_temp += 1
 
-    # MC Truth b-jet delta-R and Higgs PT.
-    for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
-        if PIDj == 35:
-            HiggsPT.append(PTj)
-    for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
-        for PIDk, UIDk, M1k, PTk, Etak, Phik in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
-            if UIDj < UIDk and abs(PIDj) == 5 and abs(PIDk) == 5 and M1j == M1k and M1j in d and d[M1j]['PID'] == 35:
-                DeltaR.append(Delta_R(Etaj, Phij, Etak, Phik))
-    if len(DeltaR) > 0:
-        del_R.append(min(DeltaR))
-    else:
-        del_R.append(-1.)
-    if len(HiggsPT) > 0:
-        higgs_pt.append(float(sum(HiggsPT))/float(len(HiggsPT)))
-    else:
-        higgs_pt.append(-1.)
-    if len(HiggsPT) > 0:
-        higgs1_pt.append(HiggsPT[0])
-        if len(HiggsPT) > 1:
-            higgs2_pt.append(HiggsPT[1])
+        # MC Truth b-jet delta-R and Higgs PT.
+        for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
+            if PIDj == 35:
+                HiggsPT.append(PTj)
+        for PIDj, UIDj, M1j, PTj, Etaj, Phij in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
+            for PIDk, UIDk, M1k, PTk, Etak, Phik in zip(bPID, bUID, bM1, bPT, bEta, bPhi):
+                if UIDj < UIDk and abs(PIDj) == 5 and abs(PIDk) == 5 and M1j == M1k and M1j in d and d[M1j]['PID'] == 35:
+                    DeltaR.append(Delta_R(Etaj, Phij, Etak, Phik))
+        if len(DeltaR) > 0:
+            del_R.append(min(DeltaR))
+        else:
+            del_R.append(-1.)
+        if len(HiggsPT) > 0:
+            higgs_pt.append(float(sum(HiggsPT))/float(len(HiggsPT)))
+        else:
+            higgs_pt.append(-1.)
+        if len(HiggsPT) > 0:
+            higgs1_pt.append(HiggsPT[0])
+            if len(HiggsPT) > 1:
+                higgs2_pt.append(HiggsPT[1])
 
-    # Number of jets, number of b-tagged jets, HT, MHT
-    for PTj, BTagj, Etaj, Phij, Massj in zip(jet_pti, jet_btagi, jet_etai, jet_phii, jet_massi):
-        if PTj > 40. and abs(Etaj) < 2.4:
-            n_jet += 1
-            goodjets_eta.append(Etaj)
-            goodjets_phi.append(Phij)
-            goodjets_pt.append(PTj)
-            goodjets_mass.append(Massj)
-            if BTagj:
-                n_bjet += 1
-                bjets_eta.append(Etaj)
-                bjets_phi.append(Phij)
-                bjets_pt.append(PTj)
-            mht_x += -1.*PTj*math.cos(Phij)
-            mht_y += PTj*math.sin(Phij)
-            HT += PTj
-        if PTj > 40. and abs(Etaj) > 2.4:
-            if args.verbose:
-                print('jet PT: {0}, Eta: {1}'.format(PTj, Etaj))
-            nVeto += 1
-    mht_temp = math.sqrt(mht_x**2 + mht_y**2)
-    mht.append(mht_temp)
-    ht.append(HT)
-    N_jet.append(n_jet)
-    N_bjet.append(n_bjet)
-
-    N_veto.append(nVeto)
-
-    if mht_temp > 200.:
-        MHT200 = True
-    if HT > 1200.:
-        HT1200 = True
-    if n_jet > 5:
-        NJet6 = True
-    if nVeto == 0:
-        NoVetoObjects = True
-
-    # Biased Delta-Phi and Lead Jet CHF
-    if n_jet > 1:
-        if 0.1 < float(jet_nci[0])/float(jet_nci[0] + jet_nni[0]) < 0.95:
-            LeadJetCHF = True
-        if jet_pti[0] > 100.:
-            LeadJetPT100 = True
-        for PTj, Etaj, Phij in zip(jet_pti, jet_etai, jet_phii):
+        # Number of jets, number of b-tagged jets, HT, MHT
+        for PTj, BTagj, Etaj, Phij, Massj in zip(jet_pti, jet_btagi, jet_etai, jet_phii, jet_massi):
             if PTj > 40. and abs(Etaj) < 2.4:
-                jet_px, jet_py = PTj*math.cos(Phij),-PTj*math.sin(Phij)
-                newPhi = math.atan2(-mht_y-jet_py, mht_x+jet_px)
+                n_jet += 1
+                goodjets_eta.append(Etaj)
+                goodjets_phi.append(Phij)
+                goodjets_pt.append(PTj)
+                goodjets_mass.append(Massj)
+                if BTagj:
+                    n_bjet += 1
+                    bjets_eta.append(Etaj)
+                    bjets_phi.append(Phij)
+                    bjets_pt.append(PTj)
+                mht_x += -1.*PTj*math.cos(Phij)
+                mht_y += PTj*math.sin(Phij)
+                HT += PTj
+            if PTj > 40. and abs(Etaj) > 2.4:
+                if args.verbose:
+                    print('jet PT: {0}, Eta: {1}'.format(PTj, Etaj))
+                nVeto += 1
+        mht_temp = math.sqrt(mht_x**2 + mht_y**2)
+        mht.append(mht_temp)
+        ht.append(HT)
+        N_jet.append(n_jet)
+        N_bjet.append(n_bjet)
 
-                if newPhi - Phij > math.pi:
-                    BDP.append(abs(newPhi - Phij - 2.*math.pi))
-                elif newPhi - Phij < -1.*math.pi:
-                    BDP.append(abs(newPhi - Phij + 2.*math.pi))
-                else:
-                    BDP.append(abs(newPhi - Phij))
-        BDP_temp = min(BDP)
-    else:
-        BDP_temp = -1.
-    biased_d_phi.append(BDP_temp)
-    
-    if BDP_temp > 0.5:
-        BDPhi0p5 = True
+        N_veto.append(nVeto)
 
-    # Closest b-jets in DeltaR invariant mass:
-    if n_bjet < 2:
-        temp_Mbb = -1.
-    else:
-        temp_Mbb = -1.
-        temp_dR = 99.
-        for i in range(1, n_bjet):
-            for j in range(i):
-                if Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j]) < temp_dR:
-                    temp_dR = Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j])
-                    temp_Mbb = Invariant_Mass(bjets_pt[i], bjets_pt[j], bjets_eta[i], bjets_eta[j], bjets_phi[i], bjets_phi[j])
-            
-    Mbb.append(temp_Mbb)
+        if mht_temp > 200.:
+            MHT200 = True
+        if HT > 1200.:
+            HT1200 = True
+        if n_jet > 5:
+            NJet6 = True
+        if nVeto == 0:
+            NoVetoObjects = True
 
-    # alpha_T
-    temp_alpha_T = makeAlphaT(goodjets_phi, goodjets_pt, goodjets_eta, goodjets_mass, mht_temp, HT)
-    alphaT.append(temp_alpha_T)
+        # Biased Delta-Phi and Lead Jet CHF
+        if n_jet > 1:
+            if 0.1 < float(jet_nci[0])/float(jet_nci[0] + jet_nni[0]) < 0.95:
+                LeadJetCHF = True
+            if jet_pti[0] > 100.:
+                LeadJetPT100 = True
+            for PTj, Etaj, Phij in zip(jet_pti, jet_etai, jet_phii):
+                if PTj > 40. and abs(Etaj) < 2.4:
+                    jet_px, jet_py = PTj*math.cos(Phij),-PTj*math.sin(Phij)
+                    newPhi = math.atan2(-mht_y-jet_py, mht_x+jet_px)
 
-    # Missing-ET
-    for METj in METi:
-        met_temp = METj
-    met.append(met_temp)
-    if met_temp != 0:
-        if mht_temp/met_temp < 1.25:
-            MhtOverMet1p25 = True
+                    if newPhi - Phij > math.pi:
+                        BDP.append(abs(newPhi - Phij - 2.*math.pi))
+                    elif newPhi - Phij < -1.*math.pi:
+                        BDP.append(abs(newPhi - Phij + 2.*math.pi))
+                    else:
+                        BDP.append(abs(newPhi - Phij))
+            BDP_temp = min(BDP)
+        else:
+            BDP_temp = -1.
+        biased_d_phi.append(BDP_temp)
+        
+        if BDP_temp > 0.5:
+            BDPhi0p5 = True
 
-    All_Cuts = [LeadJetPT100, NoVetoObjects, NJet6, MhtOverMet1p25, MHT200, BDPhi0p5, LeadJetCHF]
-    if args.verbose:
-        print(All_Cuts)
-    if All_Cuts.count(False) == 0 and n_bjet in [2, 3] and HT > 1200.:
-        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
-        binned_msq.append(args.Msq)
-        binned_mlsp.append(args.Mlsp)
+        # Closest b-jets in DeltaR invariant mass:
+        if n_bjet < 2:
+            temp_Mbb = -1.
+        else:
+            temp_Mbb = -1.
+            temp_dR = 99.
+            for i in range(1, n_bjet):
+                for j in range(i):
+                    if Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j]) < temp_dR:
+                        temp_dR = Delta_R(bjets_eta[i], bjets_phi[i], bjets_eta[j], bjets_phi[j])
+                        temp_Mbb = Invariant_Mass(bjets_pt[i], bjets_pt[j], bjets_eta[i], bjets_eta[j], bjets_phi[i], bjets_phi[j])
+                
+        Mbb.append(temp_Mbb)
+
+        # alpha_T
+        temp_alpha_T = makeAlphaT(goodjets_phi, goodjets_pt, goodjets_eta, goodjets_mass, mht_temp, HT)
+        alphaT.append(temp_alpha_T)
+
+        # Missing-ET
+        for METj in METi:
+            met_temp = METj
+        met.append(met_temp)
+        if met_temp != 0:
+            if mht_temp/met_temp < 1.25:
+                MhtOverMet1p25 = True
+
+        All_Cuts = [LeadJetPT100, NoVetoObjects, NJet6, MhtOverMet1p25, MHT200, BDPhi0p5, LeadJetCHF]
         if args.verbose:
-            print(HT)
-            print(HT_bins)
-        binned_HT_bin.append(HT_bins[np.digitize([HT], HT_bins)[0] - 1])
-        binned_MHT_bin.append(MHT_bins[np.digitize([mht_temp], MHT_bins)[0] - 1])
-        binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
-        binned_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
-        binned_yield.append(weight)
-        eventpass += 1.
-    elif All_Cuts.count(False) == 0 and n_bjet >3 and ((HT > 400. and temp_alpha_T > alphaT_Thresholds(HT)) or HT > 1200.):
-        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
-        binned_msq.append(args.Msq)
-        binned_mlsp.append(args.Mlsp)
+            print(All_Cuts)
+        if All_Cuts.count(False) == 0 and n_bjet in [2, 3] and HT > 1200.:
+            #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+            binned_msq.append(args.Msq)
+            binned_mlsp.append(args.Mlsp)
+            if args.verbose:
+                print(HT)
+                print(HT_bins)
+            binned_HT_bin.append(HT_bins[np.digitize([HT], HT_bins)[0] - 1])
+            binned_MHT_bin.append(MHT_bins[np.digitize([mht_temp], MHT_bins)[0] - 1])
+            binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
+            binned_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
+            binned_yield.append(weight)
+            eventpass += 1.
+        elif All_Cuts.count(False) == 0 and n_bjet >3 and ((HT > 400. and temp_alpha_T > alphaT_Thresholds(HT)) or HT > 1200.):
+            #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+            binned_msq.append(args.Msq)
+            binned_mlsp.append(args.Mlsp)
+            if args.verbose:
+                print(HT)
+                print(HT_bins)
+            binned_HT_bin.append(400.)
+            binned_MHT_bin.append(200.)
+            binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
+            binned_N_bjet_bin.append(4)
+            binned_yield.append(weight)
+            eventpass += 1.
+
+        # Control Region Events
+        elif (LeadJetPT100 and NJet6 and HT1200 and MHT200 and LeadJetCHF and (n_bjet in [2,3])) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
+            #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+            if BDP_temp < 0.5 and args.verbose:
+                print('BDP')
+            CR_msq.append(args.Msq)
+            CR_mlsp.append(args.Mlsp)
+            CR_HT_bin.append(HT_bins[np.digitize([HT], HT_bins)[0] - 1])
+            CR_MHT_bin.append(MHT_bins[np.digitize([mht_temp], MHT_bins)[0] - 1])
+            CR_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
+            CR_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
+            CR_yield.append(weight)
+        elif (LeadJetPT100 and NJet6 and (HT > 400.) and MHT200 and LeadJetCHF and (n_bjet > 3)) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
+            #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+            if BDP_temp < 0.5 and args.verbose:
+                print('BDP')
+            CR_msq.append(args.Msq)
+            CR_mlsp.append(args.Mlsp)
+            CR_HT_bin.append(400)
+            CR_MHT_bin.append(200)
+            CR_N_jet_bin.append(6)
+            CR_N_bjet_bin.append(4)
+            CR_yield.append(weight)
+
         if args.verbose:
-            print(HT)
-            print(HT_bins)
-        binned_HT_bin.append(400.)
-        binned_MHT_bin.append(200.)
-        binned_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
-        binned_N_bjet_bin.append(4)
-        binned_yield.append(weight)
-        eventpass += 1.
-
-    # Control Region Events
-    elif (LeadJetPT100 and NJet6 and HT1200 and MHT200 and LeadJetCHF and (n_bjet in [2,3])) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
-        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
-        if BDP_temp < 0.5 and args.verbose:
-            print('BDP')
-        CR_msq.append(args.Msq)
-        CR_mlsp.append(args.Mlsp)
-        CR_HT_bin.append(HT_bins[np.digitize([HT], HT_bins)[0] - 1])
-        CR_MHT_bin.append(MHT_bins[np.digitize([mht_temp], MHT_bins)[0] - 1])
-        CR_N_jet_bin.append(n_Jet_bins[np.digitize([n_jet], n_Jet_bins)[0] - 1])
-        CR_N_bjet_bin.append(n_bJet_bins[np.digitize([n_bjet], n_bJet_bins)[0] - 1])
-        CR_yield.append(weight)
-    elif (LeadJetPT100 and NJet6 and (HT > 400.) and MHT200 and LeadJetCHF and (n_bjet > 3)) and ( (3.0 > mht_temp/met_temp > 1.25) or (0.2 < BDP_temp < 0.5) or (SingleMuon_CR == 1 and nMuon_CR == 1) or DoubleMuon_CR == 1):
-        #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
-        if BDP_temp < 0.5 and args.verbose:
-            print('BDP')
-        CR_msq.append(args.Msq)
-        CR_mlsp.append(args.Mlsp)
-        CR_HT_bin.append(400)
-        CR_MHT_bin.append(200)
-        CR_N_jet_bin.append(6)
-        CR_N_bjet_bin.append(4)
-        CR_yield.append(weight)
-
-    if args.verbose:
-        print('{0} events passed so far...'.format(eventpass))
+            print('{0} events passed so far...'.format(eventpass))
 
 percentpass = 100.*float(eventpass)/nentries
 print('{0} of {1}, or {2} percent of events passed cuts'.format(int(eventpass), int(nentries), percentpass))
