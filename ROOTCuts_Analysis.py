@@ -159,18 +159,15 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
         fatDoubleBJet_B_discrim.append(fatJetB_bTagDiscrim_i)
 
         # Number of double b-tagged jets
+        fatDoubleBJet_A_mass.append(fatJetA_mass_i)
         if fatJetA_bTagDiscrim_i > DoubleBDiscrim:
-            fatDoubleBJet_A_mass.append(fatJetA_mass_i)
             if (85. < fatJetA_mass_i < 145.):
                 n_doublebjet += 1
-        else:
-            fatDoubleBJet_A_mass.append(-1.)
+
+        fatDoubleBJet_B_mass.append(fatJetB_mass_i)
         if fatJetB_bTagDiscrim_i > DoubleBDiscrim:
-            fatDoubleBJet_B_mass.append(fatJetB_mass_i)
             if (85. < fatJetB_mass_i < 145.):
                 n_doublebjet += 1
-        else:
-            fatDoubleBJet_B_mass.append(-1.)
         
         N_doubleBJet.append(n_doublebjet)
 
