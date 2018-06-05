@@ -45,6 +45,22 @@ print('Running on {0} MC sample'.format(args.type))
 events = uproot.open(args.files[0])["eventCountTree"]
 #tree.recover()
 
+#Now the file has opened nicely, let's define some useful functions:
+def Delta_Phi( Phi1, Phi2 ):
+    if Phi1 - Phi2 > math.pi:
+        delPhi = Phi1 - Phi2 - 2.*math.pi
+    elif Phi1 - Phi2 < -1.*math.pi:
+        delPhi = Phi1 - Phi2 + 2.*math.pi
+    else:
+        delPhi = Phi1 - Phi2
+    return math.fabs(delPhi);
+
+def Delta_R( eta1, phi1, eta2, phi2 ):
+    dR2 = (eta1 - eta2)**2 + (Delta_Phi(phi1, phi2))**2
+    dR = math.sqrt(dR2)
+    return dR;
+
+#Back to the file
 nentries = 0.
 nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
 for nevts in nEvents[0]:
@@ -96,6 +112,7 @@ ht = []
 N_doubleBJet = []
 N_jet = []
 N_bjet = []
+AK8DelR = []
 eventWeight = []
 
 fatDoubleBJet_A_mass = []
@@ -131,10 +148,10 @@ eventpass = 0.
 
 DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
-for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass \
-                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "nrSlimJets", "nrSlimBJets", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi"], entrysteps=10000, outputtype=tuple)):
-    for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i \
-                                                    in tqdm(zip(combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass), total=10000, desc='Go Go Go!'):
+for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
+                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "nrSlimJets", "nrSlimBJets", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
+    for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
+                                                    in tqdm(zip(combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), total=10000, desc='Go Go Go!'):
         n_doublebjet = 0
         NJet6 = False
         HT1500 = False
@@ -170,6 +187,10 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
                 n_doublebjet += 1
         
         N_doubleBJet.append(n_doublebjet)
+
+        #Angular separation of AK8 jets:
+        dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
+        AK8DelR.append(dR)
 
         if MHT_i > 200.:
             MHT200 = True
@@ -240,6 +261,7 @@ df = pd.DataFrame({
     'FatDoubleBJetB_mass': fatDoubleBJet_B_mass,
     'FatDoubleBJetA_discrim': fatDoubleBJet_A_discrim,
     'FatDoubleBJetB_discrim': fatDoubleBJet_B_discrim,
+    'FatJetAngularSeparation': AK8DelR,
     })
 
 print(df)
