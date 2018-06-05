@@ -52,7 +52,7 @@ sns.set_style("white")
 df = df.loc[((df['FatDoubleBJetA_mass'] < args.maxMass) & (df['FatDoubleBJetB_mass'] < args.maxMass) & (df['FatDoubleBJetA_mass'] > args.minMass) & (df['FatDoubleBJetB_mass'] > args.minMass) & (df['HT'] > args.HT))]
 
 g = sns.JointGrid(x=df['FatDoubleBJetA_discrim'], y=df['FatDoubleBJetB_discrim'], space=0.)
-g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=30)
+g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150)
 
 cm = plt.cm.get_cmap(args.cmap)
 
