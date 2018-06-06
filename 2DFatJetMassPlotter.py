@@ -52,16 +52,16 @@ discrim = args.discrim
 df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > discrim) & (df['FatDoubleBJetB_discrim'] > discrim) & (df['HT'] > args.HT))]
 
 g = sns.JointGrid(x=df['FatDoubleBJetA_mass'], y=df['FatDoubleBJetB_mass'], space=0.)
-g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150)
+g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150, C=df['crosssec'], reduce_C_function=np.sum)
 
 cm = plt.cm.get_cmap(args.cmap)
 
-nx, binsx, patchesx = g.ax_marg_x.hist(df['FatDoubleBJetA_mass'], log=True, bins=30)
+nx, binsx, patchesx = g.ax_marg_x.hist(df['FatDoubleBJetA_mass'], log=True, bins=30, weights=df['crosssec'])
 colx = 1.5*(nx-nx.min())/(nx.max()-nx.min())
 for c, p in zip(colx, patchesx):
     plt.setp(p, 'facecolor', cm(c))
 
-ny, binsy, patchesy = g.ax_marg_y.hist(df['FatDoubleBJetB_mass'], bins=30, log=True, orientation='horizontal')
+ny, binsy, patchesy = g.ax_marg_y.hist(df['FatDoubleBJetB_mass'], bins=30, log=True, orientation='horizontal', weights=df['crosssec'])
 coly = 1.5*(ny-ny.min())/(ny.max()-ny.min())
 for c, p in zip(coly, patchesy):
     plt.setp(p, 'facecolor', cm(c))
