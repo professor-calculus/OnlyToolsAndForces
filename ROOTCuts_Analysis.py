@@ -288,7 +288,8 @@ dict = {'MHT': {'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
 
 for thing in plottables:
     print('Plot of ' + thing)
-    histogram(df[thing], buckets=20)
+    df_reduced = df.iloc[:1000]
+    histogram(df_reduced[thing], buckets=20)
     plt.clf()
     if args.kdeplot or args.kdeplot_fill:
         sns.kdeplot(df[thing], shade=args.kdeplot_fill)
