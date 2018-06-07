@@ -63,7 +63,7 @@ if args.verbose:
 print '\nSuccessfully read dataframe\n'
 
 #Make the output directories
-directory = 'Signal_vs_Background'
+directory = 'Signal_vs_Background_Analysis'
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
