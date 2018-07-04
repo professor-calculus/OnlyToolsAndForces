@@ -73,6 +73,7 @@ os.makedirs(directory)
 
 #Weight events to sum to Lumi*CrossSec
 nentries = float(len(tree["MissingET.MET"]))
+print('{0} Entries'.format(nentries))
 eventweight = (args.Lumi * xsec)/(nentries)
 
 MHT_bins = np.array([200., 400., 600., 900., 999999.])
