@@ -64,6 +64,10 @@ print '\nSuccessfully read dataframe\n'
 
 #Make the output directories
 directory = 'Signal_vs_Background_Analysis'
+if args.HT_cut:
+    directory = directory + '_HT{0}'.format(args.HT_cut)
+if args.DBT:
+    directory = directory + '_DBT{0}'.format(args.DBT)
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
@@ -116,7 +120,7 @@ if args.TTJets:
         print(df_TTJets)
 
 bins_HT = np.linspace(0.,5000.,50)
-bins_MHT = np.linspace(0.,2500.,25)
+bins_MHT = np.linspace(0.,1000.,50)
 bins_DelR = np.linspace(0.,5.,50)
 bins_njet = np.arange(0, 20, 1)
 bins_nbjet = np.arange(0, 14, 1)
@@ -129,7 +133,7 @@ dict = {'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ [Ge
         'FatJetAngularSeparation': {'branch': 'FatJetAngularSeparation', 'bins': bins_DelR, 'title': 'AK8 Jets $\Delta R$'},
         'NJet': {'branch': 'NJet', 'bins': bins_njet, 'title': 'Number of Jets'},
         'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of $b$-tagged Jets'},
-        'NDoubleBJet': {'branch': 'NDoubleBJet', 'bins': bins_BDP, 'title': '$\Delta\Phi^{*}$'},
+        'NDoubleBJet': {'branch': 'NDoubleBJet', 'bins': bins_nDoubleB, 'title': 'Number of double-$b$-tagged AK8 Jets'},
         'FatDoubleBJetA_discrim': {'branch': 'FatDoubleBJetA_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
         'FatDoubleBJetA_mass': {'branch': 'FatDoubleBJetA_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
         }
@@ -144,9 +148,7 @@ dict_upper = {'MHT': 2000.,
               'FatDoubleBJetA_mass': 200.,
              }
 
-variables = ['MHT', 'HT', 'DelR', 'NJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJetA_discrim', 'FatDoubleBJetA_mass']
-
-signal_only_vars = ['DelR', 'BMass', '2BMass']
+variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJetA_discrim', 'FatDoubleBJetA_mass']
 
 n_signal = len(args.signal)
 linewidth = 3.
@@ -162,39 +164,43 @@ for var in variables:
         temp_i += 5
         label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
         df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
-        if args.kdeplot and var not in ['NJet', 'NBJet']:
-            sns.kdeplot(df_temp[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
+        if args.norm:
+            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=df_temp['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
         else:
             #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=df_temp['crosssec'], density=args.norm, label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=df_temp['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
 
-    if args.MSSM and var not in signal_only_vars:
+    if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
-        if args.kdeplot and var not in ['NJet', 'NBJet']:
-            sns.kdeplot(df_MSSM[dict[var]['branch']], ax=ax, label=label, shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
+        if args.norm:
+            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], weights=df_MSSM['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
         else:
             #plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], weights=df_MSSM['crosssec'], density=args.norm, label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
+            plt.hist(df_MSSM[dict[var]['branch']], bins=dict[var]['bins'], weights=df_MSSM['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
-    if (args.QCD) and var not in signal_only_vars:
-        if args.kdeplot and var not in ['NJet', 'NBJet']:
-            sns.kdeplot(df_QCD[dict[var]['branch']], ax=ax, label='QCD background', shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
+    if args.QCD:
+        if args.norm:
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.7, weights=df_QCD['crosssec'], label='QCD background', log=True, normed=1., histtype="stepfilled", zorder=5)
         else:
-            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.7, weights=df_QCD['crosssec'], density=args.norm, label='QCD background', log=True, histtype="stepfilled", zorder=5)
+            plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.7, weights=df_QCD['crosssec'], label='QCD background', log=True, histtype="stepfilled", zorder=5)
             #plt.hist(df_QCD[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
-    if (args.TTJets) and var not in signal_only_vars:
-        if args.kdeplot and var not in ['NJet', 'NBJet']:
-            sns.kdeplot(df_TTJets[dict[var]['branch']], ax=ax, label='$t \overline{t}$ + $jets$ background', shade=args.kdeplot_fill, clip=(0., dict_upper[var]))
+    if args.TTJets:
+        if args.norm:
+            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=1., weights=df_TTJets['crosssec'], normed=1., label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
         else:
-            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=1., weights=df_TTJets['crosssec'], density=args.norm, label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
+            plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], alpha=1., weights=df_TTJets['crosssec'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
             #plt.hist(df_TTJets[dict[var]['branch']], bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
 
 
     plt.xlabel(dict[var]['title'], size=14)
     leg = plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
-    if var not in ['NJet', 'NBJet']:
+    if var in ['NDoubleBJet']:
+        continue
+    elif var in ['FatDoubleBJetA_discrim']:
+        plt.ylim(0.05, None)
+    elif var not in ['NJet', 'NBJet']:
         plt.ylim(0.0001, None)
         plt.xlim(0., None)
     else:
