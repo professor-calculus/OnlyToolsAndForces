@@ -95,7 +95,7 @@ os.makedirs(directory)
 #Weight events to sum to Lumi*CrossSec
 eventweight = (args.Lumi * xsec)/float(nentries)
 
-MHT_bins = np.array([200., 400., 600., 900., 999999.])
+MHT_bins = np.array([200., 400., 600., 999999.])
 HT_bins = np.array([1500., 2500., 3500., 99999.])
 n_Jet_bins = np.array([6, 99])
 n_doubleBJet_bins = np.array([0,1,2,99])
@@ -131,7 +131,7 @@ binned_N_jet_bin = []
 binned_N_doublebjet_bin = []
 binned_yield = []
 
-for mhtBin in [200, 400, 600, 900]:
+for mhtBin in [200, 400, 600]:
     for htBin in [1500, 2500, 3500]:
         for nJetBin in [6]:
             for nDoubleBJetBin in [0,1,2]:
