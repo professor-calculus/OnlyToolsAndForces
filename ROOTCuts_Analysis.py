@@ -60,6 +60,18 @@ def Delta_R( eta1, phi1, eta2, phi2 ):
     dR = math.sqrt(dR2)
     return dR;
 
+def Transverse_Mass( PT1, PT2, Phi1, Phi2 ):
+    dPhi = Delta_Phi(Phi1, Phi2)
+    m_T2 = 2.*PT1*PT2*( 1 - math.cos(dPhi) )
+    m_T = math.sqrt(m_T2)
+    return m_T;
+
+def Invariant_Mass(PT1, PT2, Eta1, Eta2, Phi1, Phi2):
+    dPhi = Delta_Phi(Phi1, Phi2)
+    m2 = 2.*PT1*PT2*(math.cosh(Eta1-Eta2) - math.cos(dPhi))
+    m = math.sqrt(m2)
+    return m;
+
 #Back to the file
 nentries = 0.
 nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
@@ -99,6 +111,7 @@ MHT_bins = np.array([200., 400., 600., 999999.])
 HT_bins = np.array([1500., 2500., 3500., 99999.])
 n_Jet_bins = np.array([6, 99])
 n_doubleBJet_bins = np.array([0,1,2,99])
+n_Muon_bins = np.array([-1,0,1,2,999])
 
 M_Z = 91.188
 
@@ -120,6 +133,10 @@ fatDoubleBJet_B_mass = []
 fatDoubleBJet_A_discrim = []
 fatDoubleBJet_B_discrim = []
 
+n_muons = []
+muon_MHT_transverse_mass = []
+muons_inv_mass = []
+
 cut_mht = []
 
 binned_msq = []
@@ -128,30 +145,34 @@ binned_type = []
 binned_HT_bin = []
 binned_MHT_bin = []
 binned_N_jet_bin = []
+binned_N_bJet_bin = []
 binned_N_doublebjet_bin = []
+binned_N_muons = []
 binned_yield = []
 
 for mhtBin in [200, 400, 600]:
     for htBin in [1500, 2500, 3500]:
         for nJetBin in [6]:
             for nDoubleBJetBin in [0,1,2]:
-                binned_msq.append(args.Msq)
-                binned_mlsp.append(args.Mlsp)
-                binned_type.append(args.type)
-                binned_HT_bin.append(htBin)
-                binned_MHT_bin.append(mhtBin)
-                binned_N_jet_bin.append(nJetBin)
-                binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                binned_yield.append(0.)
+                for nMuons in [-1, 0, 1, 2]:
+                    binned_msq.append(args.Msq)
+                    binned_mlsp.append(args.Mlsp)
+                    binned_type.append(args.type)
+                    binned_HT_bin.append(htBin)
+                    binned_MHT_bin.append(mhtBin)
+                    binned_N_jet_bin.append(nJetBin)
+                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                    binned_N_muons.append(nMuons)
+                    binned_yield.append(0.)
 
 eventpass = 0.
 
 DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
-for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
-                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "nrSlimJets", "nrSlimBJets", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
-    for combined_weight_i, HT_i, MHT_i, NJet_i, NSlimBJet_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
-                                                    in tqdm(zip(combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), total=10000, desc='Go Go Go!'):
+for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
+                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrSlimBJets", "muonA_p4", "muonB_p4", "nrMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
+    for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NSlimBJet_i, muonA_p4_i, muonB_p4_i, nMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
+                                                    in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), total=10000, desc='Go Go Go!'):
         n_doublebjet = 0
         NJet6 = False
         HT1500 = False
@@ -174,6 +195,7 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
         N_bjet.append(NSlimBJet_i)
         fatDoubleBJet_A_discrim.append(fatJetA_bTagDiscrim_i)
         fatDoubleBJet_B_discrim.append(fatJetB_bTagDiscrim_i)
+        n_muons.append(nMuons_i)
 
         # Number of double b-tagged jets
         fatDoubleBJet_A_mass.append(fatJetA_mass_i)
@@ -199,8 +221,33 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
         if NJet_i > 5:
             NJet6 = True
 
-        if n_doublebjet > 0 or NSlimBJet_i > 1:
+        # Require at least 2 b-jets if only one double-b-jet and at least 3 b-jets if no double-b-jets.
+        if n_doublebjet > 1 or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet > 2):
             DoubleBJet_pass = True
+
+        # Transverse mass between Missing-HT and muon (in case of one muon)
+        if nMuons_i == 1:
+            muon_MHT_mT = Transverse_Mass(muonA_p4_i[0].Pt(), MHT_i, muonA_p4_i[0].Phi(), MHT_phi_i)
+        else:
+            muon_MHT_mT = 0.
+        muon_MHT_transverse_mass.append(muon_MHT_mT)
+
+        # Invariant mass of muons (if 2 muons)
+        if nMuons_i == 2:
+            muons_Minv = Invariant_Mass(muonA_p4_i[0].Pt(), muonB_p4_i[0].Pt(), muonA_p4_i[0].Eta(), muonB_p4_i[0].Eta(), muonA_p4_i[0].Phi(), muonB_p4_i[0].Phi())
+        else:
+            muons_Minv = 0.
+        muons_inv_mass.append(muons_Minv)
+
+        # Number of selected muons (i.e. meets other cuts)
+        if nMuons_i == 0:
+            nMuons_selected = 0
+        elif (nMuons_i == 1) and (muon_MHT_mT < 100.):
+            nMuons_selected = 1
+        elif (nMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.):
+            nMuons_selected = 2
+        else:
+            nMuons_selected = -1
 
         All_Cuts = [NJet6, HT1500, MHT200, DoubleBJet_pass]
         if args.verbose:
@@ -217,6 +264,7 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
             binned_MHT_bin.append(MHT_bins[np.digitize([MHT_i], MHT_bins)[0] - 1])
             binned_N_jet_bin.append(n_Jet_bins[np.digitize([NJet_i], n_Jet_bins)[0] - 1])
             binned_N_doublebjet_bin.append(n_doubleBJet_bins[np.digitize([n_doublebjet], n_doubleBJet_bins)[0] - 1])
+            binned_N_muons.append(n_Muon_bins[np.digitize([nMuons_selected], n_Muon_bins)[0] - 1])
             binned_yield.append(weight)
             eventpass += 1.
 
@@ -226,7 +274,7 @@ for combined_weight, HT, MHT, NJet, NSlimBJet, fatJetA_bTagDiscrim, fatJetB_bTag
 percentpass = 100.*float(eventpass)/nentries
 print('{0} of {1}, or {2} percent of events passed cuts'.format(int(eventpass), int(nentries), percentpass))
 
-print('\n Signal Region:')
+print('\n All which pass baseline selection:')
 df_binned = pd.DataFrame({
     'Type': binned_type,
     'M_sq': binned_msq,
@@ -235,16 +283,41 @@ df_binned = pd.DataFrame({
     'MHT_bin': binned_MHT_bin,
     'n_Jet_bin': binned_N_jet_bin,
     'n_DoubleBJet_bin': binned_N_doublebjet_bin,
+    'n_Muons_bin': binned_N_muons,
     'Yield': binned_yield,
     })
 print(df_binned)
-df_binned = df_binned.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
-df_binned.reset_index(inplace=True)
-print(df_binned)
 
+print('\n Signal Region:')
+df_SR = df_binned.loc[df_binned['n_Muons_bin'] == 0]
+df_SR = df_SR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_SR.reset_index(inplace=True)
+print(df_SR)
+
+print('\n All Control Region:')
+df_CR = df_binned.loc[df_binned['n_Muons_bin'] > 0]
+df_CR = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_CR.reset_index(inplace=True)
+print(df_CR)
+
+print('\n SingleMuon Control Region:')
+df_SM = df_binned.loc[df_binned['n_Muons_bin'] == 1]
+df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_SM.reset_index(inplace=True)
+print(df_SM)
+
+print('\n DoubleMuon Control Region:')
+df_DM = df_binned.loc[df_binned['n_Muons_bin'] == 2]
+df_DM = df_DM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_DM.reset_index(inplace=True)
+print(df_DM)
 
 if not args.NoOutput:
     df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
+    df_SR.to_csv(os.path.join(directory, 'Signal_Region.txt'), sep='\t', index=False)
+    df_CR.to_csv(os.path.join(directory, 'Control_Region.txt'), sep='\t', index=False)
+    df_SM.to_csv(os.path.join(directory, 'SingleMuon_Control_Region.txt'), sep='\t', index=False)
+    df_DM.to_csv(os.path.join(directory, 'DoubleMuon_Control_Region.txt'), sep='\t', index=False)
 
 
 df = pd.DataFrame({
@@ -262,6 +335,9 @@ df = pd.DataFrame({
     'FatDoubleBJetA_discrim': fatDoubleBJet_A_discrim,
     'FatDoubleBJetB_discrim': fatDoubleBJet_B_discrim,
     'FatJetAngularSeparation': AK8DelR,
+    'nMuons': n_muons,
+    'Muon_MHT_TransMass': muon_MHT_transverse_mass,
+    'Muons_InvMass': muons_inv_mass,
     })
 
 print(df)

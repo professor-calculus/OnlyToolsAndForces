@@ -180,7 +180,8 @@ def Transverse_Mass( PT1, PT2, Phi1, Phi2 ):
     return m_T;
 
 def Invariant_Mass(PT1, PT2, Eta1, Eta2, Phi1, Phi2):
-    m2 = 2.*PT1*PT2*(math.cosh(Eta1-Eta2) - math.cos(Phi1-Phi2))
+    dPhi = Delta_Phi(Phi1, Phi2)
+    m2 = 2.*PT1*PT2*(math.cosh(Eta1-Eta2) - math.cos(dPhi))
     m = math.sqrt(m2)
     return m;
 
