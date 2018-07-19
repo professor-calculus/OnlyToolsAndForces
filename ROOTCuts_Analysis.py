@@ -222,7 +222,7 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuo
             NJet6 = True
 
         # Require at least 2 b-jets if only one double-b-jet and at least 3 b-jets if no double-b-jets.
-        if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet > 2)):
+        if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet_i > 2)):
             DoubleBJet_pass = True
 
         # Transverse mass between Missing-HT and muon (in case of one muon)
