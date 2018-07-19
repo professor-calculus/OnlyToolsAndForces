@@ -227,14 +227,14 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuo
 
         # Transverse mass between Missing-HT and muon (in case of one muon)
         if nMuons_i == 1:
-            muon_MHT_mT = Transverse_Mass(muonA_p4_i[0].Pt(), MHT_i, muonA_p4_i[0].Phi(), MHT_phi_i)
+            muon_MHT_mT = Transverse_Mass(muonA_p4_i[0].pt, MHT_i, muonA_p4_i[0].phi(), MHT_phi_i)
         else:
             muon_MHT_mT = 0.
         muon_MHT_transverse_mass.append(muon_MHT_mT)
 
         # Invariant mass of muons (if 2 muons)
         if nMuons_i == 2:
-            muons_Minv = Invariant_Mass(muonA_p4_i[0].Pt(), muonB_p4_i[0].Pt(), muonA_p4_i[0].Eta(), muonB_p4_i[0].Eta(), muonA_p4_i[0].Phi(), muonB_p4_i[0].Phi())
+            muons_Minv = Invariant_Mass(muonA_p4_i[0].pt, muonB_p4_i[0].pt, muonA_p4_i[0].eta, muonB_p4_i[0].eta, muonA_p4_i[0].phi(), muonB_p4_i[0].phi())
         else:
             muons_Minv = 0.
         muons_inv_mass.append(muons_Minv)
