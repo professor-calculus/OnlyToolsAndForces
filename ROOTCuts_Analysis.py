@@ -222,7 +222,7 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuo
             NJet6 = True
 
         # Require at least 2 b-jets if only one double-b-jet and at least 3 b-jets if no double-b-jets.
-        if n_doublebjet > 1 or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet > 2):
+        if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet > 2)):
             DoubleBJet_pass = True
 
         # Transverse mass between Missing-HT and muon (in case of one muon)
@@ -242,9 +242,9 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuo
         # Number of selected muons (i.e. meets other cuts)
         if nMuons_i == 0:
             nMuons_selected = 0
-        elif (nMuons_i == 1) and (muon_MHT_mT < 100.):
+        elif ((nMuons_i == 1) and (muon_MHT_mT < 100.)):
             nMuons_selected = 1
-        elif (nMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.):
+        elif ((nMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.)):
             nMuons_selected = 2
         else:
             nMuons_selected = -1
