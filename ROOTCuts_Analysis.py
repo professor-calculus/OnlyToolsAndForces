@@ -166,13 +166,15 @@ for mhtBin in [200, 400, 600]:
                     binned_yield.append(0.)
 
 eventpass = 0.
+eventCounter = 0
 
 DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
 for combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
                                                  in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrSlimBJets", "muonA_p4", "muonB_p4", "nrMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
     for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NSlimBJet_i, muonA_p4_i, muonB_p4_i, nMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
-                                                    in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), total=10000, desc='Go Go Go!'):
+                                                    in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=10000 + eventCounter, desc='Go Go Go!'):
+        eventCounter += 10000
         n_doublebjet = 0
         NJet6 = False
         HT1500 = False
