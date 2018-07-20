@@ -296,7 +296,7 @@ print(df_SR)
 
 print('\n All Control Region:')
 df_CR = df_binned.loc[df_binned['n_Muons_bin'] > 0]
-df_CR = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_CR = df_CR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
 df_CR.reset_index(inplace=True)
 print(df_CR)
 
