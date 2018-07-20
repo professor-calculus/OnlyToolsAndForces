@@ -292,25 +292,25 @@ print(df_binned)
 
 print('\n Signal Region:')
 df_SR = df_binned.loc[df_binned['n_Muons_bin'] == 0]
-df_SR = df_SR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_SR = df_SR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_SR.reset_index(inplace=True)
 print(df_SR)
 
 print('\n All Control Region:')
 df_CR = df_binned.loc[df_binned['n_Muons_bin'] > 0]
-df_CR = df_CR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_CR = df_CR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_CR.reset_index(inplace=True)
 print(df_CR)
 
 print('\n SingleMuon Control Region:')
 df_SM = df_binned.loc[df_binned['n_Muons_bin'] == 1]
-df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_SM.reset_index(inplace=True)
 print(df_SM)
 
 print('\n DoubleMuon Control Region:')
 df_DM = df_binned.loc[df_binned['n_Muons_bin'] == 2]
-df_DM = df_DM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_DM = df_DM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_DM.reset_index(inplace=True)
 print(df_DM)
 
