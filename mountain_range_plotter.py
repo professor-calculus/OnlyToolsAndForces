@@ -37,7 +37,7 @@ if args.style:
 print '\nPython Mountain Range Plotter\n'
 print(args.signal)
 
-x = range(36)
+x = range(27)
 
 df_sig_list = []
 for file in args.signal:
@@ -96,7 +96,7 @@ for index, row in df_sig_masses.iterrows():
     label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
     df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
     df_temp = df_temp.replace(0., 1e-5) 
-    plt.hist(df_temp['Bin'], bins=range(37), label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+    plt.hist(df_temp['Bin'], bins=range(27), label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
 if (args.QCD):
     df_QCD = df_QCD.replace(0., 1e-5) 
