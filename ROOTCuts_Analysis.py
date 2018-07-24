@@ -134,6 +134,7 @@ fatDoubleBJet_B_mass = []
 fatDoubleBJet_A_discrim = []
 fatDoubleBJet_B_discrim = []
 maxFatJet_discrim = []
+fatDoubleBJet_maxDiscrim_mass = []
 
 n_muons = []
 muon_MHT_transverse_mass = []
@@ -205,14 +206,20 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB
             if NFatJet_i > 1:
                 fatJetB_discrim_val = fatJetB_bTagDiscrim_i
                 fatJetB_mass_val = fatJetB_mass_i
+                if fatJetA_discrim_val > fatJetB_discrim_val:
+                    fatDoubleBJet_maxDiscrim_mass.append(fatJetA_mass_val)
+                else:
+                    fatDoubleBJet_maxDiscrim_mass.append(fatJetB_mass_val)
             else:
                 fatJetB_discrim_val = -2.
                 fatJetB_mass_val = -1.
+                fatDoubleBJet_maxDiscrim_mass.append(fatJetA_mass_val)
         else:
             fatJetA_discrim_val = -2.
             fatJetB_discrim_val = -2.
             fatJetA_mass_val = -1.
             fatJetB_mass_val = -1.
+            fatDoubleBJet_maxDiscrim_mass.append(-1.)
 
         fatDoubleBJet_A_discrim.append(fatJetA_discrim_val)
         fatDoubleBJet_B_discrim.append(fatJetB_discrim_val)
@@ -365,6 +372,7 @@ df = pd.DataFrame({
     'FatDoubleBJetA_discrim': fatDoubleBJet_A_discrim,
     'FatDoubleBJetB_discrim': fatDoubleBJet_B_discrim,
     'MaxFatJetDoubleB_discrim': maxFatJet_discrim,
+    'FatJet_MaxDoubleB_discrim_mass': fatDoubleBJet_maxDiscrim_mass,
     'FatJetAngularSeparation': AK8DelR,
     'nMuons': n_muons,
     'Muon_MHT_TransMass': muon_MHT_transverse_mass,
@@ -376,7 +384,7 @@ if not args.NoOutput:
     df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-plottables = ['MHT', 'HT', 'NJet', 'NDoubleBJet']
+plottables = ['MHT', 'HT', 'NJet', 'NDoubleBJet', 'NFatJet']
 
 
 bins_HT = np.linspace(0.,5000.,160)
@@ -384,6 +392,7 @@ bins_MHT = np.linspace(0.,2000.,200)
 bins_DelR = np.linspace(0.,5.,100)
 bins_BMass = np.linspace(0.,500.,100)
 bins_njet = np.arange(0, 20, 1)
+bins_nfatjet = np.arange(0, 8, 1)
 bins_ndoublebjet = np.arange(0, 3, 1)
 
 
@@ -391,6 +400,7 @@ dict = {'MHT': {'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
         'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
         'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
         'NDoubleBJet': {'bins': bins_ndoublebjet, 'title': 'Number of Double-$b$-tagged Fat Jets'},
+        'NFatJet': {'bins': bins_nfatjet, 'title': 'Number of AK8 Fat Jets'},
         }
 
 for thing in plottables:

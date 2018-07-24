@@ -21,7 +21,9 @@ import warnings
 parser = a.ArgumentParser(description='2D Fat Jet Mass plot')
 parser.add_argument('-f', '--files', nargs='*', required=True, help='Path to dataframe file(s) from ROOTCuts')
 parser.add_argument('--HT', type=float, default=0., help='Apply minimum HT cut, default = 0')
-parser.add_argument('--discrim', type=float, default=0.3, help='Minimum double-b-tag discriminator output, default is 0.3')
+parser.add_argument('--minDiscrim', type=float, default=-1., help='Minimum double-b-tag discriminator output, default is -1.')
+parser.add_argument('--maxDiscrim', type=float, default=1., help='Maximum double-b-tag discriminator output, default is 1.')
+parser.add_argument('--region', default='Signal', help='Signal, 2b1mu, 0b1mu, 2mu')
 parser.add_argument('--type', default='Signal', help='Type of sample: e.g. Signal, TTJets, QCD etc')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
@@ -36,7 +38,7 @@ for file in args.files:
 df = pd.concat(df_list)
 
 #Make the output directories
-directory = '2DFatJetMass_{0}'.format(args.type)
+directory = '2DFatJetMass_{0}_{1}Region_doubleBDiscrim{2}to{3}'.format(args.type, args.region, args.minDiscrim, args.maxDiscrim)
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
@@ -49,7 +51,14 @@ if not args.NoOutput:
 sns.set_style("white")
 discrim = args.discrim
 
-df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > discrim) & (df['FatDoubleBJetB_discrim'] > discrim) & (df['HT'] > args.HT))]
+df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > minDiscrim) & (df['FatDoubleBJetB_discrim'] > minDiscrim) & (df['FatDoubleBJetA_discrim'] < maxDiscrim) & (df['FatDoubleBJetB_discrim'] < maxDiscrim) & (df['HT'] > args.HT))]
+
+if args.region == '2b1mu':
+    df = df.loc[((df['NBJet'] == 2) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
+elif args.region == '0b1mu':
+    df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
+elif args.region == '2mu':
+    df = df.loc[((df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 
 g = sns.JointGrid(x=df['FatDoubleBJetA_mass'], y=df['FatDoubleBJetB_mass'], space=0.)
 g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=90, C=df['crosssec'], reduce_C_function=np.sum)

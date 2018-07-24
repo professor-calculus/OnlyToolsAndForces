@@ -123,19 +123,26 @@ bins_HT = np.linspace(0.,5000.,50)
 bins_MHT = np.linspace(0.,1000.,50)
 bins_DelR = np.linspace(0.,5.,50)
 bins_njet = np.arange(0, 20, 1)
+bins_nfatjet = np.arange(0, 8, 1)
 bins_nbjet = np.arange(0, 14, 1)
 bins_nDoubleB = np.arange(0, 2, 1)
 bins_Mbb = np.linspace(0., 200., 40)
 bins_DBT = np.linspace(-1., 1., 50)
+bins_nMuons = np.arange(0, 6, 1)
+bins_muon_transMass = np.linspace(0., 400., 50)
 
 dict = {'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ [GeV/$c$]'},
         'HT': {'branch': 'HT', 'bins': bins_HT, 'title': 'Total $H_{T}$ [GeV/$c$]'},
         'FatJetAngularSeparation': {'branch': 'FatJetAngularSeparation', 'bins': bins_DelR, 'title': 'AK8 Jets $\Delta R$'},
         'NJet': {'branch': 'NJet', 'bins': bins_njet, 'title': 'Number of Jets'},
+        'NFatJet': {'branch': 'NFatJet', 'bins': bins_nfatjet, 'title': 'Number of AK8 FatJets'},
         'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of $b$-tagged Jets'},
         'NDoubleBJet': {'branch': 'NDoubleBJet', 'bins': bins_nDoubleB, 'title': 'Number of double-$b$-tagged AK8 Jets'},
-        'FatDoubleBJetA_discrim': {'branch': 'FatDoubleBJetA_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
-        'FatDoubleBJetA_mass': {'branch': 'FatDoubleBJetA_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
+        'FatDoubleBJet_discrim': {'branch': 'MaxFatJetDoubleB_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
+        'FatDoubleBJet_mass': {'branch': 'FatJet_MaxDoubleB_discrim_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
+        'nMuons': {'branch': 'nMuons', 'bins': bins_nMuons, 'title': 'Number of isolated Muons'},
+        'Muon_MHT_TransMass': {'branch': 'Muon_MHT_TransMass', 'bins': bins_muon_transMass, 'title': 'Muon-Missing $H_{T}$ Transverse Mass'},
+        'Muons_InvMass': {'branch': 'Muons_InvMass', 'bins' bins_muon_transMass, 'title': "Di-Muon Invariant Mass"},
         }
 
 dict_upper = {'MHT': 2000.,
@@ -148,7 +155,7 @@ dict_upper = {'MHT': 2000.,
               'FatDoubleBJetA_mass': 200.,
              }
 
-variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJetA_discrim', 'FatDoubleBJetA_mass']
+variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJet_discrim', 'FatDoubleBJet_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
 
 n_signal = len(args.signal)
 linewidth = 3.
