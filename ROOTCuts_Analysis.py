@@ -199,10 +199,10 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB
         N_bjet.append(NSlimBJet_i)
 
         # Set double-b-tag discrim to -2 (out of usual range) if fat jet does not exist.
-        if NFatJet > 0:
+        if NFatJet_i > 0:
             fatJetA_discrim_val = fatJetA_bTagDiscrim_i
             fatJetA_mass_val = fatJetA_mass_i
-            if NFatJet > 1:
+            if NFatJet_i > 1:
                 fatJetB_discrim_val = fatJetB_bTagDiscrim_i
                 fatJetB_mass_val = fatJetB_mass_i
             else:
