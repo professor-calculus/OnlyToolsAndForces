@@ -24,7 +24,7 @@ parser.add_argument('--HT', type=float, default=0., help='Apply minimum HT cut, 
 parser.add_argument('--minMass', type=float, default=0., help='Minimum fat jet mass, default is 0.')
 parser.add_argument('--maxMass', type=float, default=999999., help='Maximum fat jet mass, default is 999999.')
 parser.add_argument('--type', default='Signal', help='Type of sample: e.g. Signal, TTJets, QCD etc')
-parser.add_argument('--region', default='Signal', help='Signal, 2b1mu, 0b1mu, 2mu')
+parser.add_argument('--region', default='Signal', help='Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -58,6 +58,8 @@ elif args.region == '0b1mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
 elif args.region == '2mu':
     df = df.loc[((df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
+elif args.region == '0b2mu':
+    df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 
 g = sns.JointGrid(x=df['FatDoubleBJetA_discrim'], y=df['FatDoubleBJetB_discrim'], space=0.)
 g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150)
