@@ -234,7 +234,10 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB
         N_doubleBJet.append(n_doublebjet)
 
         #Angular separation of AK8 jets:
-        dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
+        if NFatJet_i > 1:
+            dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
+        else:
+            dR = -1.
         AK8DelR.append(dR)
 
         if MHT_i > 200.:
