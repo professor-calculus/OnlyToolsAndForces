@@ -38,15 +38,14 @@ for file in args.files:
 df = pd.concat(df_list)
 
 #Make the output directories
-directory = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, args.HT)
-temp_dir = directory
+filepath = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, args.HT)
+temp_dir = filepath
 suffix = 1
 while os.path.exists(temp_dir):
     suffix += 1
-    temp_dir = directory + '_{0}'.format(suffix)
+    temp_dir = filepath + '_{0}'.format(suffix)
 if not args.NoOutput:
-    print('Files will be written to: {0}'.format(temp_dir))
-    os.makedirs(temp_dir)
+    print('File will be written as: {0}.pdf'.format(temp_dir))
 
 sns.set_style("white")
 
@@ -83,7 +82,7 @@ cax = g.fig.add_axes([.91, .3, .02, .3])  # x, y, width, height
 sns.plt.colorbar(cax=cax)
 
 if not args.NoOutput:
-    plt.savefig(os.path.join(temp_dir, '2DFatJetScore.pdf'))
-    print('Saved 2DFatJetScore.pdf output file')
+    plt.savefig('{0}.pdf'.format(temp_dir))
+    print('Saved {0}.pdf output file'.format(temp_dir))
 if not args.NoX:
     plt.show()
