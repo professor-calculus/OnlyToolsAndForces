@@ -62,7 +62,11 @@ elif args.region == '2mu':
 elif args.region == '0b2mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 
+if df.shape[0] == 0:
+    sys.exit('Error: No events left after cuts! Cannot plot.')
+
 g = sns.JointGrid(x=df['FatDoubleBJetA_mass'], y=df['FatDoubleBJetB_mass'], space=0.)
+
 g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=90, C=df['crosssec'], reduce_C_function=np.sum)
 
 cm = plt.cm.get_cmap(args.cmap)
