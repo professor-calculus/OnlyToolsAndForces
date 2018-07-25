@@ -38,7 +38,7 @@ for file in args.files:
 df = pd.concat(df_list)
 
 #Make the output directories
-filepath = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, args.HT)
+filepath = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, int(args.HT))
 temp_dir = filepath
 suffix = 1
 while os.path.exists(temp_dir):
