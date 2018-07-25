@@ -49,7 +49,8 @@ if not args.NoOutput:
     os.makedirs(temp_dir)
 
 sns.set_style("white")
-discrim = args.discrim
+minDiscrim = args.minDiscrim
+maxDiscrim = args.maxDiscrim
 
 df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > minDiscrim) & (df['FatDoubleBJetB_discrim'] > minDiscrim) & (df['FatDoubleBJetA_discrim'] < maxDiscrim) & (df['FatDoubleBJetB_discrim'] < maxDiscrim) & (df['HT'] > args.HT))]
 
