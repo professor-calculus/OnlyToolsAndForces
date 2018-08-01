@@ -105,7 +105,7 @@ os.makedirs(directory)
 commandString = ' '.join(sys.argv[0:])
 print(commandString)
 if not args.NoOutput:
-    f = open(os.path.join(directory, 'command.txt')
+    f = open(os.path.join(directory, 'command.txt'), 'w')
     f.write(commandString)
     f.close()
 
