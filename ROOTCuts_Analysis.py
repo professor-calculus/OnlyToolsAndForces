@@ -126,6 +126,7 @@ N_doubleBJet = []
 N_jet = []
 N_fatJet = []
 N_bjet = []
+LeadJetPt = []
 AK8DelR = []
 eventWeight = []
 
@@ -173,10 +174,10 @@ eventCounter = 0
 
 DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
-for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
-                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "muonA_p4", "muonB_p4", "nrMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
-    for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, muonA_p4_i, muonB_p4_i, nMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
-                                                    in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
+                                                 in tqdm(uproot.iterate(args.files, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
+    for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
+                                                    in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
         n_doublebjet = 0
         NJet6 = False
         HT1500 = False
@@ -198,6 +199,7 @@ for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, muonA_p4, muonB
         N_jet.append(NJet_i)
         N_fatJet.append(NFatJet_i)
         N_bjet.append(NSlimBJet_i)
+        LeadJetPt.append(LeadSlimJet_p4_i.pt)
 
         # Set double-b-tag discrim to -2 (out of usual range) if fat jet does not exist.
         if NFatJet_i > 0:
@@ -367,6 +369,7 @@ df = pd.DataFrame({
     'NFatJet': N_fatJet,
     'NBJet': N_bjet,
     'NDoubleBJet': N_doubleBJet,
+    'LeadSlimJet_Pt': LeadJetPt,
     'FatDoubleBJetA_mass': fatDoubleBJet_A_mass,
     'FatDoubleBJetB_mass': fatDoubleBJet_B_mass,
     'FatDoubleBJetA_discrim': fatDoubleBJet_A_discrim,
@@ -384,7 +387,7 @@ if not args.NoOutput:
     df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-plottables = ['MHT', 'HT', 'NJet', 'NDoubleBJet', 'NFatJet']
+plottables = ['MHT', 'HT', 'NJet', 'NDoubleBJet', 'NFatJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt']
 
 
 bins_HT = np.linspace(0.,5000.,160)
@@ -393,14 +396,19 @@ bins_DelR = np.linspace(0.,5.,100)
 bins_BMass = np.linspace(0.,500.,100)
 bins_njet = np.arange(0, 20, 1)
 bins_nfatjet = np.arange(0, 8, 1)
-bins_ndoublebjet = np.arange(0, 3, 1)
-
+bins_ndoublebjet = np.arange(-1, 4, 1)
+bins_nmuons = np.arange(0, 10, 1)
+bins_doublebdiscrim = np.linspace(-1., 1.)
 
 dict = {'MHT': {'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
         'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
         'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
         'NDoubleBJet': {'bins': bins_ndoublebjet, 'title': 'Number of Double-$b$-tagged Fat Jets'},
         'NFatJet': {'bins': bins_nfatjet, 'title': 'Number of AK8 Fat Jets'},
+        'nMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
+        'MaxFatJetDoubleB_discrim': {'bins': bins_doublebdiscrim, 'title': 'Highest Double-b discriminator score'},
+        'FatJet_MaxDoubleB_discrim_mass': {'bins': bins_BMass, 'title': 'Soft-Drop Mass of AK8 Jet with Highest Double-b discriminator score'},
+        'LeadSlimJet_Pt': {'bins': bins_MHT, 'title': 'Lead AK4 Jet P_{T}'},
         }
 
 for thing in plottables:
