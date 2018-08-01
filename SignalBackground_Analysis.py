@@ -151,7 +151,7 @@ dict = {'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ [Ge
         'FatDoubleBJet_mass': {'branch': 'FatJet_MaxDoubleB_discrim_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
         'nMuons': {'branch': 'nMuons', 'bins': bins_nMuons, 'title': 'Number of isolated Muons'},
         'Muon_MHT_TransMass': {'branch': 'Muon_MHT_TransMass', 'bins': bins_muon_transMass, 'title': 'Muon-Missing $H_{T}$ Transverse Mass'},
-        'Muons_InvMass': {'branch': 'Muons_InvMass', 'bins' bins_muon_transMass, 'title': "Di-Muon Invariant Mass"},
+        'Muons_InvMass': {'branch': 'Muons_InvMass', 'bins': bins_muon_transMass, 'title': "Di-Muon Invariant Mass"},
         }
 
 dict_upper = {'MHT': 2000.,
