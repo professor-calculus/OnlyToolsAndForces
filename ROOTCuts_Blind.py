@@ -101,6 +101,14 @@ while os.path.exists(directory):
 print('Files will be written to: {0}'.format(directory))
 os.makedirs(directory)
 
+# Save original command for later use
+commandString = ' '.join(sys.argv[0:])
+print(commandString)
+if not args.NoOutput:
+    f = open(os.path.join(directory, 'command.txt')
+    f.write(commandString)
+    f.close()
+
 #Weight events to sum to Lumi*CrossSec
 eventweight = (args.Lumi * xsec)/float(nentries)
 
