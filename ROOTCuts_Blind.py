@@ -97,7 +97,7 @@ suffix = 1
 while os.path.exists(directory):
     suffix += 1
     directory = args.OutDir + '_{0}_{1}'.format(args.type, suffix)
-thedirectories = '{0}_{1}_[{2}-{3}]'.format(args.OutDir, args.type, suffix, suffix+len(args.files))
+thedirectories = '{0}_{1}_[{2}-{3}]'.format(args.OutDir, args.type, suffix, suffix+len(args.files)-1)
 print('Output will be written to {0}'.format(thedirectories))
 
 ### NEW! Loop over files and write to separate output, then combine later
