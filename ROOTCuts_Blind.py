@@ -67,6 +67,10 @@ def Invariant_Mass(PT1, PT2, Eta1, Eta2, Phi1, Phi2):
     m = math.sqrt(m2)
     return m;
 
+# Save original command for later use
+commandString = ' '.join(sys.argv[0:])
+print(commandString)
+
 # Global variables defined once:
 MHT_bins = np.array([200., 400., 600., 999999.])
 HT_bins = np.array([1500., 2500., 3500., 99999.])
@@ -87,6 +91,15 @@ print('Cross-section = {}pb'.format(xsec))
 
 print('Looping over {0} files'.format(len(args.files)))
 
+# Make the output directories
+directory = args.OutDir + '_{0}'.format(args.type)
+suffix = 1
+while os.path.exists(directory):
+    suffix += 1
+    directory = args.OutDir + '_{0}_{1}'.format(args.type, suffix)
+thedirectories = '{0}_{1}_[{2}-{3}]'.format(args.OutDir, args.type, suffix, suffix+len(args.files))
+print('Output will be written to {0}'.format(thedirectories))
+
 ### NEW! Loop over files and write to separate output, then combine later
 for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     #First we open the root file.
@@ -102,12 +115,9 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     while os.path.exists(directory):
         suffix += 1
         directory = args.OutDir + '_{0}_{1}'.format(args.type, suffix)
-    print('Files will be written to: {0}'.format(directory))
     os.makedirs(directory)
 
     # Save original command for later use
-    commandString = ' '.join(sys.argv[0:])
-    print(commandString)
     if not args.NoOutput:
         f = open(os.path.join(directory, 'command.txt'), 'w')
         f.write(commandString)
