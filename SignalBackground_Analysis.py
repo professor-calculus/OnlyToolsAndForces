@@ -101,7 +101,7 @@ if args.signal:
     if args.verbose:
         print('Signal:')
         print(df_sig)
-    sigweight = args.Lumi/float(df_sig.shape[0])
+    sigweight = args.Lumi/float(len(df_sig.columns))
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
@@ -113,7 +113,7 @@ if args.signal:
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
-    MSSMweight = args.Lumi/float(df_MSSM.shape[0])
+    MSSMweight = args.Lumi/float(len(df_MSSM.columns))
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -125,7 +125,7 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
-    QCDweight = args.Lumi/float(df_QCD.shape[0])
+    QCDweight = args.Lumi/float(len(df_QCD.columns))
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -137,7 +137,7 @@ if args.QCD:
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
-    TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
+    TTJetsweight = args.Lumi/float(len(df_TTJets.columns))
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
