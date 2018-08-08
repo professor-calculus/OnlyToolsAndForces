@@ -220,7 +220,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-    plottables = ['MHT', 'HT', 'NJet', 'NFatJet', 'nMuons', 'LeadSlimJet_Pt']
+    plottables = ['MHT', 'HT', 'NJet', 'nMuons', 'LeadSlimJet_Pt']
 
 
     bins_HT = np.linspace(0.,5000.,160)
