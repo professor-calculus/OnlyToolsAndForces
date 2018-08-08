@@ -27,7 +27,7 @@ parser.add_argument('-t', '--type', required=True, help='Type of sample: SIGNAL,
 parser.add_argument('-l', '--Lumi', type=float, default=1., help='Luminosity in pb')
 parser.add_argument('--Msq', type=float, default=1000., help='Squark mass in GeV/c**2')
 parser.add_argument('--Mlsp', type=float, default=10., help='LSP mass in GeV/c**2')
-parser.add_argument('-c', '--CrossSec', type=float, default=1., help='Cross-Section in inverse pb')
+parser.add_argument('-c', '--CrossSec', type=float, default=1., help='Cross-Section in pb')
 parser.add_argument('-p', '--Prospino', default=None, help='Prospino input (reversed). Takes priority over -c')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('--kdeplot', action='store_true', help='Use kdeplot in Seaborn instead of matplotlib histogram')
