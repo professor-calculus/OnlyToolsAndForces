@@ -235,46 +235,72 @@ for var in variables:
             temp_i += 5
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+            df_plot = df_temp[dict[var]['branch']]
+            df_plot = df_plot.compute()
+            df_weight = df_temp['crosssec']
+            df_weight = df_weight.compute()
             if args.norm:
-                plt.hist(df_temp[dict[var]['branch']].compute(), bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
+                plt.hist(df_plot, bins=dict[var]['bins'], weights=sigweight*df_weight['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
             else:
-                #plt.hist(df_temp[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-                plt.hist(df_temp[dict[var]['branch']].compute(), bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+                #plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
+                plt.hist(df_plot, bins=dict[var]['bins'], weights=sigweight*df_weight['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
+        df_plot = df_MSSM[dict[var]['branch']]
+        df_plot = df_plot.compute()
+        df_weight = df_MSSM['crosssec']
+        df_weight = df_weight.compute()
         if args.norm:
-            plt.hist(df_MSSM[dict[var]['branch']].compute(), bins=dict[var]['bins'], weights=MSSMweight*df_MSSM['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
+            plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
         else:
-            #plt.hist(df_MSSM[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_MSSM[dict[var]['branch']].compute(), bins=dict[var]['bins'], weights=MSSMweight*df_MSSM['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
+            #plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
+            plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
     if args.QCD and args.TTJets and args.stackBKG:
+        df_plot = df_QCD[dict[var]['branch']]
+        df_plot = df_plot.compute()
+        df_plot2 = df_TTJets[dict[var]['branch']]
+        df_plot2 = df_plot2.compute()
+        df_weight = df_QCD['crosssec']
+        df_weight = df_weight.compute()
+        df_weight2 = df_TTJets['crosssec']
+        df_weight2 = df_weight2.compute()
         if args.norm:
-            plt.hist([df_QCD[dict[var]['branch']].compute(), df_TTJets[dict[var]['branch']]], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_QCD['crosssec'], TTJetsweight*df_TTJets['crosssec']], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, normed=1., histtype="stepfilled", zorder=5)
+            plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight['crosssec'], TTJetsweight*df_weight2['crosssec'], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, normed=1., histtype="stepfilled", zorder=5)
         else:
-            plt.hist([df_QCD[dict[var]['branch']].compute(), df_TTJets[dict[var]['branch']]], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_QCD['crosssec'], TTJetsweight*df_TTJets['crosssec']], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, histtype="stepfilled", zorder=5)
-            #plt.hist(df_QCD[dict[var]['branch']].compute(), bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
+            plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight['crosssec'], TTJetsweight*df_weight2['crosssec']], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, histtype="stepfilled", zorder=5)
+            #plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
     else:
         if args.QCD:
+            df_plot = df_QCD[dict[var]['branch']]
+            df_plot = df_plot.compute()
+            df_weight = df_QCD['crosssec']
+            df_weight = df_weight.compute()
             if args.norm:
-                plt.hist(df_QCD[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_QCD['crosssec'], label='QCD background', log=True, normed=1., histtype="stepfilled", zorder=5)
+                plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_weight['crosssec'], label='QCD background', log=True, normed=1., histtype="stepfilled", zorder=5)
             else:
-                plt.hist(df_QCD[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_QCD['crosssec'], label='QCD background', log=True, histtype="stepfilled", zorder=5)
-                #plt.hist(df_QCD[dict[var]['branch']].compute(), bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
+                plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_weight['crosssec'], label='QCD background', log=True, histtype="stepfilled", zorder=5)
+                #plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
         if args.TTJets:
+            df_plot = df_TTJets[dict[var]['branch']]
+            df_plot = df_plot.compute()
+            df_weight = df_TTJets['crosssec']
+            df_weight = df_weight.compute()
             if args.norm:
-                plt.hist(df_TTJets[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_TTJets['crosssec'], normed=1., label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
+                plt.hist(df_plot, bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_weight['crosssec'], normed=1., label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
             else:
-                plt.hist(df_TTJets[dict[var]['branch']].compute(), bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_TTJets['crosssec'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
-                #plt.hist(df_TTJets[dict[var]['branch']].compute(), bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
+                plt.hist(df_plot, bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_weight['crosssec'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
+                #plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
 
     if args.Data:
+        df_plot = df_Data[dict[var]['branch']]
+        df_plot = df_plot.compute()
         if args.norm:
-            plt.hist(df_Data[dict[var]['branch']].compute(), bins=dict[var]['bins'], normed=1., label='Data', log=True, histtype="step", zorder=35)
+            plt.hist(df_plot, bins=dict[var]['bins'], normed=1., label='Data', log=True, histtype="step", zorder=35)
         else:
-            plt.hist(df_Data[dict[var]['branch']].compute(), bins=dict[var]['bins'], label='Data', log=True, histtype="step", zorder=35)
-            #plt.hist(df_Data[dict[var]['branch']].compute(), bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
+            plt.hist(df_plot, bins=dict[var]['bins'], label='Data', log=True, histtype="step", zorder=35)
+            #plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
 
 
     plt.xlabel(dict[var]['title'], size=14)
