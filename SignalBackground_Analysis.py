@@ -98,8 +98,8 @@ columns.append('crosssec')
 if args.signal:
     df_sig = pd.DataFrame()
     for file in args.signal:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_sig = pd.concat([df_sig, df])
+        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
+            df_sig = pd.concat([df_sig, df])
     if args.verbose:
         print('Signal:')
         print(df_sig)
@@ -116,8 +116,8 @@ if args.signal:
 if args.MSSM:
     df_MSSM = pd.DataFrame()
     for file in args.MSSM:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_MSSM = pd.concat([df_MSSM, df])
+        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
+            df_MSSM = pd.concat([df_MSSM, df])
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
@@ -131,8 +131,8 @@ if args.MSSM:
 if args.QCD:
     df_QCD = pd.DataFrame()
     for file in args.QCD:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_QCD = pd.concat([df_QCD, df])
+        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
+            df_QCD = pd.concat([df_QCD, df])
     QCDweight = args.Lumi/float(df_QCD.shape[0])
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
@@ -146,8 +146,8 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = pd.DataFrame()
     for file in args.TTJets:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_TTJets = pd.concat([df_TTJets, df])
+        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
+            df_TTJets = pd.concat([df_TTJets, chunk])
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
@@ -161,8 +161,8 @@ if args.TTJets:
 if args.Data:
     df_Data = pd.DataFrame()
     for file in args.Data:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_Data = pd.concat([df_Data, df])
+        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
+            df_Data = pd.concat([df_Data, df])
     if args.HT_cut:
         df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
     if args.verbose:
