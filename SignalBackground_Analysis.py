@@ -54,11 +54,19 @@ print '\nPython Signal vs Background Plotter\n'
 print('Luminosity = {0}fb-1'.format(args.Lumi/1000.))
 print(args.signal)
 
+if args.Data:
+    variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+else:
+    variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+
+columns = variables
+columns.append('crosssec')
+
 # Read in the dataframes:
 if args.signal:
     df_sig_list = []
     for file in args.signal:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
         df_sig_list.append(df)
     df_sig = pd.concat(df_sig_list)
     if args.verbose:
@@ -71,19 +79,19 @@ if args.signal:
     if args.HT_cut:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
-        df_sig = df_sig.loc[(df_sig['FatDoubleBJetA_discrim'] > args.DBT)]
+        df_sig = df_sig.loc[(df_sig['MaxFatJetDoubleB_discrim'] > args.DBT)]
 
 if args.MSSM:
     df_MSSM_list = []
     for file in args.MSSM:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
         df_MSSM_list.append(df)
     df_MSSM = pd.concat(df_MSSM_list)
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
-        df_MSSM = df_MSSM.loc[(df_MSSM['FatDoubleBJetA_discrim'] > args.DBT)]
+        df_MSSM = df_MSSM.loc[(df_MSSM['MaxFatJetDoubleB_discrim'] > args.DBT)]
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
@@ -91,14 +99,14 @@ if args.MSSM:
 if args.QCD:
     df_list = []
     for file in args.QCD:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
         df_list.append(df)
     df_QCD = pd.concat(df_list)
     QCDweight = args.Lumi/float(df_QCD.shape[0])
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
-        df_QCD = df_QCD.loc[(df_QCD['FatDoubleBJetA_discrim'] > args.DBT)]
+        df_QCD = df_QCD.loc[(df_QCD['MaxFatJetDoubleB_discrim'] > args.DBT)]
     if args.verbose:
         print('QCD:')
         print(df_QCD)
@@ -106,7 +114,7 @@ if args.QCD:
 if args.TTJets:
     df_TTJets_list = []
     for file in args.TTJets:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
         df_TTJets_list.append(df)
     df_TTJets = pd.concat(df_TTJets_list)
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
@@ -121,7 +129,7 @@ if args.TTJets:
 if args.Data:
     df_Data_list = []
     for file in args.Data:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
         df_Data_list.append(df)
     df_Data = pd.concat(df_Data_list)
     if args.HT_cut:
@@ -177,8 +185,8 @@ dict = {'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ [Ge
         'NFatJet': {'branch': 'NFatJet', 'bins': bins_nfatjet, 'title': 'Number of AK8 FatJets'},
         'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of $b$-tagged Jets'},
         'NDoubleBJet': {'branch': 'NDoubleBJet', 'bins': bins_nDoubleB, 'title': 'Number of double-$b$-tagged AK8 Jets'},
-        'FatDoubleBJet_discrim': {'branch': 'MaxFatJetDoubleB_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
-        'FatDoubleBJet_mass': {'branch': 'FatJet_MaxDoubleB_discrim_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
+        'MaxFatJetDoubleB_discrim': {'branch': 'MaxFatJetDoubleB_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
+        'FatJet_MaxDoubleB_discrim_mass': {'branch': 'FatJet_MaxDoubleB_discrim_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
         'nMuons': {'branch': 'nMuons', 'bins': bins_nMuons, 'title': 'Number of isolated Muons'},
         'Muon_MHT_TransMass': {'branch': 'Muon_MHT_TransMass', 'bins': bins_muon_transMass, 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
         'Muons_InvMass': {'branch': 'Muons_InvMass', 'bins': bins_muon_transMass, 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
@@ -194,11 +202,6 @@ dict_upper = {'MHT': 2000.,
               'FatDoubleBJetA_discrim': 1.,
               'FatDoubleBJetA_mass': 200.,
              }
-
-if args.Data:
-    variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
-else:
-    variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJet_discrim', 'FatDoubleBJet_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
 
 linewidth = 3.
 
