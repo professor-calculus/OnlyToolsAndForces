@@ -68,32 +68,34 @@ if args.Data:
     variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
-             'NJet': np.int8,
-             'nMuons': np.int8,
+             'NJet': np.uint8,
+             'nMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
              'Muons_InvMass': np.float32,
              'LeadSlimJet_Pt': np.float32,
              'crosssec': np.float32,
+             'NoEntries': np.uint32,
             }
 else:
     variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
-             'NJet': np.int8,
-             'NFatJet': np.int8,
-             'NBJet': np.int8,
-             'NDoubleBJet': np.int8,
+             'NJet': np.uint8,
+             'NFatJet': np.uint8,
+             'NBJet': np.uint8,
+             'NDoubleBJet': np.uint8,
              'MaxFatJetDoubleB_discrim': np.float32,
              'FatJet_MaxDoubleB_discrim_mass': np.float32,
-             'nMuons': np.int8,
+             'nMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
              'Muons_InvMass': np.float32,
              'LeadSlimJet_Pt': np.float32,
              'crosssec': np.float32,
+             'NoEntries': np.float32,
             }
 
 columns = variables
-columns.append('crosssec')
+columns.append(['crosssec', 'NoEntries'])
 
 # Read in the dataframes:
 if args.signal:
@@ -101,10 +103,12 @@ if args.signal:
     if args.verbose:
         print('Signal:')
         print(df_sig)
-    sigweight = args.Lumi/float(len(df_sig.columns))
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
+    entries = df_sig['NoEntries'].drop_duplicates().compute().iloc[0]
+    print(entries)
+    sigweight = args.Lumi/float(entries)
     if args.HT_cut:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -113,7 +117,9 @@ if args.signal:
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
-    MSSMweight = args.Lumi/float(len(df_MSSM.columns))
+    entries = df_MSSM['NoEntries'].drop_duplicates().compute().iloc[0]
+    print(entries)
+    MSSMweight = args.Lumi/float(entries)
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -125,7 +131,9 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
-    QCDweight = args.Lumi/float(len(df_QCD.columns))
+    entries = df_QCD['NoEntries'].drop_duplicates().compute().iloc[0]
+    print(entries)
+    QCDweight = args.Lumi/float(entries)
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -137,7 +145,9 @@ if args.QCD:
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
-    TTJetsweight = args.Lumi/float(len(df_TTJets.columns))
+    entries = df_TTJets['NoEntries'].drop_duplicates().compute().iloc[0]
+    print(entries)
+    TTJetsweight = args.Lumi/float(entries)
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:

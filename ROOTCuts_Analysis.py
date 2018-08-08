@@ -100,14 +100,17 @@ while os.path.exists(directory):
 thedirectories = '{0}_{1}_[{2}-{3}]'.format(args.OutDir, args.type, suffix, suffix+len(args.files)-1)
 print('Output will be written to {0}'.format(thedirectories))
 
-### NEW! Loop over files and write to separate output, then combine later
-for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
-    #First we open the root file.
+# Total number of events being run over:
+nentries = 0.
+for thefile in args.files:
     events = uproot.open(thefile)["eventCountTree"]
-    nentries = 0.
     nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
     for nevts in nEvents[0]:
         nentries += nevts
+print('{0} events total')
+
+### NEW! Loop over files and write to separate output, then combine later
+for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     # Make the output directories
     directory = args.OutDir + '_{0}'.format(args.type)
@@ -130,6 +133,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     msq = []
     mlsp = []
     crosssec = []
+    NoEntries = []
     mht = []
     met = []
     ht = []
@@ -202,6 +206,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             msq.append(args.Msq)
             mlsp.append(args.Mlsp)
             crosssec.append(xsec)
+            NoEntries.append(nentries)
             eventWeight.append(eventweight)
             mht.append(MHT_i)
             ht.append(HT_i)
@@ -372,6 +377,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'M_sq': msq,
         'M_lsp': mlsp,
         'crosssec': crosssec,
+        'NoEntries': NoEntries,
         'MHT': mht,
         'HT': ht,
         'NJet': N_jet,
