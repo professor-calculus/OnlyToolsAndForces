@@ -133,7 +133,8 @@ if args.QCD:
     if args.verbose:
         print('QCD:')
         print(df_QCD)
-    #print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
+    df_QCD = df_QCD.compute()
+    print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
