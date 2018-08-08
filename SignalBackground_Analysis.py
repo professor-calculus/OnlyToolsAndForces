@@ -267,7 +267,7 @@ for var in variables:
         df_weight2 = df_TTJets['crosssec']
         df_weight2 = df_weight2.compute()
         if args.norm:
-            plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight['crosssec'], TTJetsweight*df_weight2['crosssec'], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, normed=1., histtype="stepfilled", zorder=5)
+            plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight['crosssec'], TTJetsweight*df_weight2['crosssec']], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, normed=1., histtype="stepfilled", zorder=5)
         else:
             plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight['crosssec'], TTJetsweight*df_weight2['crosssec']], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, histtype="stepfilled", zorder=5)
             #plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
