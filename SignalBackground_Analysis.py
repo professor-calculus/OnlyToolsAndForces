@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pandas as pd
+import dask.dataframe as dd
 import os
 import numpy as np
 import matplotlib
@@ -14,7 +15,6 @@ import seaborn as sns
 import sys
 import argparse as a
 import warnings
-from tqdm import tqdm
 
 #Get Options
 
@@ -97,15 +97,15 @@ columns.append('crosssec')
 
 # Read in the dataframes:
 if args.signal:
-    df_sig = pd.DataFrame()
-    for file in tqdm(args.signal, 'Reading Signal files'):
-        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
-            df_sig = pd.concat([df_sig, df])
+    df_sig = dd.DataFrame()
+    for file in args.signal:
+        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
+        df_sig = dd.concat([df_sig, df])
     if args.verbose:
         print('Signal:')
         print(df_sig)
     sigweight = args.Lumi/float(df_sig.shape[0])
-    df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates()
+    df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
     if args.HT_cut:
@@ -115,10 +115,10 @@ if args.signal:
     print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
-    df_MSSM = pd.DataFrame()
-    for file in tqdm(args.MSSM, desc='Reading MSSM files'):
-        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
-            df_MSSM = pd.concat([df_MSSM, df])
+    df_MSSM = dd.DataFrame()
+    for file in args.MSSM:
+        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
+        df_MSSM = dd.concat([df_MSSM, df])
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
@@ -130,10 +130,10 @@ if args.MSSM:
     print('MSSM df read, memory used: {0}'.format(mem_usage(df_MSSM)))
 
 if args.QCD:
-    df_QCD = pd.DataFrame()
-    for file in tqdm(args.QCD, desc='Reading QCD files'):
-        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
-            df_QCD = pd.concat([df_QCD, df])
+    df_QCD = dd.DataFrame()
+    for file in args.QCD:
+        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
+        df_QCD = dd.concat([df_QCD, df])
     QCDweight = args.Lumi/float(df_QCD.shape[0])
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
@@ -145,10 +145,10 @@ if args.QCD:
     print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
 
 if args.TTJets:
-    df_TTJets = pd.DataFrame()
-    for file in tqdm(args.TTJets, 'Reading TTJets files'):
-        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
-            df_TTJets = pd.concat([df_TTJets, chunk])
+    df_TTJets = dd.DataFrame()
+    for file in args.TTJets:
+        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
+        df_TTJets = dd.concat([df_TTJets, df])
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
@@ -160,10 +160,10 @@ if args.TTJets:
     print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
 
 if args.Data:
-    df_Data = pd.DataFrame()
-    for file in tqdm(args.Data, 'Reading Data files'):
-        for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
-            df_Data = pd.concat([df_Data, df])
+    df_Data = dd.DataFrame()
+    for file in args.Data:
+        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
+        df_Data = dd.concat([df_Data, df])
     if args.HT_cut:
         df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
     if args.verbose:
