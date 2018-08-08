@@ -23,7 +23,7 @@ parser.add_argument('-q', '--QCD', default=None, nargs='*', help='Path to QCD da
 parser.add_argument('-m', '--MSSM', default=None, nargs='*', help='Path to MSSM dataframe file(s) from ROOTCuts')
 parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJets dataframe file(s) from ROOTCuts')
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
-parser.add_argument('-l', '--Lumi', default=35900., help='Luminosity in pb-1')
+parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data samples)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
