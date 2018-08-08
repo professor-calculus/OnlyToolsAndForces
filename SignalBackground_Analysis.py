@@ -52,7 +52,16 @@ if args.style:
 
 print '\nPython Signal vs Background Plotter\n'
 print('Luminosity = {0}fb-1'.format(args.Lumi/1000.))
-print(args.signal)
+
+# Memory usage of pandas thing
+def mem_usage(pandas_obj):
+    if isinstance(pandas_obj,pd.DataFrame):
+        usage_b = pandas_obj.memory_usage(deep=True).sum()
+    else: # we assume if not a df it's a series
+        usage_b = pandas_obj.memory_usage(deep=True)
+    usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
+    return "{:03.2f} MB".format(usage_mb)
+
 
 if args.Data:
     variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
@@ -87,11 +96,10 @@ columns.append('crosssec')
 
 # Read in the dataframes:
 if args.signal:
-    df_sig_list = []
+    df_sig = pd.DataFrame()
     for file in args.signal:
         df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_sig_list.append(df)
-    df_sig = pd.concat(df_sig_list)
+        df_sig = pd.concat([df_sig, df])
     if args.verbose:
         print('Signal:')
         print(df_sig)
@@ -103,13 +111,13 @@ if args.signal:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
         df_sig = df_sig.loc[(df_sig['MaxFatJetDoubleB_discrim'] > args.DBT)]
+    print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
-    df_MSSM_list = []
+    df_MSSM = pd.DataFrame()
     for file in args.MSSM:
         df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_MSSM_list.append(df)
-    df_MSSM = pd.concat(df_MSSM_list)
+        df_MSSM = pd.concat([df_MSSM, df])
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
@@ -118,13 +126,13 @@ if args.MSSM:
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
+    print('MSSM df read, memory used: {0}'.format(mem_usage(df_MSSM)))
 
 if args.QCD:
-    df_list = []
+    df_QCD = pd.DataFrame()
     for file in args.QCD:
         df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_list.append(df)
-    df_QCD = pd.concat(df_list)
+        df_QCD = pd.concat([df_QCD, df])
     QCDweight = args.Lumi/float(df_QCD.shape[0])
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
@@ -133,13 +141,13 @@ if args.QCD:
     if args.verbose:
         print('QCD:')
         print(df_QCD)
+    print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
 
 if args.TTJets:
-    df_TTJets_list = []
+    df_TTJets = pd.DataFrame()
     for file in args.TTJets:
         df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_TTJets_list.append(df)
-    df_TTJets = pd.concat(df_TTJets_list)
+        df_TTJets = pd.concat([df_TTJets, df])
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
@@ -148,18 +156,19 @@ if args.TTJets:
     if args.verbose:
         print('TTJets:')
         print(df_TTJets)
+    print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
 
 if args.Data:
-    df_Data_list = []
+    df_Data = pd.DataFrame()
     for file in args.Data:
         df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_Data_list.append(df)
-    df_Data = pd.concat(df_Data_list)
+        df_Data = pd.concat([df_Data, df])
     if args.HT_cut:
         df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
     if args.verbose:
         print('Data:')
         print(df_Data)
+    print('Data df read, memory used: {0}'.format(mem_usage(df_Data)))
 
 #Make the output directories
 directory = 'Signal_vs_Background_Analysis'
