@@ -56,8 +56,31 @@ print(args.signal)
 
 if args.Data:
     variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    types = {'MHT': np.float32,
+             'HT': np.float32,
+             'NJet': np.int8,
+             'nMuons': np.int8,
+             'Muon_MHT_TransMass': np.float32,
+             'Muons_InvMass': np.float32,
+             'LeadSlimJet_Pt': np.float32,
+             'crosssec': np.float32,
+            }
 else:
     variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    types = {'MHT': np.float32,
+             'HT': np.float32,
+             'NJet': np.int8,
+             'NFatJet': np.int8,
+             'NBJet': np.int8,
+             'NDoubleBJet': np.int8,
+             'MaxFatJetDoubleB_discrim': np.float32,
+             'FatJet_MaxDoubleB_discrim_mass': np.float32,
+             'nMuons': np.int8,
+             'Muon_MHT_TransMass': np.float32,
+             'Muons_InvMass': np.float32,
+             'LeadSlimJet_Pt': np.float32,
+             'crosssec': np.float32,
+            }
 
 columns = variables
 columns.append('crosssec')
@@ -66,7 +89,7 @@ columns.append('crosssec')
 if args.signal:
     df_sig_list = []
     for file in args.signal:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
         df_sig_list.append(df)
     df_sig = pd.concat(df_sig_list)
     if args.verbose:
@@ -84,7 +107,7 @@ if args.signal:
 if args.MSSM:
     df_MSSM_list = []
     for file in args.MSSM:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
         df_MSSM_list.append(df)
     df_MSSM = pd.concat(df_MSSM_list)
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
@@ -99,7 +122,7 @@ if args.MSSM:
 if args.QCD:
     df_list = []
     for file in args.QCD:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
         df_list.append(df)
     df_QCD = pd.concat(df_list)
     QCDweight = args.Lumi/float(df_QCD.shape[0])
@@ -114,7 +137,7 @@ if args.QCD:
 if args.TTJets:
     df_TTJets_list = []
     for file in args.TTJets:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
         df_TTJets_list.append(df)
     df_TTJets = pd.concat(df_TTJets_list)
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
@@ -129,7 +152,7 @@ if args.TTJets:
 if args.Data:
     df_Data_list = []
     for file in args.Data:
-        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns)
+        df = pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
         df_Data_list.append(df)
     df_Data = pd.concat(df_Data_list)
     if args.HT_cut:
