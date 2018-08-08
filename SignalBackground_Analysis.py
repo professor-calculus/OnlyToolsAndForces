@@ -109,7 +109,7 @@ if args.signal:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
         df_sig = df_sig.loc[(df_sig['MaxFatJetDoubleB_discrim'] > args.DBT)]
-    print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
+    #print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
@@ -121,7 +121,7 @@ if args.MSSM:
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
-    print('MSSM df read, memory used: {0}'.format(mem_usage(df_MSSM)))
+    #print('MSSM df read, memory used: {0}'.format(mem_usage(df_MSSM)))
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
@@ -133,7 +133,7 @@ if args.QCD:
     if args.verbose:
         print('QCD:')
         print(df_QCD)
-    print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
+    #print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
@@ -145,7 +145,7 @@ if args.TTJets:
     if args.verbose:
         print('TTJets:')
         print(df_TTJets)
-    print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
+    #print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
 
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
@@ -154,7 +154,7 @@ if args.Data:
     if args.verbose:
         print('Data:')
         print(df_Data)
-    print('Data df read, memory used: {0}'.format(mem_usage(df_Data)))
+    #print('Data df read, memory used: {0}'.format(mem_usage(df_Data)))
 
 #Make the output directories
 directory = 'Signal_vs_Background_Analysis'
