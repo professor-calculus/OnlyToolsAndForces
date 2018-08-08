@@ -97,10 +97,7 @@ columns.append('crosssec')
 
 # Read in the dataframes:
 if args.signal:
-    df_sig = dd.DataFrame()
-    for file in args.signal:
-        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_sig = dd.concat([df_sig, df])
+    df_sig = dd.read_csv(args.signal, delimiter=r'\s+', usecols=columns, dtype=types)
     if args.verbose:
         print('Signal:')
         print(df_sig)
@@ -115,10 +112,7 @@ if args.signal:
     print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
-    df_MSSM = dd.DataFrame()
-    for file in args.MSSM:
-        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_MSSM = dd.concat([df_MSSM, df])
+    df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
@@ -130,10 +124,7 @@ if args.MSSM:
     print('MSSM df read, memory used: {0}'.format(mem_usage(df_MSSM)))
 
 if args.QCD:
-    df_QCD = dd.DataFrame()
-    for file in args.QCD:
-        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_QCD = dd.concat([df_QCD, df])
+    df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
     QCDweight = args.Lumi/float(df_QCD.shape[0])
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
@@ -145,10 +136,7 @@ if args.QCD:
     print('QCD df read, memory used: {0}'.format(mem_usage(df_QCD)))
 
 if args.TTJets:
-    df_TTJets = dd.DataFrame()
-    for file in args.TTJets:
-        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_TTJets = dd.concat([df_TTJets, df])
+    df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
@@ -160,10 +148,7 @@ if args.TTJets:
     print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
 
 if args.Data:
-    df_Data = dd.DataFrame()
-    for file in args.Data:
-        df = dd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types)
-        df_Data = dd.concat([df_Data, df])
+    df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
     if args.HT_cut:
         df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
     if args.verbose:
