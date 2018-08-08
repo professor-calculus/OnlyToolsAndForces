@@ -199,7 +199,6 @@ if args.Data:
 else:
     variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'FatDoubleBJet_discrim', 'FatDoubleBJet_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
 
-n_signal = len(args.signal)
 linewidth = 3.
 
 for var in variables:
@@ -209,16 +208,16 @@ for var in variables:
         ax.set(yscale="log")
 
     temp_i = 0
-    for index, row in df_sig_masses.iterrows():
-        temp_i += 5
-        label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
-        df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
-        if args.norm:
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
-        else:
-            #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-            plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
-
+    if args.signal:
+        for index, row in df_sig_masses.iterrows():
+            temp_i += 5
+            label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
+            df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+            if args.norm:
+                plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
+            else:
+                #plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
+                plt.hist(df_temp[dict[var]['branch']], bins=dict[var]['bins'], weights=sigweight*df_temp['crosssec'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
