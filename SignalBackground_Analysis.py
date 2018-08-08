@@ -14,6 +14,7 @@ import seaborn as sns
 import sys
 import argparse as a
 import warnings
+from tqdm import tqdm
 
 #Get Options
 
@@ -97,7 +98,7 @@ columns.append('crosssec')
 # Read in the dataframes:
 if args.signal:
     df_sig = pd.DataFrame()
-    for file in args.signal:
+    for file in tqdm(args.signal, 'Reading Signal files'):
         for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
             df_sig = pd.concat([df_sig, df])
     if args.verbose:
@@ -115,7 +116,7 @@ if args.signal:
 
 if args.MSSM:
     df_MSSM = pd.DataFrame()
-    for file in args.MSSM:
+    for file in tqdm(args.MSSM, desc='Reading MSSM files'):
         for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
             df_MSSM = pd.concat([df_MSSM, df])
     MSSMweight = args.Lumi/float(df_MSSM.shape[0])
@@ -130,7 +131,7 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = pd.DataFrame()
-    for file in args.QCD:
+    for file in tqdm(args.QCD, desc='Reading QCD files'):
         for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
             df_QCD = pd.concat([df_QCD, df])
     QCDweight = args.Lumi/float(df_QCD.shape[0])
@@ -145,7 +146,7 @@ if args.QCD:
 
 if args.TTJets:
     df_TTJets = pd.DataFrame()
-    for file in args.TTJets:
+    for file in tqdm(args.TTJets, 'Reading TTJets files'):
         for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
             df_TTJets = pd.concat([df_TTJets, chunk])
     TTJetsweight = args.Lumi/float(df_TTJets.shape[0])
@@ -160,7 +161,7 @@ if args.TTJets:
 
 if args.Data:
     df_Data = pd.DataFrame()
-    for file in args.Data:
+    for file in tqdm(args.Data, 'Reading Data files'):
         for df in pd.read_csv(file, delimiter=r'\s+', usecols=columns, dtype=types, chunksize=1000):
             df_Data = pd.concat([df_Data, df])
     if args.HT_cut:
