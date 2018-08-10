@@ -235,8 +235,8 @@ dict_upper = {'MHT': 2000.,
 linewidth = 3.
 
 for var in variables:
-    plt.figure()
-    f, ax = plt.subplots()
+    skh_plt.figure()
+    f, ax = skh_plt.subplots()
     if var not in ['NJet', 'NBJet']:
         ax.set(yscale="log")
 
@@ -314,20 +314,20 @@ for var in variables:
             #skh_plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
 
 
-    plt.xlabel(dict[var]['title'], size=14)
-    leg = plt.legend(loc='upper right', fontsize='medium')
+    skh_plt.xlabel(dict[var]['title'], size=14)
+    leg = skh_plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
     if var in ['NDoubleBJet']:
         continue
     elif var in ['FatDoubleBJetA_discrim']:
-        plt.ylim(0.05, None)
+        skh_plt.ylim(0.05, None)
     elif var not in ['NJet', 'NBJet']:
-        plt.ylim(0.0001, None)
-        plt.xlim(0., None)
+        skh_plt.ylim(0.0001, None)
+        skh_plt.xlim(0., None)
     else:
-        plt.ylim(0.000005, None)
+        skh_plt.ylim(0.000005, None)
     if not args.NoOutput:
-        plt.savefig(os.path.join(temp_dir, var + '.pdf'))
+        skh_plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
     if not args.NoX:
-        plt.show()
+        skh_plt.show()
