@@ -96,7 +96,8 @@ else:
             }
 
 columns = variables
-columns.append(['crosssec', 'NoEntries'])
+columns.append('crosssec')
+columns.append('NoEntries')
 
 # Read in the dataframes:
 if args.signal:
