@@ -100,14 +100,17 @@ while os.path.exists(directory):
 thedirectories = '{0}_{1}_[{2}-{3}]'.format(args.OutDir, args.type, suffix, suffix+len(args.files)-1)
 print('Output will be written to {0}'.format(thedirectories))
 
-### NEW! Loop over files and write to separate output, then combine later
-for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
-    #First we open the root file.
+# Total number of events being run over:
+nentries = 0.
+for thefile in args.files:
     events = uproot.open(thefile)["eventCountTree"]
-    nentries = 0.
     nEvents = events.arrays(["nEvtsRunOver"], outputtype=tuple)
     for nevts in nEvents[0]:
         nentries += nevts
+print('{0} events total')
+
+### NEW! Loop over files and write to separate output, then combine later
+for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     #Make the output directories
     directory = args.OutDir + '_{0}'.format(args.type)
@@ -136,6 +139,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     N_fatJet = []
     LeadJetPt = []
     eventWeight = []
+    NoEntries = []
 
     n_muons = []
     n_selectedMuons = []
@@ -169,6 +173,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             N_fatJet.append(NFatJet_i)
             n_muons.append(nMuons_i)
             LeadJetPt.append(LeadSlimJet_p4_i.pt)
+            NoEntries.append(nentries)
 
             # Transverse mass between Missing-HT and muon (in case of one muon)
             if nMuons_i == 1:
@@ -213,6 +218,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'nMuons': n_muons,
         'Muon_MHT_TransMass': muon_MHT_transverse_mass,
         'Muons_InvMass': muons_inv_mass,
+        'NoEntries': NoEntries
         })
 
     print(df)
