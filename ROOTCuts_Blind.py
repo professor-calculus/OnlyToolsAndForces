@@ -246,7 +246,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         print('Plot of ' + thing)
         df_reduced = df.iloc[:1000]
         histogram(df_reduced[thing], buckets=20)
-        plt.clf()
+        plt.figure()
         if args.kdeplot or args.kdeplot_fill:
             sns.kdeplot(df[thing], shade=args.kdeplot_fill)
         else:
