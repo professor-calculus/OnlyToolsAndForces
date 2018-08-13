@@ -236,7 +236,7 @@ dict_upper = {'MHT': 2000.,
 linewidth = 3.
 
 for var in variables:
-    skh_plt.figure()
+    plt.figure()
     f, ax = skh_plt.subplots()
     if var not in ['NJet', 'NBJet']:
         ax.set(yscale="log")
@@ -264,7 +264,7 @@ for var in variables:
         df_weight = df_MSSM['crosssec']
         df_weight = df_weight.compute()
         if args.norm:
-            skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight, label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
+            _ = skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight, label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
         else:
             #skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
             skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight, label=label, log=True, histtype="step", linewidth=linewidth, zorder=10, errorbars=True)
@@ -315,20 +315,20 @@ for var in variables:
             #skh_plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
 
 
-    skh_plt.xlabel(dict[var]['title'], size=14)
+    plt.xlabel(dict[var]['title'], size=14)
     leg = skh_plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
     if var in ['NDoubleBJet']:
         continue
     elif var in ['FatDoubleBJetA_discrim']:
-        skh_plt.ylim(0.05, None)
+        plt.ylim(0.05, None)
     elif var not in ['NJet', 'NBJet']:
-        skh_plt.ylim(0.0001, None)
-        skh_plt.xlim(0., None)
+        plt.ylim(0.0001, None)
+        plt.xlim(0., None)
     else:
-        skh_plt.ylim(0.000005, None)
+        plt.ylim(0.000005, None)
     if not args.NoOutput:
-        skh_plt.savefig(os.path.join(temp_dir, var + '.pdf'))
+        plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
     if not args.NoX:
-        skh_plt.show()
+        plt.show()
