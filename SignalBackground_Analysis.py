@@ -10,7 +10,7 @@ matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from skhep.visual import MplPlotter as skh_plt
 import seaborn as sns
 import sys
