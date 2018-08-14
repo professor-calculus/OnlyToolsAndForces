@@ -274,7 +274,7 @@ for var in variables:
         df[var] = df[var].apply(lambda x: x.right)
         df2 = h2.pandas().reset_index()[:-2]
         df2[var] = df2[var].apply(lambda x: x.right)
-        plt.hist([df[var], df2[var]], bins=df[var], weights=[df['count()'], df2['count()']], label=[label, label2], log=True, stacked=True, histtype="stepfilled", linewidth=linewidth, zorder=5)
+        plt.hist([df[var], df2[var]], bins=df[var], weights=[df['count()'], df2['count()']], label=[label, label2], log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
     else:
         if args.QCD:
             label='QCD background'
@@ -282,14 +282,14 @@ for var in variables:
             h.fill(df_QCD)
             df = h.pandas().reset_index()[:-2]
             df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=linewidth, zorder=0)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=0., zorder=0)
         if args.TTJets:
             label='$t \overline{t}$ + $jets$ background'
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_TTJets)
             df = h.pandas().reset_index()[:-2]
             df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=linewidth, zorder=5)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=0., zorder=5)
 
     if args.Data:
         label='Data'
@@ -297,9 +297,10 @@ for var in variables:
         h.fill(df_Data)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.mid)
-        plt.errorbar(df[var], df['count()'], xerr=False, yerr=df['err(count())'], label=label, log=True, linewidth=linewidth, zorder=35)
+        plt.errorbar(df[var], df['count()'], yerr=df['err(count())'], fmt='o', markersize=4, label=label, zorder=35)
 
     plt.xlabel(dict[var]['title'], size=14)
+    plt.yscale('log')
     leg = plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
     if var not in ['NJet', 'NBJet']:
