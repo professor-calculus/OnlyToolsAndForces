@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 import pandas as pd
-import dask.dataframe as ddd
-from histbook import Hist, bin, beside
+import dask.dataframe as dd
+from histbook import *
 import os
 import numpy as np
-import matplotlib
-from matplotlib import rc
-matplotlib.rcParams['mathtext.fontset'] = 'custom'
-matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
-import matplotlib.pyplot as plt
 from vega import VegaLite as canvas
 import vegascope
 import sys
@@ -28,7 +20,7 @@ parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJ
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
-parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data samples)')
+parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
 parser.add_argument('--stackBKG', action='store_true', help='Stack the BKG histos')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
@@ -185,19 +177,19 @@ if not args.NoOutput:
     f.close()
 
 
-dict = {'MHT': {'bins': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV/$c$]'},
-        'HT': {'bins': bin('HT', 50, 0., 5000.), 'title': 'Total $H_{T}$ [GeV/$c$]'},
-        'FatJetAngularSeparation': {'bins': bin('FatJetAngularSeparation', 50, 0., 5.), 'title': 'AK8 Jets $\Delta R$'},
-        'NJet': {'bins': bin('NJet', 20, 0, 20), 'title': 'Number of Jets'},
-        'NFatJet': {'bins': bin('NFatJet', 8, 0, 8), 'title': 'Number of AK8 FatJets'},
-        'NBJet': {'bins': bin('NBJet', 14, 0, 14), 'title': 'Number of $b$-tagged Jets'},
-        'NDoubleBJet': {'bins': bin('NDoubleBJet', 3, 0, 3), 'title': 'Number of double-$b$-tagged AK8 Jets'},
-        'MaxFatJetDoubleB_discrim': {'bins': bin('MaxFatJetDoubleB_discrim', 50, -1., 1,), 'title': 'AK8 Fat Jet Double-$b$-tag score'},
-        'FatJet_MaxDoubleB_discrim_mass': {'bins': bin('FatJet_MaxDoubleB_discrim_mass', 50, 0., 500.), 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
-        'nMuons': {'bins': bin('nMuons', 6, 0, 6), 'title': 'Number of isolated Muons'},
-        'Muon_MHT_TransMass': {'bins': bin('Muon_MHT_TransMass', 50, 0., 400.), 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
-        'Muons_InvMass': {'bins': bin('Muons_InvMass', 50, 0., 400.), 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
-        'LeadSlimJet_Pt': {'bins': bin('LeadSlimJet_Pt', 50, 0., 1000.), 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
+dict = {'MHT': {'bin': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV/$c$]'},
+        'HT': {'bin': bin('HT', 50, 0., 5000.), 'title': 'Total $H_{T}$ [GeV/$c$]'},
+        'FatJetAngularSeparation': {'bin': bin('FatJetAngularSeparation', 50, 0., 5.), 'title': 'AK8 Jets $\Delta R$'},
+        'NJet': {'bin': bin('NJet', 20, 0, 20), 'title': 'Number of Jets'},
+        'NFatJet': {'bin': bin('NFatJet', 8, 0, 8), 'title': 'Number of AK8 FatJets'},
+        'NBJet': {'bin': bin('NBJet', 14, 0, 14), 'title': 'Number of $b$-tagged Jets'},
+        'NDoubleBJet': {'bin': bin('NDoubleBJet', 3, 0, 3), 'title': 'Number of double-$b$-tagged AK8 Jets'},
+        'MaxFatJetDoubleB_discrim': {'bin': bin('MaxFatJetDoubleB_discrim', 50, -1., 1,), 'title': 'AK8 Fat Jet Double-$b$-tag score'},
+        'FatJet_MaxDoubleB_discrim_mass': {'bin': bin('FatJet_MaxDoubleB_discrim_mass', 50, 0., 500.), 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
+        'nMuons': {'bin': bin('nMuons', 6, 0, 6), 'title': 'Number of isolated Muons'},
+        'Muon_MHT_TransMass': {'bin': bin('Muon_MHT_TransMass', 50, 0., 400.), 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
+        'Muons_InvMass': {'bin': bin('Muons_InvMass', 50, 0., 400.), 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
+        'LeadSlimJet_Pt': {'bin': bin('LeadSlimJet_Pt', 50, 0., 1000.), 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
         }
 
 linewidth = 3.
@@ -211,73 +203,59 @@ for var in variables:
         for index, row in df_sig_masses.iterrows():
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
-            df_plot = df_temp[var, 'weight']
-            df_plot = df_plot.compute()
             h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_plot)
+            h.fill(df_temp)
             hists[label] = h
         group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('sample').step(var))
+        theHists.append(group.overlay('source').step(var, yscale={"type":"log"}))
         hists = {}
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
-        df_plot = df_MSSM[var, 'weight']
-        df_plot = df_plot.compute()
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_plot)
+        h.fill(df_MSSM)
         hists[label] = h
         group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('sample').step(var))
+        theHists.append(group.overlay('source').step(var, yscale={"type":"log"}))
         hists = {}
 
     if args.QCD and args.TTJets and args.stackBKG:
         label='QCD background'
         label2='$t \overline{t}$ + $jets$ background'
-        df_plot = df_QCD[dict[var]['branch']]
-        df_plot = df_plot.compute()
-        df_plot2 = df_TTJets[dict[var]['branch']]
-        df_plot2 = df_plot2.compute()
         h = Hist(dict[var]['bin'], weight='weight')
         h2 = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_plot)
-        h2.fill(df_plot2)
+        h.fill(df_QCD)
+        h2.fill(df_TTJets)
         hists[label] = h
         hists[label2] = h2
         group = Hist.group(by='source', **hists)
-        theHists.append(group.stack('sample').area(var))
+        theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
         hists = {}
     else:
         if args.QCD:
             label='QCD background'
-            df_plot = df_QCD[dict[var]['branch']]
-            df_plot = df_plot.compute()
             h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_plot)
+            h.fill(df_QCD)
             hists[label] = h
             group = Hist.group(by='source', **hists)
-            theHists.append(group.stack('sample').area(var))
+            theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
             hists = {}
         if args.TTJets:
             label='$t \overline{t}$ + $jets$ background'
-            df_plot = df_TTJets[dict[var]['branch']]
-            df_plot = df_plot.compute()
             h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_plot)
+            h.fill(df_TTJets)
             hists[label] = h
             group = Hist.group(by='source', **hists)
-            theHists.append(group.stack('sample').area(var))
+            theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
             hists = {}
 
     if args.Data:
         label='Data'
-        df_plot = df_Data[dict[var]['branch']]
-        df_plot = df_plot.compute()
         h = Hist(dict[var]['bin'])
-        h.fill(df_plot)
+        h.fill(df_Data)
         hists[label] = h
         group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('sample').marker(var))
+        theHists.append(group.overlay('source').marker(var, yscale={"type":"log"}))
         hists = {}
 
-    overlay((*theHists)).to(canvas)
+    overlay(*theHists).to(canvas)
