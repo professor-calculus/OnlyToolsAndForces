@@ -20,6 +20,7 @@ parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJ
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
+parser.add_argument('--region', default='All', help='Applies no cut, lepton veto or lepton requirement. Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
 parser.add_argument('--stackBKG', action='store_true', help='Stack the BKG histos')
@@ -102,6 +103,14 @@ if args.signal:
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
+    if args.region == '2b1mu':
+        df_sig = df_sig.loc[((df_sig['NBJet'] == 2) & (df_sig['nMuons'] == 1) & (df_sig['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '0b1mu':
+        df_sig = df_sig.loc[((df_sig['NBJet'] == 0) & (df_sig['nMuons'] == 1) & (df_sig['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '2mu':
+        df_sig = df_sig.loc[((df_sig['nMuons'] == 2) & (df_sig['Muons_InvMass'] > 80.) & (df_sig['Muons_InvMass'] < 100.))]
+    elif args.region == '0b2mu':
+        df_sig = df_sig.loc[((df_sig['NBJet'] == 0) & (df_sig['nMuons'] == 2) & (df_sig['Muons_InvMass'] > 80.) & (df_sig['Muons_InvMass'] < 100.))]
     if args.HT_cut:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -111,6 +120,14 @@ if args.signal:
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
     df_MSSM['weight'] = args.Lumi*df_MSSM['crosssec']/df_MSSM['NoEntries']
+    if args.region == '2b1mu':
+        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 2) & (df_MSSM['nMuons'] == 1) & (df_MSSM['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '0b1mu':
+        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 0) & (df_MSSM['nMuons'] == 1) & (df_MSSM['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '2mu':
+        df_MSSM = df_MSSM.loc[((df_MSSM['nMuons'] == 2) & (df_MSSM['Muons_InvMass'] > 80.) & (df_MSSM['Muons_InvMass'] < 100.))]
+    elif args.region == '0b2mu':
+        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 0) & (df_MSSM['nMuons'] == 2) & (df_MSSM['Muons_InvMass'] > 80.) & (df_MSSM['Muons_InvMass'] < 100.))]
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -123,6 +140,14 @@ if args.MSSM:
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
+    if args.region == '2b1mu':
+        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 2) & (df_QCD['nMuons'] == 1) & (df_QCD['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '0b1mu':
+        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 0) & (df_QCD['nMuons'] == 1) & (df_QCD['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '2mu':
+        df_QCD = df_QCD.loc[((df_QCD['nMuons'] == 2) & (df_QCD['Muons_InvMass'] > 80.) & (df_QCD['Muons_InvMass'] < 100.))]
+    elif args.region == '0b2mu':
+        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 0) & (df_QCD['nMuons'] == 2) & (df_QCD['Muons_InvMass'] > 80.) & (df_QCD['Muons_InvMass'] < 100.))]
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -135,6 +160,14 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
+    if args.region == '2b1mu':
+        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 2) & (df_TTJets['nMuons'] == 1) & (df_TTJets['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '0b1mu':
+        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 0) & (df_TTJets['nMuons'] == 1) & (df_TTJets['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '2mu':
+        df_TTJets = df_TTJets.loc[((df_TTJets['nMuons'] == 2) & (df_TTJets['Muons_InvMass'] > 80.) & (df_TTJets['Muons_InvMass'] < 100.))]
+    elif args.region == '0b2mu':
+        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 0) & (df_TTJets['nMuons'] == 2) & (df_TTJets['Muons_InvMass'] > 80.) & (df_TTJets['Muons_InvMass'] < 100.))]
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -146,6 +179,14 @@ if args.TTJets:
 
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
+    if args.region == '2b1mu':
+        df_Data = df_Data.loc[((df_Data['NBJet'] == 2) & (df_Data['nMuons'] == 1) & (df_Data['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '0b1mu':
+        df_Data = df_Data.loc[((df_Data['NBJet'] == 0) & (df_Data['nMuons'] == 1) & (df_Data['Muon_MHT_TransMass'] < 100.))]
+    elif args.region == '2mu':
+        df_Data = df_Data.loc[((df_Data['nMuons'] == 2) & (df_Data['Muons_InvMass'] > 80.) & (df_Data['Muons_InvMass'] < 100.))]
+    elif args.region == '0b2mu':
+        df_Data = df_Data.loc[((df_Data['NBJet'] == 0) & (df_Data['nMuons'] == 2) & (df_Data['Muons_InvMass'] > 80.) & (df_Data['Muons_InvMass'] < 100.))]
     if args.HT_cut:
         df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
     if args.verbose:
