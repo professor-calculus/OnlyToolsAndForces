@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 import pandas as pd
 import dask.dataframe as dd
-from histbook import *
+from histbook import Hist, bin
 import os
 import numpy as np
-from vega import VegaLite as canvas
+import matplotlib
+from matplotlib import rc
+matplotlib.rcParams['mathtext.fontset'] = 'custom'
+matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
+import matplotlib.pyplot as plt
 import vegascope
 import sys
 import argparse as a
@@ -236,29 +243,29 @@ dict = {'MHT': {'bin': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV
 linewidth = 3.
 
 for var in variables:
-
+    plt.figure()
     canvas = vegascope.LocalCanvas()
     theHists = []
     hists = {}
+    temp_i = 0
     if args.signal:
         for index, row in df_sig_masses.iterrows():
+            temp_i += 5
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_temp)
-            hists[label] = h
-        group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('source').step(var, yscale={"type":"log"}))
-        hists = {}
+            df = h.pandas().reset_index()[:-2]
+            df[var] = df[var].apply(lambda x: x.right)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_MSSM)
-        hists[label] = h
-        group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('source').step(var, yscale={"type":"log"}))
-        hists = {}
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
     if args.QCD and args.TTJets and args.stackBKG:
         label='QCD background'
@@ -267,36 +274,45 @@ for var in variables:
         h2 = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
         h2.fill(df_TTJets)
-        hists[label] = h
-        hists[label2] = h2
-        group = Hist.group(by='source', **hists)
-        theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
-        hists = {}
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        df2 = h2.pandas().reset_index()[:-2]
+        df2[var] = df2[var].apply(lambda x: x.right)
+        plt.hist([df[var], df2[var]], bins=df[var], weights=[df['count()'], df2['count()']], label=[label, label2], log=True, stacked=True, histtype="stepfilled", linewidth=linewidth, zorder=5)
     else:
         if args.QCD:
             label='QCD background'
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_QCD)
-            hists[label] = h
-            group = Hist.group(by='source', **hists)
-            theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
-            hists = {}
+            df = h.pandas().reset_index()[:-2]
+            df[var] = df[var].apply(lambda x: x.right)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=0)
         if args.TTJets:
             label='$t \overline{t}$ + $jets$ background'
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_TTJets)
-            hists[label] = h
-            group = Hist.group(by='source', **hists)
-            theHists.append(group.stack('source').area(var, yscale={"type":"log"}))
-            hists = {}
+            df = h.pandas().reset_index()[:-2]
+            df[var] = df[var].apply(lambda x: x.right)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=5)
 
     if args.Data:
         label='Data'
         h = Hist(dict[var]['bin'])
         h.fill(df_Data)
-        hists[label] = h
-        group = Hist.group(by='source', **hists)
-        theHists.append(group.overlay('source').marker(var, yscale={"type":"log"}))
-        hists = {}
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35)
 
-    overlay(*theHists).to(canvas)
+    plt.xlabel(dict[var]['title'], size=14)
+    leg = plt.legend(loc='upper right', fontsize='medium')
+    leg.set_zorder(100)
+    if var not in ['NJet', 'NBJet']:
+        plt.ylim(0.0001, None)
+        plt.xlim(0., None)
+    else:
+        plt.ylim(0.000005, None)
+    if not args.NoOutput:
+        plt.savefig(os.path.join(temp_dir, var + '.pdf'))
+        print('Saved ' + var + '.pdf output file')
+    if not args.NoX:
+        plt.show()
