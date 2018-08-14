@@ -282,22 +282,22 @@ for var in variables:
             h.fill(df_QCD)
             df = h.pandas().reset_index()[:-2]
             df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=0)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=linewidth, zorder=0)
         if args.TTJets:
             label='$t \overline{t}$ + $jets$ background'
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_TTJets)
             df = h.pandas().reset_index()[:-2]
             df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=5)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=linewidth, zorder=5)
 
     if args.Data:
         label='Data'
         h = Hist(dict[var]['bin'])
         h.fill(df_Data)
         df = h.pandas().reset_index()[:-2]
-        df[var] = df[var].apply(lambda x: x.right)
-        plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35)
+        df[var] = df[var].apply(lambda x: x.mid)
+        plt.errorbar(df[var], df['count()'], xerr=False, yerr=df['err(count())'], label=label, log=True, linewidth=linewidth, zorder=35)
 
     plt.xlabel(dict[var]['title'], size=14)
     leg = plt.legend(loc='upper right', fontsize='medium')
