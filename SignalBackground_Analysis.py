@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pandas as pd
-import dask.dataframe as dd
+import dask.dataframe as ddd
+from histbook import Hist, bin, beside
 import os
 import numpy as np
 import matplotlib
@@ -11,8 +12,8 @@ matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
 import matplotlib.pyplot as plt
-from skhep.visual import MplPlotter as skh_plt
-import seaborn as sns
+from vega import VegaLite as canvas
+import vegascope
 import sys
 import argparse as a
 import warnings
@@ -102,15 +103,13 @@ columns.append('NoEntries')
 # Read in the dataframes:
 if args.signal:
     df_sig = dd.read_csv(args.signal, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_sig['weight'] = args.Lumi*df_sig['crosssec']/df_sig['NoEntries']
     if args.verbose:
         print('Signal:')
         print(df_sig)
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
-    entries = df_sig['NoEntries'].drop_duplicates().compute().iloc[0]
-    print(entries)
-    sigweight = args.Lumi/float(entries)
     if args.HT_cut:
         df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -119,9 +118,7 @@ if args.signal:
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
-    entries = df_MSSM['NoEntries'].drop_duplicates().compute().iloc[0]
-    print(entries)
-    MSSMweight = args.Lumi/float(entries)
+    df_MSSM['weight'] = args.Lumi*df_MSSM['crosssec']/df_MSSM['NoEntries']
     if args.HT_cut:
         df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -133,9 +130,7 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
-    entries = df_QCD['NoEntries'].drop_duplicates().compute().iloc[0]
-    print(entries)
-    QCDweight = args.Lumi/float(entries)
+    df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
     if args.HT_cut:
         df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -147,9 +142,7 @@ if args.QCD:
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
-    entries = df_TTJets['NoEntries'].drop_duplicates().compute().iloc[0]
-    print(entries)
-    TTJetsweight = args.Lumi/float(entries)
+    df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
     if args.HT_cut:
         df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
     if args.DBT and not args.Data:
@@ -192,143 +185,99 @@ if not args.NoOutput:
     f.close()
 
 
-
-
-
-
-bins_HT = np.linspace(0.,5000.,50)
-bins_MHT = np.linspace(0.,1000.,50)
-bins_DelR = np.linspace(0.,5.,50)
-bins_njet = np.arange(0, 20, 1)
-bins_nfatjet = np.arange(0, 8, 1)
-bins_nbjet = np.arange(0, 14, 1)
-bins_nDoubleB = np.arange(0, 2, 1)
-bins_Mbb = np.linspace(0., 200., 40)
-bins_DBT = np.linspace(-1., 1., 50)
-bins_nMuons = np.arange(0, 6, 1)
-bins_muon_transMass = np.linspace(0., 400., 50)
-
-dict = {'MHT': {'branch': 'MHT', 'bins': bins_MHT, 'title': 'Missing $H_{T}$ [GeV/$c$]'},
-        'HT': {'branch': 'HT', 'bins': bins_HT, 'title': 'Total $H_{T}$ [GeV/$c$]'},
-        'FatJetAngularSeparation': {'branch': 'FatJetAngularSeparation', 'bins': bins_DelR, 'title': 'AK8 Jets $\Delta R$'},
-        'NJet': {'branch': 'NJet', 'bins': bins_njet, 'title': 'Number of Jets'},
-        'NFatJet': {'branch': 'NFatJet', 'bins': bins_nfatjet, 'title': 'Number of AK8 FatJets'},
-        'NBJet': {'branch': 'NBJet', 'bins': bins_nbjet, 'title': 'Number of $b$-tagged Jets'},
-        'NDoubleBJet': {'branch': 'NDoubleBJet', 'bins': bins_nDoubleB, 'title': 'Number of double-$b$-tagged AK8 Jets'},
-        'MaxFatJetDoubleB_discrim': {'branch': 'MaxFatJetDoubleB_discrim', 'bins': bins_DBT, 'title': 'AK8 Fat Jet Double-$b$-tag score'},
-        'FatJet_MaxDoubleB_discrim_mass': {'branch': 'FatJet_MaxDoubleB_discrim_mass', 'bins': bins_Mbb, 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
-        'nMuons': {'branch': 'nMuons', 'bins': bins_nMuons, 'title': 'Number of isolated Muons'},
-        'Muon_MHT_TransMass': {'branch': 'Muon_MHT_TransMass', 'bins': bins_muon_transMass, 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
-        'Muons_InvMass': {'branch': 'Muons_InvMass', 'bins': bins_muon_transMass, 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
-        'LeadSlimJet_Pt': {'branch': 'LeadSlimJet_Pt', 'bins': bins_MHT, 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
+dict = {'MHT': {'bins': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV/$c$]'},
+        'HT': {'bins': bin('HT', 50, 0., 5000.), 'title': 'Total $H_{T}$ [GeV/$c$]'},
+        'FatJetAngularSeparation': {'bins': bin('FatJetAngularSeparation', 50, 0., 5.), 'title': 'AK8 Jets $\Delta R$'},
+        'NJet': {'bins': bin('NJet', 20, 0, 20), 'title': 'Number of Jets'},
+        'NFatJet': {'bins': bin('NFatJet', 8, 0, 8), 'title': 'Number of AK8 FatJets'},
+        'NBJet': {'bins': bin('NBJet', 14, 0, 14), 'title': 'Number of $b$-tagged Jets'},
+        'NDoubleBJet': {'bins': bin('NDoubleBJet', 3, 0, 3), 'title': 'Number of double-$b$-tagged AK8 Jets'},
+        'MaxFatJetDoubleB_discrim': {'bins': bin('MaxFatJetDoubleB_discrim', 50, -1., 1,), 'title': 'AK8 Fat Jet Double-$b$-tag score'},
+        'FatJet_MaxDoubleB_discrim_mass': {'bins': bin('FatJet_MaxDoubleB_discrim_mass', 50, 0., 500.), 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
+        'nMuons': {'bins': bin('nMuons', 6, 0, 6), 'title': 'Number of isolated Muons'},
+        'Muon_MHT_TransMass': {'bins': bin('Muon_MHT_TransMass', 50, 0., 400.), 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
+        'Muons_InvMass': {'bins': bin('Muons_InvMass', 50, 0., 400.), 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
+        'LeadSlimJet_Pt': {'bins': bin('LeadSlimJet_Pt', 50, 0., 1000.), 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
         }
-
-dict_upper = {'MHT': 2000.,
-       	      'HT': 5000.,
-       	      'FatJetAngularSeparation': 5.,
-       	      'NJet': 20.,
-       	      'NBJet': 14.,
-       	      'NDoubleBJet': 2,
-              'FatDoubleBJetA_discrim': 1.,
-              'FatDoubleBJetA_mass': 200.,
-             }
 
 linewidth = 3.
 
 for var in variables:
-    plt.figure()
-    f, ax = skh_plt.subplots()
-    if var not in ['NJet', 'NBJet']:
-        ax.set(yscale="log")
 
-    temp_i = 0
+    canvas = vegascope.LocalCanvas()
+    theHists = []
+    hists = {}
     if args.signal:
         for index, row in df_sig_masses.iterrows():
-            temp_i += 5
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
-            df_plot = df_temp[dict[var]['branch']]
+            df_plot = df_temp[var, 'weight']
             df_plot = df_plot.compute()
-            df_weight = df_temp['crosssec']
-            df_weight = df_weight.compute()
-            if args.norm:
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=sigweight*df_weight, label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=35-temp_i)
-            else:
-                #skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.8, density=True, label=label, log=True, histtype="stepfilled")
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=sigweight*df_weight, label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i, errorbars=True)
+            h = Hist(dict[var]['bin'], weight='weight')
+            h.fill(df_plot)
+            hists[label] = h
+        group = Hist.group(by='source', **hists)
+        theHists.append(group.overlay('sample').step(var))
+        hists = {}
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
-        df_plot = df_MSSM[dict[var]['branch']]
+        df_plot = df_MSSM[var, 'weight']
         df_plot = df_plot.compute()
-        df_weight = df_MSSM['crosssec']
-        df_weight = df_weight.compute()
-        if args.norm:
-            _ = skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight, label=label, log=True, normed=1., histtype="step", linewidth=linewidth, zorder=10)
-        else:
-            #skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.6, density=True, label=label, log=True, histtype="stepfilled")
-            skh_plt.hist(df_plot, bins=dict[var]['bins'], weights=MSSMweight*df_weight, label=label, log=True, histtype="step", linewidth=linewidth, zorder=10, errorbars=True)
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_plot)
+        hists[label] = h
+        group = Hist.group(by='source', **hists)
+        theHists.append(group.overlay('sample').step(var))
+        hists = {}
 
     if args.QCD and args.TTJets and args.stackBKG:
+        label='QCD background'
+        label2='$t \overline{t}$ + $jets$ background'
         df_plot = df_QCD[dict[var]['branch']]
         df_plot = df_plot.compute()
         df_plot2 = df_TTJets[dict[var]['branch']]
         df_plot2 = df_plot2.compute()
-        df_weight = df_QCD['crosssec']
-        df_weight = df_weight.compute()
-        df_weight2 = df_TTJets['crosssec']
-        df_weight2 = df_weight2.compute()
-        if args.norm:
-            skh_plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight, TTJetsweight*df_weight2], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, normed=1., histtype="stepfilled", zorder=5)
-        else:
-            skh_plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], alpha=1., weights=[QCDweight*df_weight, TTJetsweight*df_weight2], label=['QCD background', '$t \overline{t}$ + $jets$ background'], stacked=True, log=True, histtype="stepfilled", zorder=5, errorbars=True)
-            #skh_plt.hist([df_plot, df_plot2], bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
+        h = Hist(dict[var]['bin'], weight='weight')
+        h2 = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_plot)
+        h2.fill(df_plot2)
+        hists[label] = h
+        hists[label2] = h2
+        group = Hist.group(by='source', **hists)
+        theHists.append(group.stack('sample').area(var))
+        hists = {}
     else:
         if args.QCD:
+            label='QCD background'
             df_plot = df_QCD[dict[var]['branch']]
             df_plot = df_plot.compute()
-            df_weight = df_QCD['crosssec']
-            df_weight = df_weight.compute()
-            if args.norm:
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_weight, label='QCD background', log=True, normed=1., histtype="stepfilled", zorder=5)
-            else:
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=0.7, weights=QCDweight*df_weight, label='QCD background', log=True, histtype="stepfilled", zorder=5, errorbars=True)
-                #skh_plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=0)
+            h = Hist(dict[var]['bin'], weight='weight')
+            h.fill(df_plot)
+            hists[label] = h
+            group = Hist.group(by='source', **hists)
+            theHists.append(group.stack('sample').area(var))
+            hists = {}
         if args.TTJets:
+            label='$t \overline{t}$ + $jets$ background'
             df_plot = df_TTJets[dict[var]['branch']]
             df_plot = df_plot.compute()
-            df_weight = df_TTJets['crosssec']
-            df_weight = df_weight.compute()
-            if args.norm:
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_weight, normed=1., label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0)
-            else:
-                skh_plt.hist(df_plot, bins=dict[var]['bins'], alpha=1., weights=TTJetsweight*df_weight, label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=0, errorbars=True)
-                #skh_plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
+            h = Hist(dict[var]['bin'], weight='weight')
+            h.fill(df_plot)
+            hists[label] = h
+            group = Hist.group(by='source', **hists)
+            theHists.append(group.stack('sample').area(var))
+            hists = {}
 
     if args.Data:
+        label='Data'
         df_plot = df_Data[dict[var]['branch']]
         df_plot = df_plot.compute()
-        if args.norm:
-            skh_plt.hist(df_plot, bins=dict[var]['bins'], normed=1., label='Data', log=True, histtype="step", zorder=35)
-        else:
-            skh_plt.hist(df_plot, bins=dict[var]['bins'], label='Data', log=True, histtype="step", zorder=35, errorbars=True)
-            #skh_plt.hist(df_plot, bins=dict[var]['bins'], density=True, label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="xx", zorder=5)
+        h = Hist(dict[var]['bin'])
+        h.fill(df_plot)
+        hists[label] = h
+        group = Hist.group(by='source', **hists)
+        theHists.append(group.overlay('sample').marker(var))
+        hists = {}
 
-
-    plt.xlabel(dict[var]['title'], size=14)
-    leg = skh_plt.legend(loc='upper right', fontsize='medium')
-    leg.set_zorder(100)
-    if var in ['NDoubleBJet']:
-        continue
-    elif var in ['FatDoubleBJetA_discrim']:
-        plt.ylim(0.05, None)
-    elif var not in ['NJet', 'NBJet']:
-        plt.ylim(0.0001, None)
-        plt.xlim(0., None)
-    else:
-        plt.ylim(0.000005, None)
-    if not args.NoOutput:
-        plt.savefig(os.path.join(temp_dir, var + '.pdf'))
-        print('Saved ' + var + '.pdf output file')
-    if not args.NoX:
-        plt.show()
+    overlay((*theHists)).to(canvas)
