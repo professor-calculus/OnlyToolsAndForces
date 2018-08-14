@@ -12,7 +12,6 @@ matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 matplotlib.rcParams['text.latex.preamble'].append(r'\usepackage{amsmath}')
 import matplotlib.pyplot as plt
-import vegascope
 import sys
 import argparse as a
 import warnings
@@ -244,9 +243,6 @@ linewidth = 3.
 
 for var in variables:
     plt.figure()
-    canvas = vegascope.LocalCanvas()
-    theHists = []
-    hists = {}
     temp_i = 0
     if args.signal:
         for index, row in df_sig_masses.iterrows():
