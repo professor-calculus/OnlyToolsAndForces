@@ -146,6 +146,8 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_QCD_entries = df_QCD[['NoEntries', 'crosssec']].drop_duplicates().compute()
+    df_QCD['NoEntries'] = df_QCD_entries['NoEntries'].sum()
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
     if args.region == '2b1mu':
         df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 2) & (df_QCD['nMuons'] == 1) & (df_QCD['Muon_MHT_TransMass'] < 100.))]
