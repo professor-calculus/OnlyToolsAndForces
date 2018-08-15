@@ -67,10 +67,11 @@ def mem_usage(pandas_obj):
 
 
 if args.Data:
-    variables = ['MHT', 'HT', 'NJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
+             'NBJet': np.uint8,
              'nMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
              'Muons_InvMass': np.float32,
@@ -305,10 +306,10 @@ for var in variables:
     leg = plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
     if var not in ['NJet', 'NBJet']:
-        plt.ylim(0.0001, None)
+        plt.ylim(0.01, None)
         plt.xlim(0., None)
     else:
-        plt.ylim(0.000005, None)
+        plt.ylim(0.05, None)
     if not args.NoOutput:
         plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
