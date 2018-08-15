@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import pandas as pd
+import dask.dataframe as dd
 import os
 import numpy as np
 import matplotlib
+matplotlib.use('Agg')
 from matplotlib.colors import LogNorm
 from matplotlib import rc
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
@@ -31,11 +33,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Increased verb
 parser.add_argument('--cmap', default='BuPu', help='Optional colour map, default is BuPu')
 args=parser.parse_args()
 
-df_list = []
-for file in args.files:
-    df = pd.read_csv(file, delimiter=r'\s+')
-    df_list.append(df)
-df = pd.concat(df_list)
+df = dd.read_csv(args.files, delimiter=r'\s+')
 
 #Make the output directories
 filepath = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, int(args.HT))
@@ -60,20 +58,25 @@ elif args.region == '2mu':
 elif args.region == '0b2mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 
+df = df[['FatDoubleBJetA_discrim', 'FatDoubleBJetB_discrim', 'crosssec']]
+df = df.compute()
+
 if df.shape[0] == 0:
     sys.exit('Error: No events left after cuts! Cannot plot.')
 
 g = sns.JointGrid(x=df['FatDoubleBJetA_discrim'], y=df['FatDoubleBJetB_discrim'], space=0.)
-g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150)
+
+g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150, C=df['crosssec'], reduce_C_function=np.sum)
+#g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=150)
 
 cm = plt.cm.get_cmap(args.cmap)
 
-nx, binsx, patchesx = g.ax_marg_x.hist(df['FatDoubleBJetA_discrim'], log=True, bins=30)
+nx, binsx, patchesx = g.ax_marg_x.hist(df['FatDoubleBJetA_discrim'], log=True, bins=30, weights=df['crosssec'])
 colx = 1.5*(nx-nx.min())/(nx.max()-nx.min())
 for c, p in zip(colx, patchesx):
     plt.setp(p, 'facecolor', cm(c))
 
-ny, binsy, patchesy = g.ax_marg_y.hist(df['FatDoubleBJetB_discrim'], bins=30, log=True, orientation='horizontal')
+ny, binsy, patchesy = g.ax_marg_y.hist(df['FatDoubleBJetB_discrim'], bins=30, log=True, orientation='horizontal', weights=df['crosssec'])
 coly = 1.5*(ny-ny.min())/(ny.max()-ny.min())
 for c, p in zip(coly, patchesy):
     plt.setp(p, 'facecolor', cm(c))

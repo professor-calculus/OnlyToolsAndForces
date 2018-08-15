@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import pandas as pd
+import dask.dataframe as dd
 import os
 import numpy as np
 import matplotlib
+matplotlib.use('Agg')
 from matplotlib.colors import LogNorm
 from matplotlib import rc
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
@@ -31,11 +33,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Increased verb
 parser.add_argument('--cmap', default='BuPu', help='Optional colour map, default is BuPu')
 args=parser.parse_args()
 
-df_list = []
-for file in args.files:
-    df = pd.read_csv(file, delimiter=r'\s+')
-    df_list.append(df)
-df = pd.concat(df_list)
+df = dd.read_csv(args.files, delimiter=r'\s+')
 
 #Make the output directories
 filepath = '2DFatJetMass_{0}_{1}RegionHT{2}_doubleBDiscrim{3}to{4}'.format(args.type, args.region, int(args.HT), args.minDiscrim, args.maxDiscrim)
@@ -61,6 +59,9 @@ elif args.region == '2mu':
     df = df.loc[((df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 elif args.region == '0b2mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
+
+df = df[['FatDoubleBJetA_mass', 'FatDoubleBJetB_mass', 'crosssec']]
+df = df.compute()
 
 if df.shape[0] == 0:
     sys.exit('Error: No events left after cuts! Cannot plot.')

@@ -5,6 +5,7 @@ from histbook import Hist, bin
 import os
 import numpy as np
 import matplotlib
+matplotlib.use('Agg')
 from matplotlib import rc
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
 matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
@@ -203,7 +204,7 @@ if args.Data:
 #Make the output directories
 directory = 'Signal_vs_Background_Analysis'
 if args.HT_cut:
-    directory = directory + '_HT{0}'.format(args.HT_cut)
+    directory = directory + '_{0}Region_HT{1}'.format(args.region, args.HT_cut)
 if args.DBT and not args.Data:
     directory = directory + '_DBT{0}'.format(args.DBT)
 temp_dir = directory
