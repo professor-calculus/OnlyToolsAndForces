@@ -136,6 +136,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     mht = []
     ht = []
     N_jet = []
+    N_bjet = []
     N_fatJet = []
     LeadJetPt = []
     eventWeight = []
@@ -152,10 +153,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrMuons"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nMuons_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons), initial=eventCounter, total=nentries, desc='Go go go!'):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrSlimBJets", "nrFatJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrMuons"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NBJet_i, NFatJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nMuons_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons), initial=eventCounter, total=nentries, desc='Go go go!'):
 
             weight = eventweight
             if args.verbose:
@@ -170,6 +171,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             mht.append(MHT_i)
             ht.append(HT_i)
             N_jet.append(NJet_i)
+            N_bjet.append(NBJet_i)
             N_fatJet.append(NFatJet_i)
             n_muons.append(nMuons_i)
             LeadJetPt.append(LeadSlimJet_p4_i.pt)
@@ -213,6 +215,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'MHT': mht,
         'HT': ht,
         'NJet': N_jet,
+        'NBJet': N_bjet,
         'NFatJet': N_fatJet,
         'LeadSlimJet_Pt': LeadJetPt,
         'nMuons': n_muons,
@@ -245,7 +248,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     for thing in plottables:
         print('Plot of ' + thing)
         df_reduced = df.iloc[:1000]
-        histogram(df_reduced[thing], buckets=20)
+        #histogram(df_reduced[thing], buckets=20)
         plt.figure()
         if args.kdeplot or args.kdeplot_fill:
             sns.kdeplot(df[thing], shade=args.kdeplot_fill)
