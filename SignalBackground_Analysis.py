@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pandas as pd
 from multiprocessing.pool import ThreadPool
+import dask
 import dask.dataframe as dd
 from histbook import Hist, bin
 import os
