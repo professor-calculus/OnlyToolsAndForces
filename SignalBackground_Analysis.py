@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pandas as pd
+from multiprocessing.pool import ThreadPool
 import dask.dataframe as dd
 from histbook import Hist, bin
 import os
@@ -24,6 +25,8 @@ parser.add_argument('-s', '--signal', default=None, nargs='*', help='Path to sig
 parser.add_argument('-q', '--QCD', default=None, nargs='*', help='Path to QCD dataframe file(s) from ROOTCuts')
 parser.add_argument('-m', '--MSSM', default=None, nargs='*', help='Path to MSSM dataframe file(s) from ROOTCuts')
 parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJets dataframe file(s) from ROOTCuts')
+parser.add_argument('-w', '--WJets', default=None, nargs='*', help='Path to W+Jets dataframe file(s) from ROOTCuts')
+parser.add_argument('-z', '--ZJets', default=None, nargs='*', help='Path to Z+Jets dataframe file(s) from ROOTCuts')
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
@@ -33,11 +36,15 @@ parser.add_argument('--norm', action='store_true', help='Normalise each histogra
 parser.add_argument('--stackBKG', action='store_true', help='Stack the BKG histos')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
+parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
 parser.add_argument('--style', default=None, help='Optional drawing style, e.g. \"ggplot\" in Matplotlib or \"dark\" in Seaborn')
 parser.add_argument('--kdeplot', action='store_true', help='Use kdeplot in Seaborn instead of matplotlib histogram')
 parser.add_argument('--kdeplot_fill', action='store_true', help='Same as --kdeplot but area under each line is filled')
 args=parser.parse_args()
+
+if args.Threads:
+    dask.set_options(pool=ThreadPool(args.Threads))
 
 if args.verbose:
     parser.print_help()
@@ -65,6 +72,20 @@ def mem_usage(pandas_obj):
     usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
     return "{:03.2f} MB".format(usage_mb)
 
+def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
+    if region == '2b1mu':
+        df = df.loc[((df['NBJet'] == 2) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
+    elif region == '0b1mu':
+        df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
+    elif region == '2mu':
+        df = df.loc[((df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
+    elif region == '0b2mu':
+        df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
+    if HT:
+        df = df.loc[(df['HT'] > args.HT_cut)]
+    if DBT and not isData:
+        df = df.loc[(df['MaxFatJetDoubleB_discrim'] > args.DBT)]
+    return df;
 
 if args.Data:
     variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
@@ -111,35 +132,13 @@ if args.signal:
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
-    if args.region == '2b1mu':
-        df_sig = df_sig.loc[((df_sig['NBJet'] == 2) & (df_sig['nMuons'] == 1) & (df_sig['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '0b1mu':
-        df_sig = df_sig.loc[((df_sig['NBJet'] == 0) & (df_sig['nMuons'] == 1) & (df_sig['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '2mu':
-        df_sig = df_sig.loc[((df_sig['nMuons'] == 2) & (df_sig['Muons_InvMass'] > 80.) & (df_sig['Muons_InvMass'] < 100.))]
-    elif args.region == '0b2mu':
-        df_sig = df_sig.loc[((df_sig['NBJet'] == 0) & (df_sig['nMuons'] == 2) & (df_sig['Muons_InvMass'] > 80.) & (df_sig['Muons_InvMass'] < 100.))]
-    if args.HT_cut:
-        df_sig = df_sig.loc[(df_sig['HT'] > args.HT_cut)]
-    if args.DBT and not args.Data:
-        df_sig = df_sig.loc[(df_sig['MaxFatJetDoubleB_discrim'] > args.DBT)]
+    df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
     #print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
     df_MSSM['weight'] = args.Lumi*df_MSSM['crosssec']/df_MSSM['NoEntries']
-    if args.region == '2b1mu':
-        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 2) & (df_MSSM['nMuons'] == 1) & (df_MSSM['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '0b1mu':
-        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 0) & (df_MSSM['nMuons'] == 1) & (df_MSSM['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '2mu':
-        df_MSSM = df_MSSM.loc[((df_MSSM['nMuons'] == 2) & (df_MSSM['Muons_InvMass'] > 80.) & (df_MSSM['Muons_InvMass'] < 100.))]
-    elif args.region == '0b2mu':
-        df_MSSM = df_MSSM.loc[((df_MSSM['NBJet'] == 0) & (df_MSSM['nMuons'] == 2) & (df_MSSM['Muons_InvMass'] > 80.) & (df_MSSM['Muons_InvMass'] < 100.))]
-    if args.HT_cut:
-        df_MSSM = df_MSSM.loc[(df_MSSM['HT'] > args.HT_cut)]
-    if args.DBT and not args.Data:
-        df_MSSM = df_MSSM.loc[(df_MSSM['MaxFatJetDoubleB_discrim'] > args.DBT)]
+    df_MSSM = df_chop_chop(df=df_MSSM, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
@@ -150,18 +149,7 @@ if args.QCD:
     df_QCD_entries = df_QCD[['NoEntries', 'crosssec']].drop_duplicates().compute()
     df_QCD['NoEntries'] = df_QCD_entries['NoEntries'].sum()
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
-    if args.region == '2b1mu':
-        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 2) & (df_QCD['nMuons'] == 1) & (df_QCD['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '0b1mu':
-        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 0) & (df_QCD['nMuons'] == 1) & (df_QCD['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '2mu':
-        df_QCD = df_QCD.loc[((df_QCD['nMuons'] == 2) & (df_QCD['Muons_InvMass'] > 80.) & (df_QCD['Muons_InvMass'] < 100.))]
-    elif args.region == '0b2mu':
-        df_QCD = df_QCD.loc[((df_QCD['NBJet'] == 0) & (df_QCD['nMuons'] == 2) & (df_QCD['Muons_InvMass'] > 80.) & (df_QCD['Muons_InvMass'] < 100.))]
-    if args.HT_cut:
-        df_QCD = df_QCD.loc[(df_QCD['HT'] > args.HT_cut)]
-    if args.DBT and not args.Data:
-        df_QCD = df_QCD.loc[(df_QCD['MaxFatJetDoubleB_discrim'] > args.DBT)]
+    df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('QCD:')
         print(df_QCD)
@@ -170,35 +158,33 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
-    if args.region == '2b1mu':
-        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 2) & (df_TTJets['nMuons'] == 1) & (df_TTJets['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '0b1mu':
-        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 0) & (df_TTJets['nMuons'] == 1) & (df_TTJets['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '2mu':
-        df_TTJets = df_TTJets.loc[((df_TTJets['nMuons'] == 2) & (df_TTJets['Muons_InvMass'] > 80.) & (df_TTJets['Muons_InvMass'] < 100.))]
-    elif args.region == '0b2mu':
-        df_TTJets = df_TTJets.loc[((df_TTJets['NBJet'] == 0) & (df_TTJets['nMuons'] == 2) & (df_TTJets['Muons_InvMass'] > 80.) & (df_TTJets['Muons_InvMass'] < 100.))]
-    if args.HT_cut:
-        df_TTJets = df_TTJets.loc[(df_TTJets['HT'] > args.HT_cut)]
-    if args.DBT and not args.Data:
-        df_TTJets = df_TTJets.loc[(df_TTJets['FatDoubleBJetA_discrim'] > args.DBT)]
+    df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('TTJets:')
         print(df_TTJets)
     #print('TTJets df read, memory used: {0}'.format(mem_usage(df_TTJets)))
 
+if args.WJets:
+    df_WJets = dd.read_csv(args.WJets, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_WJets['weight'] = args.Lumi*df_WJets['crosssec']/df_WJets['NoEntries']
+    df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('WJets:')
+        print(df_WJets)
+    #print('WJets df read, memory used: {0}'.format(mem_usage(df_WJets)))
+
+if args.ZJets:
+    df_ZJets = dd.read_csv(args.ZJets, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_ZJets['weight'] = args.Lumi*df_ZJets['crosssec']/df_ZJets['NoEntries']
+    df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('ZJets:')
+        print(df_ZJets)
+    #print('ZJets df read, memory used: {0}'.format(mem_usage(df_ZJets)))
+
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
-    if args.region == '2b1mu':
-        df_Data = df_Data.loc[((df_Data['NBJet'] == 2) & (df_Data['nMuons'] == 1) & (df_Data['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '0b1mu':
-        df_Data = df_Data.loc[((df_Data['NBJet'] == 0) & (df_Data['nMuons'] == 1) & (df_Data['Muon_MHT_TransMass'] < 100.))]
-    elif args.region == '2mu':
-        df_Data = df_Data.loc[((df_Data['nMuons'] == 2) & (df_Data['Muons_InvMass'] > 80.) & (df_Data['Muons_InvMass'] < 100.))]
-    elif args.region == '0b2mu':
-        df_Data = df_Data.loc[((df_Data['NBJet'] == 0) & (df_Data['nMuons'] == 2) & (df_Data['Muons_InvMass'] > 80.) & (df_Data['Muons_InvMass'] < 100.))]
-    if args.HT_cut:
-        df_Data = df_Data.loc[(df_Data['HT'] > args.HT_cut)]
+    df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT, DBT=args.DBT, isData=True)
     if args.verbose:
         print('Data:')
         print(df_Data)
@@ -267,33 +253,40 @@ for var in variables:
         df[var] = df[var].apply(lambda x: x.right)
         plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
-    if args.QCD and args.TTJets and args.stackBKG:
-        label='QCD background'
-        label2='$t \overline{t}$ + $jets$ background'
+    theBkgs = []
+    bkgLabels = []
+    bkgWeights = []
+    if args.QCD:
+        bkgLabels,append('QCD background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h2 = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
-        h2.fill(df_TTJets)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
-        df2 = h2.pandas().reset_index()[:-2]
-        df2[var] = df2[var].apply(lambda x: x.right)
-        plt.hist([df[var], df2[var]], bins=df[var], weights=[df['count()'], df2['count()']], label=[label, label2], log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
-    else:
-        if args.QCD:
-            label='QCD background'
-            h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_QCD)
-            df = h.pandas().reset_index()[:-2]
-            df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=0., zorder=0)
-        if args.TTJets:
-            label='$t \overline{t}$ + $jets$ background'
-            h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_TTJets)
-            df = h.pandas().reset_index()[:-2]
-            df[var] = df[var].apply(lambda x: x.right)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="stepfilled", linewidth=0., zorder=5)
+        theBkgs.append(df[var])
+    if args.TTJets:
+        bkgLabels,append('$t \overline{t}$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_QCD)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+    if args.WJets:
+        bkgLabels,append('$W$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_WJets)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+    if args.ZJets:
+        bkgLabels,append('$Z$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_ZJets)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+
+    if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets)):
+        plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
 
     if args.Data:
         label='Data'
@@ -311,7 +304,7 @@ for var in variables:
         plt.ylim(0.01, None)
         plt.xlim(0., None)
     else:
-        plt.ylim(0.05, None)
+        plt.ylim(0.1, None)
     if not args.NoOutput:
         plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
