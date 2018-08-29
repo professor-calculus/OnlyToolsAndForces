@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import uproot
 import matplotlib
+matplotlib.use('Agg')
 from matplotlib import rc
 matplotlib.rcParams['mathtext.fontset'] = 'custom'
 matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
@@ -377,7 +378,6 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     if not args.NoOutput:
         df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
         df_SR.to_csv(os.path.join(directory, 'Signal_Region.txt'), sep='\t', index=False)
-        df_CR.to_csv(os.path.join(directory, 'Control_Region.txt'), sep='\t', index=False)
         df_SM.to_csv(os.path.join(directory, 'SingleMuon_0b_Control_Region.txt'), sep='\t', index=False)
         df_SM2b.to_csv(os.path.join(directory, 'SingleMuon_2b_Control_Region.txt'), sep='\t', index=False)
         df_DM0b.to_csv(os.path.join(directory, 'DoubleMuon_0b_Control_Region.txt'), sep='\t', index=False)
@@ -440,8 +440,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     for thing in plottables:
         print('Plot of ' + thing)
-        df_reduced = df.iloc[:1000]
-        histogram(df_reduced[thing], buckets=20)
+        # df_reduced = df.iloc[:1000]
+        # histogram(df_reduced[thing], buckets=20)
         plt.figure()
         if args.kdeplot or args.kdeplot_fill:
             sns.kdeplot(df[thing], shade=args.kdeplot_fill)
