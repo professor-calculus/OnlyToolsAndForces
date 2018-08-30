@@ -28,6 +28,10 @@ parser.add_argument('-m', '--MSSM', default=None, nargs='*', help='Path to MSSM 
 parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJets dataframe file(s) from ROOTCuts')
 parser.add_argument('-w', '--WJets', default=None, nargs='*', help='Path to W+Jets dataframe file(s) from ROOTCuts')
 parser.add_argument('-z', '--ZJets', default=None, nargs='*', help='Path to Z+Jets dataframe file(s) from ROOTCuts')
+parser.add_argument('--DiBoson', default=None, nargs='*', help='Path to DiBoson dataframe file(s) from ROOTCuts')
+parser.add_argument('--SingleTop', default=None, nargs='*', help='Path to SingleTop dataframe file(s) from ROOTCuts')
+parser.add_argument('--TTW', default=None, nargs='*', help='Path to TTW dataframe file(s) from ROOTCuts')
+parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ dataframe file(s) from ROOTCuts')
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
@@ -74,6 +78,8 @@ def mem_usage(pandas_obj):
     return "{:03.2f} MB".format(usage_mb)
 
 def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
+    if region == 'Signal':
+        df = df.loc[(df['nMuons'] == 0)]
     if region == '2b1mu':
         df = df.loc[((df['NBJet'] == 2) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
     elif region == '0b1mu':
@@ -183,6 +189,42 @@ if args.ZJets:
         print(df_ZJets)
     #print('ZJets df read, memory used: {0}'.format(mem_usage(df_ZJets)))
 
+if args.DiBoson:
+    df_DiBoson = dd.read_csv(args.DiBoson, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_DiBoson['weight'] = args.Lumi*df_DiBoson['crosssec']/df_DiBoson['NoEntries']
+    df_DiBoson = df_chop_chop(df=df_DiBoson, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('DiBoson:')
+        print(df_DiBoson)
+    #print('DiBoson df read, memory used: {0}'.format(mem_usage(df_DiBoson)))
+
+if args.SingleTop:
+    df_SingleTop = dd.read_csv(args.SingleTop, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
+    df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('SingleTop:')
+        print(df_SingleTop)
+    #print('SingleTop df read, memory used: {0}'.format(mem_usage(df_SingleTop)))
+
+if args.TTW:
+    df_TTW = dd.read_csv(args.TTW, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_TTW['weight'] = args.Lumi*df_TTW['crosssec']/df_TTW['NoEntries']
+    df_TTW = df_chop_chop(df=df_TTW, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('TTW:')
+        print(df_TTW)
+    #print('TTW df read, memory used: {0}'.format(mem_usage(df_TTW)))
+
+if args.TTZ:
+    df_TTZ = dd.read_csv(args.TTZ, delimiter=r'\s+', usecols=columns, dtype=types)
+    df_TTZ['weight'] = args.Lumi*df_TTZ['crosssec']/df_TTZ['NoEntries']
+    df_TTZ = df_chop_chop(df=df_TTZ, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    if args.verbose:
+        print('TTZ:')
+        print(df_TTZ)
+    #print('TTZ df read, memory used: {0}'.format(mem_usage(df_TTZ)))
+
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
     df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT, DBT=args.DBT, isData=True)
@@ -285,8 +327,36 @@ for var in variables:
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+    if args.DiBoson:
+        bkgLabels,append('Di-Boson background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_DiBoson)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+    if args.SingleTop:
+        bkgLabels,append('$t$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_SingleTop)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+    if args.TTW:
+        bkgLabels,append('$t\overline{t}W$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_TTW)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
+    if args.TTZ:
+        bkgLabels,append('$t\overline{t}Z$ + $jets$ background')
+        h = Hist(dict[var]['bin'], weight='weight')
+        h.fill(df_TTZ)
+        df = h.pandas().reset_index()[:-2]
+        df[var] = df[var].apply(lambda x: x.right)
+        theBkgs.append(df[var])
 
-    if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets)):
+    if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ)):
         plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
 
     if args.Data:
