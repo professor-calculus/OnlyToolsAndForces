@@ -241,6 +241,8 @@ if args.HT_cut:
     directory = directory + '_{0}Region_HT{1}'.format(args.region, args.HT_cut)
 if args.DBT and not args.Data:
     directory = directory + '_DBT{0}'.format(args.DBT)
+if args.norm:
+    directory = directory + '_normalised'
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
