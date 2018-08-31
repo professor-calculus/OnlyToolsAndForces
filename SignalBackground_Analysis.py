@@ -89,9 +89,9 @@ def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
     elif region == '0b2mu':
         df = df.loc[((df['NBJet'] == 0) & (df['nMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
     if HT:
-        df = df.loc[(df['HT'] > args.HT_cut)]
+        df = df.loc[(df['HT'] > HT)]
     if DBT and not isData:
-        df = df.loc[(df['MaxFatJetDoubleB_discrim'] > args.DBT)]
+        df = df.loc[(df['MaxFatJetDoubleB_discrim'] > DBT)]
     return df;
 
 if args.Data:
@@ -141,13 +141,13 @@ if args.signal:
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
-    df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     #print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
     df_MSSM['weight'] = args.Lumi*df_MSSM['crosssec']/df_MSSM['NoEntries']
-    df_MSSM = df_chop_chop(df=df_MSSM, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_MSSM = df_chop_chop(df=df_MSSM, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
@@ -158,7 +158,7 @@ if args.QCD:
     df_QCD_entries = df_QCD[['NoEntries', 'crosssec']].drop_duplicates().compute()
     df_QCD['NoEntries'] = df_QCD_entries['NoEntries'].sum()
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
-    df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('QCD:')
         print(df_QCD)
@@ -167,7 +167,7 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
-    df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('TTJets:')
         print(df_TTJets)
@@ -176,7 +176,7 @@ if args.TTJets:
 if args.WJets:
     df_WJets = dd.read_csv(args.WJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_WJets['weight'] = args.Lumi*df_WJets['crosssec']/df_WJets['NoEntries']
-    df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('WJets:')
         print(df_WJets)
@@ -185,7 +185,7 @@ if args.WJets:
 if args.ZJets:
     df_ZJets = dd.read_csv(args.ZJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_ZJets['weight'] = args.Lumi*df_ZJets['crosssec']/df_ZJets['NoEntries']
-    df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('ZJets:')
         print(df_ZJets)
@@ -194,7 +194,7 @@ if args.ZJets:
 if args.DiBoson:
     df_DiBoson = dd.read_csv(args.DiBoson, delimiter=r'\s+', usecols=columns, dtype=types)
     df_DiBoson['weight'] = args.Lumi*df_DiBoson['crosssec']/df_DiBoson['NoEntries']
-    df_DiBoson = df_chop_chop(df=df_DiBoson, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_DiBoson = df_chop_chop(df=df_DiBoson, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('DiBoson:')
         print(df_DiBoson)
@@ -203,7 +203,7 @@ if args.DiBoson:
 if args.SingleTop:
     df_SingleTop = dd.read_csv(args.SingleTop, delimiter=r'\s+', usecols=columns, dtype=types)
     df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
-    df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('SingleTop:')
         print(df_SingleTop)
@@ -212,7 +212,7 @@ if args.SingleTop:
 if args.TTW:
     df_TTW = dd.read_csv(args.TTW, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTW['weight'] = args.Lumi*df_TTW['crosssec']/df_TTW['NoEntries']
-    df_TTW = df_chop_chop(df=df_TTW, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_TTW = df_chop_chop(df=df_TTW, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('TTW:')
         print(df_TTW)
@@ -221,7 +221,7 @@ if args.TTW:
 if args.TTZ:
     df_TTZ = dd.read_csv(args.TTZ, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTZ['weight'] = args.Lumi*df_TTZ['crosssec']/df_TTZ['NoEntries']
-    df_TTZ = df_chop_chop(df=df_TTZ, region=args.region, HT=args.HT, DBT=args.DBT, isData=args.Data)
+    df_TTZ = df_chop_chop(df=df_TTZ, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
         print('TTZ:')
         print(df_TTZ)
@@ -229,7 +229,7 @@ if args.TTZ:
 
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
-    df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT, DBT=args.DBT, isData=True)
+    df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=True)
     if args.verbose:
         print('Data:')
         print(df_Data)
@@ -302,61 +302,69 @@ for var in variables:
     bkgLabels = []
     bkgWeights = []
     if args.QCD:
-        bkgLabels,append('QCD background')
+        bkgLabels.append('QCD background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.TTJets:
-        bkgLabels,append('$t \overline{t}$ + $jets$ background')
+        bkgLabels.append('$t \overline{t}$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.WJets:
-        bkgLabels,append('$W$ + $jets$ background')
+        bkgLabels.append('$W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_WJets)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.ZJets:
-        bkgLabels,append('$Z$ + $jets$ background')
+        bkgLabels.append('$Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_ZJets)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.DiBoson:
-        bkgLabels,append('Di-Boson background')
+        bkgLabels.append('Di-Boson background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_DiBoson)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.SingleTop:
-        bkgLabels,append('$t$ + $jets$ background')
+        bkgLabels.append('$t$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_SingleTop)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.TTW:
-        bkgLabels,append('$t\overline{t}W$ + $jets$ background')
+        bkgLabels.append('$t\overline{t}W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_TTW)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
     if args.TTZ:
-        bkgLabels,append('$t\overline{t}Z$ + $jets$ background')
+        bkgLabels.append('$t\overline{t}Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_TTZ)
         df = h.pandas().reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
+        bkgWeights.append(df['count()'])
 
     if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ)):
         plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
