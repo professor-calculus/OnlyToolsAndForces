@@ -286,7 +286,7 @@ for var in variables:
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_temp)
-            df = h.pandas().reset_index()[:-2]
+            df = h.pandas(normalized=args.norm).reset_index()[:-2]
             df[var] = df[var].apply(lambda x: x.right)
             plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
@@ -294,7 +294,7 @@ for var in variables:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_MSSM)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
@@ -305,7 +305,7 @@ for var in variables:
         bkgLabels.append('QCD background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -313,7 +313,7 @@ for var in variables:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_QCD)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -321,7 +321,7 @@ for var in variables:
         bkgLabels.append('$W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_WJets)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -329,7 +329,7 @@ for var in variables:
         bkgLabels.append('$Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_ZJets)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -337,7 +337,7 @@ for var in variables:
         bkgLabels.append('Di-Boson background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_DiBoson)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -345,7 +345,7 @@ for var in variables:
         bkgLabels.append('$t$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_SingleTop)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -353,7 +353,7 @@ for var in variables:
         bkgLabels.append('$t\overline{t}W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_TTW)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -361,7 +361,7 @@ for var in variables:
         bkgLabels.append('$t\overline{t}Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
         h.fill(df_TTZ)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -373,7 +373,7 @@ for var in variables:
         label='Data'
         h = Hist(dict[var]['bin'])
         h.fill(df_Data)
-        df = h.pandas().reset_index()[:-2]
+        df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.mid)
         plt.errorbar(df[var], df['count()'], yerr=df['err(count())'], fmt='o', markersize=4, label=label, zorder=35)
 
@@ -381,11 +381,12 @@ for var in variables:
     plt.yscale('log')
     leg = plt.legend(loc='upper right', fontsize='medium')
     leg.set_zorder(100)
-    if var not in ['NJet', 'NBJet']:
-        plt.ylim(0.01, None)
-        plt.xlim(0., None)
-    else:
-        plt.ylim(0.1, None)
+    if not args.norm:
+        if var not in ['NJet', 'NBJet']:
+            plt.ylim(0.01, None)
+            plt.xlim(0., None)
+        else:
+            plt.ylim(0.1, None)
     if not args.NoOutput:
         plt.savefig(os.path.join(temp_dir, var + '.pdf'))
         print('Saved ' + var + '.pdf output file')
