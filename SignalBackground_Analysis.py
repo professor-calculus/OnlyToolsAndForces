@@ -128,6 +128,8 @@ else:
 columns = variables
 columns.append('crosssec')
 columns.append('NoEntries')
+columns.append('M_lsp')
+columns.append('M_sq')
 
 # Read in the dataframes:
 if args.signal:
