@@ -82,88 +82,80 @@ if args.QCD:
     df_list = []
     for file in args.QCD:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('QCD Multijet background')
 if args.TTJets:
     df_list = []
     for file in args.TTJets:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('$t\overline{t}$ + jets background')
 if args.WJets:
     df_list = []
     for file in args.WJets:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('$W$ + jets background')
 if args.ZJets:
     df_list = []
     for file in args.ZJets:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('$Z$ + jets background')
 if args.DiBoson:
     df_list = []
     for file in args.DiBoson:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('Di-Boson background')
 if args.SingleTop:
     df_list = []
     for file in args.SingleTop:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('Single-$t$ background')
 if args.TTW:
     df_list = []
     for file in args.TTW:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('$t\overline{t}W$ background')
 if args.TTZ:
     df_list = []
     for file in args.TTZ:
         df = pd.read_csv(file, delimiter=r'\s+')
-        df['Bin'] = x
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    theBkgs.append(df['Bin'])
+    theBkgs.append(x)
     bkgWeights.append(df['Yield'])
     bkgLabels.append('$t\overline{t}Z$ background')
 
