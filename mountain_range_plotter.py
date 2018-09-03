@@ -49,10 +49,10 @@ x = range(27)
 df_sig_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
-    df['Bin'] = x
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+df_sig['Bin'] = x
 
 if args.verbose:
     print('Signal:')
