@@ -55,7 +55,6 @@ df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet
 df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
 print('{0} bins considered'.format(df_bins.shape[0]))
 x = range(df_bins.shape[0])
-df_sig['Bin'] = x
 
 if args.verbose:
     print('Signal:')
@@ -172,6 +171,7 @@ for index, row in df_sig_masses.iterrows():
     label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
     df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
     df_temp = df_temp.replace(0., 1e-5) 
+    df_temp['Bin'] = x
     plt.hist(df_temp['Bin'], bins=x, label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
 if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ):
