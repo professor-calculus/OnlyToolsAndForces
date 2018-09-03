@@ -18,8 +18,15 @@ import warnings
 
 parser = a.ArgumentParser(description='Signal vs Background plot')
 parser.add_argument('-s', '--signal', nargs='*', required=True, help='Path to signal dataframe file(s) from ROOTCuts')
-parser.add_argument('-q', '--QCD', nargs='*', default=None, help='Path to QCD dataframe file from ROOTCuts')
-parser.add_argument('-t', '--TTJets', nargs='*', default=None, help='Path to TTJets dataframe file from ROOTCuts')
+parser.add_argument('-q', '--QCD', default=None, nargs='*', help='Path to QCD dataframe file(s) from ROOTCuts')
+parser.add_argument('-m', '--MSSM', default=None, nargs='*', help='Path to MSSM dataframe file(s) from ROOTCuts')
+parser.add_argument('-t', '--TTJets', default=None, nargs='*', help='Path to TTJets dataframe file(s) from ROOTCuts')
+parser.add_argument('-w', '--WJets', default=None, nargs='*', help='Path to W+Jets dataframe file(s) from ROOTCuts')
+parser.add_argument('-z', '--ZJets', default=None, nargs='*', help='Path to Z+Jets dataframe file(s) from ROOTCuts')
+parser.add_argument('--DiBoson', default=None, nargs='*', help='Path to DiBoson dataframe file(s) from ROOTCuts')
+parser.add_argument('--SingleTop', default=None, nargs='*', help='Path to SingleTop dataframe file(s) from ROOTCuts')
+parser.add_argument('--TTW', default=None, nargs='*', help='Path to TTW dataframe file(s) from ROOTCuts')
+parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ dataframe file(s) from ROOTCuts')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -45,6 +52,7 @@ for file in args.signal:
     df['Bin'] = x
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
+df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 
 if args.verbose:
     print('Signal:')
@@ -67,20 +75,97 @@ df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates()
 df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
 print(df_sig_masses.head())
 
+theBkgs = []
+bkgLabels = []
+bkgWeights = []
 if args.QCD:
     df_list = []
     for file in args.QCD:
         df = pd.read_csv(file, delimiter=r'\s+')
         df['Bin'] = x
         df_list.append(df)
-    df_QCD = pd.concat(df_list)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('QCD Multijet background')
 if args.TTJets:
     df_list = []
     for file in args.TTJets:
         df = pd.read_csv(file, delimiter=r'\s+')
         df['Bin'] = x
         df_list.append(df)
-    df_TTJets = pd.concat(df_list)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('$t\overline{t}$ + jets background')
+if args.WJets:
+    df_list = []
+    for file in args.WJets:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('$W$ + jets background')
+if args.ZJets:
+    df_list = []
+    for file in args.ZJets:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('$Z$ + jets background')
+if args.DiBoson:
+    df_list = []
+    for file in args.DiBoson:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('Di-Boson background')
+if args.SingleTop:
+    df_list = []
+    for file in args.SingleTop:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('Single-$t$ background')
+if args.TTW:
+    df_list = []
+    for file in args.TTW:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('$t\overline{t}W$ background')
+if args.TTZ:
+    df_list = []
+    for file in args.TTZ:
+        df = pd.read_csv(file, delimiter=r'\s+')
+        df['Bin'] = x
+        df_list.append(df)
+    df = pd.concat(df_list)
+    df = df.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    theBkgs.append(df['Bin'])
+    bkgWeights.append(df['Yield'])
+    bkgLabels.append('$t\overline{t}Z$ background')
 
 n_signal = len(args.signal)
 linewidth = 4.
@@ -96,16 +181,10 @@ for index, row in df_sig_masses.iterrows():
     label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
     df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
     df_temp = df_temp.replace(0., 1e-5) 
-    plt.hist(df_temp['Bin'], bins=range(27), label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+    plt.hist(df_temp['Bin'], bins=x, label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
-if (args.QCD):
-    df_QCD = df_QCD.replace(0., 1e-5) 
-    plt.hist(df_QCD['Bin'], bins=x, weights=df_QCD['Yield'], label='QCD background', log=True, histtype="step", linewidth=linewidth, hatch="////", zorder=0)
-    #plt.hist(df_QCD['Bin'], bins=range(37), weights=df_QCD['Yield'], label='QCD background', log=True, histtype="stepfilled", zorder=0)
-if (args.TTJets):
-    df_TTJets = df_TTJets.replace(0., 1e-5)
-    plt.hist(df_TTJets['Bin'], bins=x, weights=df_TTJets['Yield'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="step", linewidth=linewidth, hatch="\\\\\\\\", zorder=5)
-    #plt.hist(df_TTJets['Bin'], bins=range(37), weights=df_TTJets['Yield'], label='$t \overline{t}$ + $jets$ background', log=True, histtype="stepfilled", zorder=5)
+if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ):
+    plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="step", linewidth=linewidth, hatch="////", zorder=0)
 
 plt.xlabel('Bin Number', size=14)
 plt.xticks(range(37))
