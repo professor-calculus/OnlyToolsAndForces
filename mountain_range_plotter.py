@@ -44,14 +44,17 @@ if args.style:
 print '\nPython Mountain Range Plotter\n'
 print(args.signal)
 
-x = range(27)
-
 df_sig_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+')
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+
+# Number of bins as read from signal sample, assume bkg is the same else it's all nonsense anyway!
+df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+print('{0} bins considered'.format(df_bins.shape[0]))
+x = range(df_bins.shape[0])
 df_sig['Bin'] = x
 
 if args.verbose:
@@ -162,10 +165,6 @@ if args.TTZ:
 n_signal = len(args.signal)
 linewidth = 4.
 
-if args.verbose:
-    print(df_QCD)
-    print(df_TTJets)
-
 plt.figure()
 temp_i = 0
 for index, row in df_sig_masses.iterrows():
@@ -179,7 +178,7 @@ if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson)
     plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="step", linewidth=linewidth, hatch="////", zorder=0)
 
 plt.xlabel('Bin Number', size=14)
-plt.xticks(range(37))
+plt.xticks(range(df_sig.shape[0] + 1))
 plt.ylim(0.005, None)
 leg = plt.legend(loc='upper right', fontsize='medium')
 leg.set_zorder(100)
