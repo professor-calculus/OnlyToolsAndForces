@@ -75,6 +75,14 @@ if not args.NoOutput:
     print('Files will be written to: {0}'.format(temp_dir))
     os.makedirs(temp_dir)
 
+# Save original command for later
+commandString = ' '.join(sys.argv[0:])
+print(commandString)
+if not args.NoOutput:
+    f = open(os.path.join(temp_dir, 'command.txt'), 'w')
+    f.write(commandString)
+    f.close()
+
 df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates()
 df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
 print(df_sig_masses.head())
