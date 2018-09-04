@@ -276,7 +276,7 @@ dict = {'MHT': {'bin': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV
         'LeadSlimJet_Pt': {'bin': bin('LeadSlimJet_Pt', 50, 0., 1000.), 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
         }
 
-linewidth = 3.
+linewidth = 2.
 
 for var in variables:
     plt.figure()
@@ -381,7 +381,7 @@ for var in variables:
 
     plt.xlabel(dict[var]['title'], size=14)
     plt.yscale('log')
-    leg = plt.legend(loc='upper right', fontsize='medium')
+    leg = plt.legend(loc='upper right', fontsize='x-small')
     leg.set_zorder(100)
     if not args.norm:
         if var not in ['NJet', 'NBJet']:

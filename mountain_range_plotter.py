@@ -180,7 +180,7 @@ if args.TTZ:
     bkgLabels.append('$t\overline{t}Z$ background')
 
 n_signal = len(args.signal)
-linewidth = 4.
+linewidth = 2.
 
 if args.verbose:
     print(theBkgs)
@@ -198,12 +198,12 @@ for index, row in df_sig_masses.iterrows():
     plt.hist(df_temp['Bin'], bins=x, label=label, weights=df_temp['Yield'], log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
 if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ):
-    plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="step", linewidth=linewidth, hatch="////", zorder=0)
+    plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="stepfilled", linewidth=0., zorder=0)
 
 plt.xlabel('Bin Number', size=14)
-plt.xticks(range(df_sig.shape[0] + 1))
+plt.xticks(x)
 plt.ylim(0.005, None)
-leg = plt.legend(loc='upper right', fontsize='medium')
+leg = plt.legend(loc='upper right', fontsize='small')
 leg.set_zorder(100)
 if not args.NoOutput:
     plt.savefig(os.path.join(temp_dir, 'MountainRange.pdf'))
