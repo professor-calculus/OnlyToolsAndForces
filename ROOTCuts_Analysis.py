@@ -153,7 +153,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     maxFatJet_discrim = []
     fatDoubleBJet_maxDiscrim_mass = []
 
-    n_muons = []
+    n_loosemuons = []
+    n_tightmuons = []
     muon_MHT_transverse_mass = []
     muons_inv_mass = []
 
@@ -190,10 +191,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     eventpass = 0.
     eventCounter = 0
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
             n_doublebjet = 0
             NJet6 = False
             HT1500 = False
@@ -244,7 +245,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             fatDoubleBJet_B_discrim.append(fatJetB_discrim_val)
             maxFatJet_discrim.append(max(fatJetA_discrim_val, fatJetB_discrim_val))
 
-            n_muons.append(nMuons_i)
+            n_loosemuons.append(nLooseMuons_i)
+            n_tightmuons.append(nTightMuons_i)
 
             # Number of double b-tagged jets
             fatDoubleBJet_A_mass.append(fatJetA_mass_val)
@@ -278,25 +280,25 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 DoubleBJet_pass = True
 
             # Transverse mass between Missing-HT and muon (in case of one muon)
-            if nMuons_i == 1:
+            if nTightMuons_i == 1:
                 muon_MHT_mT = Transverse_Mass(muonA_p4_i.pt, MHT_i, muonA_p4_i.phi(), MHT_phi_i)
             else:
                 muon_MHT_mT = 0.
             muon_MHT_transverse_mass.append(muon_MHT_mT)
 
             # Invariant mass of muons (if 2 muons)
-            if nMuons_i == 2:
+            if nTightMuons_i == 2:
                 muons_Minv = Invariant_Mass(muonA_p4_i.pt, muonB_p4_i.pt, muonA_p4_i.eta, muonB_p4_i.eta, muonA_p4_i.phi(), muonB_p4_i.phi())
             else:
                 muons_Minv = 0.
             muons_inv_mass.append(muons_Minv)
 
             # Number of selected muons (i.e. meets other cuts)
-            if nMuons_i == 0:
+            if nLooseMuons_i == 0:
                 nMuons_selected = 0
-            elif ((nMuons_i == 1) and (muon_MHT_mT < 100.)):
+            elif ((nTightMuons_i == 1) and (muon_MHT_mT < 100.)):
                 nMuons_selected = 1
-            elif ((nMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.)):
+            elif ((nTightMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.)):
                 nMuons_selected = 2
             else:
                 nMuons_selected = -1
@@ -404,7 +406,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'MaxFatJetDoubleB_discrim': maxFatJet_discrim,
         'FatJet_MaxDoubleB_discrim_mass': fatDoubleBJet_maxDiscrim_mass,
         'FatJetAngularSeparation': AK8DelR,
-        'nMuons': n_muons,
+        'nLooseMuons': n_loosemuons,
+        'nTightMuons': n_tightmuons,
         'Muon_MHT_TransMass': muon_MHT_transverse_mass,
         'Muons_InvMass': muons_inv_mass,
         })
@@ -414,7 +417,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-    plottables = ['MHT', 'HT', 'NJet', 'NDoubleBJet', 'NFatJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt']
+    plottables = ['MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'NFatJet', 'nLooseMuons', 'nTightMuons', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt']
 
 
     bins_HT = np.linspace(0.,5000.,160)
@@ -430,9 +433,11 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     dict = {'MHT': {'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
             'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
             'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
+            'NBJet': {'bins': bins_njet, 'title': 'Number of $b$-tagged Jets'},
             'NDoubleBJet': {'bins': bins_ndoublebjet, 'title': 'Number of Double-$b$-tagged Fat Jets'},
             'NFatJet': {'bins': bins_nfatjet, 'title': 'Number of AK8 Fat Jets'},
-            'nMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
+            'nLooseMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
+            'nTightMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
             'MaxFatJetDoubleB_discrim': {'bins': bins_doublebdiscrim, 'title': 'Highest Double-b discriminator score'},
             'FatJet_MaxDoubleB_discrim_mass': {'bins': bins_BMass, 'title': 'Soft-Drop Mass of AK8 Jet with Highest Double-b discriminator score'},
             'LeadSlimJet_Pt': {'bins': bins_MHT, 'title': 'Lead AK4 Jet P_{T}'},

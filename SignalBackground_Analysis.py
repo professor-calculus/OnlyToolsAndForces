@@ -35,6 +35,7 @@ parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ datafram
 parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data dataframe file(s) from ROOTCuts')
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
+parser.add_argument('--NMinusOne', action='store_true', help='Make n-1 plots, i.e. all cuts except those on the x-axis')
 parser.add_argument('--region', default='All', help='Applies no cut, lepton veto or lepton requirement. Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
@@ -47,6 +48,10 @@ parser.add_argument('--style', default=None, help='Optional drawing style, e.g. 
 parser.add_argument('--kdeplot', action='store_true', help='Use kdeplot in Seaborn instead of matplotlib histogram')
 parser.add_argument('--kdeplot_fill', action='store_true', help='Same as --kdeplot but area under each line is filled')
 args=parser.parse_args()
+
+if args.Data and args.NMinusOne:
+    print('Error: Cannot apply n-1 cuts with data since currently blinded!')
+    return
 
 if args.Threads:
     dask.set_options(pool=ThreadPool(args.Threads))
@@ -93,6 +98,18 @@ def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
     if DBT and not isData:
         df = df.loc[(df['MaxFatJetDoubleB_discrim'] > DBT)]
     return df;
+
+def df_NMinusOne(df=None, var=None, variables=None):
+    d = {'MHT': 200.,
+         'HT': 1500.,
+         'NJet': 5,
+        }
+    if var not in ['NBJet', 'NDoubleBJet']:
+        df = df.loc[((df['NDoubleBJet'] == 0 & df['NBJet'] > 2) | (df['NDoubleBJet'] == 1 & df['NBJet'] > 1) | (df['NDoubleBJet'] > 1))]
+    theVars = ['MHT', 'HT', 'NJet']
+    for x in theVars:
+        if x != var:
+            df = df.loc[(df[x] > d[var])]
 
 if args.Data:
     variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
@@ -314,7 +331,7 @@ for var in variables:
     if args.TTJets:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_QCD)
+        h.fill(df_TTJets)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
