@@ -51,7 +51,7 @@ args=parser.parse_args()
 
 if args.Data and args.NMinusOne:
     print('Error: Cannot apply n-1 cuts with data since currently blinded!')
-    return
+    exit()
 
 if args.Threads:
     dask.set_options(pool=ThreadPool(args.Threads))
@@ -99,7 +99,7 @@ def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
         df = df.loc[(df['MaxFatJetDoubleB_discrim'] > DBT)]
     return df;
 
-def df_NMinusOne(df=None, var=None, variables=None):
+def df_NMinusOne(df=None, var=None):
     d = {'MHT': 200.,
          'HT': 1500.,
          'NJet': 5,
@@ -112,12 +112,13 @@ def df_NMinusOne(df=None, var=None, variables=None):
             df = df.loc[(df[x] > d[var])]
 
 if args.Data:
-    variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
              'NBJet': np.uint8,
-             'nMuons': np.uint8,
+             'nLooseMuons': np.uint8,
+             'nTightMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
              'Muons_InvMass': np.float32,
              'LeadSlimJet_Pt': np.float32,
@@ -125,7 +126,7 @@ if args.Data:
              'NoEntries': np.uint32,
             }
 else:
-    variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -134,7 +135,8 @@ else:
              'NDoubleBJet': np.uint8,
              'MaxFatJetDoubleB_discrim': np.float32,
              'FatJet_MaxDoubleB_discrim_mass': np.float32,
-             'nMuons': np.uint8,
+             'nLooseMuons': np.uint8,
+             'nTightMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
              'Muons_InvMass': np.float32,
              'LeadSlimJet_Pt': np.float32,
@@ -303,6 +305,8 @@ for var in variables:
             temp_i += 5
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+            if args.NMinusOne:
+                df_temp = df_NMinusOne(df_temp, var)
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_temp)
             df = h.pandas(normalized=args.norm).reset_index()[:-2]
@@ -312,7 +316,9 @@ for var in variables:
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_MSSM)
+        if args.NMinusOne:
+            df_temp = df_NMinusOne(df_MSSM, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
@@ -323,7 +329,9 @@ for var in variables:
     if args.QCD:
         bkgLabels.append('QCD background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_QCD)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_QCD, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -331,7 +339,9 @@ for var in variables:
     if args.TTJets:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_TTJets)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_TTJets, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -339,7 +349,9 @@ for var in variables:
     if args.WJets:
         bkgLabels.append('$W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_WJets)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_WJets, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -347,7 +359,9 @@ for var in variables:
     if args.ZJets:
         bkgLabels.append('$Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_ZJets)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_ZJets, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -355,7 +369,9 @@ for var in variables:
     if args.DiBoson:
         bkgLabels.append('Di-Boson background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_DiBoson)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_DiBoson, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -363,7 +379,9 @@ for var in variables:
     if args.SingleTop:
         bkgLabels.append('$t$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_SingleTop)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_SingleTop, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -371,7 +389,9 @@ for var in variables:
     if args.TTW:
         bkgLabels.append('$t\overline{t}W$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_TTW)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_TTW, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
@@ -379,14 +399,16 @@ for var in variables:
     if args.TTZ:
         bkgLabels.append('$t\overline{t}Z$ + $jets$ background')
         h = Hist(dict[var]['bin'], weight='weight')
-        h.fill(df_TTZ)
+        if args.NMinusOne:
+       	    df_temp = df_NMinusOne(df_TTZ, var)
+        h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[:-2]
         df[var] = df[var].apply(lambda x: x.right)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
 
     if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ)):
-        plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
+        plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, density=args.norm, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
 
     if args.Data:
         label='Data'
