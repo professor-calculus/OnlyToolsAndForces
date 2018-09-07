@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import sys
 import argparse as a
 import warnings
+import seaborn as sns
 
 #Get Options
 
@@ -31,8 +32,10 @@ parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ datafram
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
-parser.add_argument('--style', default=None, help='Optional drawing style, e.g. \"ggplot\" in Matplotlib or \"dark\" in Seaborn')
+parser.add_argument('--style', default='seaborn-colorblind', help='Optional drawing style, e.g. \"ggplot\" in Matplotlib or \"dark\" in Seaborn')
 args=parser.parse_args()
+
+sns.set_palette(sns.color_palette("Paired", 20))
 
 if args.verbose:
     parser.print_help()
@@ -56,7 +59,7 @@ df_sig.reset_index(inplace=True)
 # Number of bins as read from signal sample, assume bkg is the same else it's all nonsense anyway!
 df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
 print('{0} bins considered'.format(df_bins.shape[0]))
-x = range(df_bins.shape[0])
+x = np.arange(df_bins.shape[0])
 
 if args.verbose:
     print('Signal:')
@@ -208,8 +211,14 @@ for index, row in df_sig_masses.iterrows():
 if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ):
     plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="stepfilled", linewidth=0., zorder=0)
 
-plt.xlabel('Bin Number', size=14)
-plt.xticks(x)
+df = df.drop(['M_sq', 'M_lsp', 'n_Jet_bin', 'n_Muons_bin', 'n_bJet_bin'], axis=1)
+df = df.groupby(by=['HT_bin', 'MHT_bin', 'n_DoubleBJet_bin']).sum()
+df = df.astype('int32')
+#print(df.index)
+
+plt.xticks(x+0.5, [''.join(str(t)) for t in df.index], rotation=90)
+plt.xlabel("HT, MHT, N_double-b bin", labelpad=20)
+plt.tight_layout()
 plt.ylim(0.005, None)
 leg = plt.legend(loc='upper right', fontsize='small')
 leg.set_zorder(100)
@@ -218,3 +227,4 @@ if not args.NoOutput:
     print('Saved MountainRange.pdf output file')
 if not args.NoX:
     plt.show()
+
