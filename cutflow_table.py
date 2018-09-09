@@ -26,6 +26,7 @@ parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data 
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('--region', default='Signal', help='Signal, 0b2mu etc region')
+parser.add_argument('--latex', action='store_true', help='Save LaTeX table')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
 args=parser.parse_args()
 
@@ -37,41 +38,22 @@ if args.verbose:
 else:
     warnings.filterwarnings("ignore")
 
-if args.kdeplot_fill:
-    args.kdeplot = True
+print '\nCutflow Table Maker\n'
 
-if args.style:
-    if args.kdeplot:
-        sns.set_style(args.style)
-    else:
-        plt.style.use(args.style)
-
-print '\nPython Signal vs Background Plotter\n'
-print('Luminosity = {0}fb-1'.format(args.Lumi/1000.))
-
-# Memory usage of pandas thing
-def mem_usage(pandas_obj):
-    if isinstance(pandas_obj,pd.DataFrame):
-        usage_b = pandas_obj.memory_usage(deep=True).sum()
-    else: # we assume if not a df it's a series
-        usage_b = pandas_obj.memory_usage(deep=True)
-    usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
-    return "{:03.2f} MB".format(usage_mb)
-
-else:
-    variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
-    types = {'MHT': np.float32,
-             'HT': np.float32,
-             'NJet': np.uint8,
-             'NBJet': np.uint8,
-             'NDoubleBJet': np.uint8,
-             'nLooseMuons': np.uint8,
-             'nTightMuons': np.uint8,
-             'Muon_MHT_TransMass': np.float32,
-             'Muons_InvMass': np.float32,
-            }
+variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
+types = {'MHT': np.float32,
+         'HT': np.float32,
+         'NJet': np.uint8,
+         'NBJet': np.uint8,
+         'NDoubleBJet': np.uint8,
+         'nLooseMuons': np.uint8,
+         'nTightMuons': np.uint8,
+         'Muon_MHT_TransMass': np.float32,
+         'Muons_InvMass': np.float32,
+        }
 
 columns = variables
+columns.append('crosssec')
 columns.append('M_lsp')
 columns.append('M_sq')
 
@@ -200,19 +182,20 @@ else:
 for thing in MC_types:
     temp_efficiencies = []
     df_temp = dataframes[thing]
-    nentries = float(df_temp.shape[0])
+    # Entries weighted by cross-section
+    nentries = float(df_temp['crosssec'].compute().sum())
 
     # HT
     df_temp = df_temp.loc[(df_temp['HT'] > 1500.)]
-    temp_efficiencies.append(float(df_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
 
     # MHT
     df_temp = df_temp.loc[(df_temp['MHT'] > 200.)]
-    temp_efficiencies.append(float(df_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
 
     # NJets
-    df_temp = df_temp.loc[(df_temp['NJets'] > 5)]
-    temp_efficiencies.append(float(df_temp.shape[0])/nentries)
+    df_temp = df_temp.loc[(df_temp['NJet'] > 5)]
+    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
 
     # Muon veto/selection
     if args.region == 'Signal':
@@ -220,16 +203,17 @@ for thing in MC_types:
     else:
         print('Error: not implemented yet')
         exit()
-    temp_efficiencies.append(float(df_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
 
     # Double-b jets
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 0) & (df_temp['NBJet'] > 2))]
-    temp_efficiencies.append(float(df_temp_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
-    temp_efficiencies.append(float(df_temp_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
     df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
-    temp_efficiencies.append(float(df_temp_temp.shape[0])/nentries)
+    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
 
     theDataframe[thing] = temp_efficiencies
 
 theDataframe.to_csv(os.path.join(directory, 'CutFlow.txt'), sep='\t', index=False)
+theDataframe.to_latex(os.path.join(directory, 'CutFlow.tex'), index=False, bold_rows=True)

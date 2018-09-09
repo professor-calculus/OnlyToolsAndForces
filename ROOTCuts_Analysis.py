@@ -354,10 +354,16 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     print(df_SR)
 
     print('\n 0b1mu Control Region:')
-    df_SM = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 0))]
-    df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
-    df_SM.reset_index(inplace=True)
-    print(df_SM)
+    df_SM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 0))]
+    df_SM0b = df_SM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM0b.reset_index(inplace=True)
+    print(df_SM0b)
+
+    print('\n 1b1mu Control Region:')
+    df_SM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 1))]
+    df_SM1b = df_SM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM1b.reset_index(inplace=True)
+    print(df_SM1b)
 
     print('\n 2b1mu Control Region:')
     df_SM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 2))]
@@ -365,11 +371,29 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     df_SM2b.reset_index(inplace=True)
     print(df_SM2b)
 
+    print('\n 1mu Control Region:')
+    df_SM = df_binned.loc[((df_binned['n_Muons_bin'] == 1))]
+    df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM.reset_index(inplace=True)
+    print(df_SM)
+
     print('\n 0b2mu Control Region:')
     df_DM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 0))]
     df_DM0b = df_DM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM0b.reset_index(inplace=True)
-    print(df_SM)
+    print(df_DM0b)
+
+    print('\n 1b2mu Control Region:')
+    df_DM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 1))]
+    df_DM1b = df_DM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM1b.reset_index(inplace=True)
+    print(df_DM1b)
+
+    print('\n 2b2mu Control Region:')
+    df_DM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 1))]
+    df_DM2b = df_DM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM2b.reset_index(inplace=True)
+    print(df_DM2b)
 
     print('\n 2mu Control Region:')
     df_DM = df_binned.loc[df_binned['n_Muons_bin'] == 2]
@@ -380,9 +404,13 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     if not args.NoOutput:
         df_binned.to_csv(os.path.join(directory, 'ROOTCuts_binned.txt'), sep='\t', index=False)
         df_SR.to_csv(os.path.join(directory, 'Signal_Region.txt'), sep='\t', index=False)
-        df_SM.to_csv(os.path.join(directory, 'SingleMuon_0b_Control_Region.txt'), sep='\t', index=False)
+        df_SM0b.to_csv(os.path.join(directory, 'SingleMuon_0b_Control_Region.txt'), sep='\t', index=False)
+        df_SM1b.to_csv(os.path.join(directory, 'SingleMuon_1b_Control_Region.txt'), sep='\t', index=False)
         df_SM2b.to_csv(os.path.join(directory, 'SingleMuon_2b_Control_Region.txt'), sep='\t', index=False)
+        df_SM.to_csv(os.path.join(directory, 'SingleMuon_Control_Region.txt'), sep='\t', index=False)
         df_DM0b.to_csv(os.path.join(directory, 'DoubleMuon_0b_Control_Region.txt'), sep='\t', index=False)
+        df_DM1b.to_csv(os.path.join(directory, 'DoubleMuon_1b_Control_Region.txt'), sep='\t', index=False)
+        df_DM2b.to_csv(os.path.join(directory, 'DoubleMuon_2b_Control_Region.txt'), sep='\t', index=False)
         df_DM.to_csv(os.path.join(directory, 'DoubleMuon_Control_Region.txt'), sep='\t', index=False)
 
 
