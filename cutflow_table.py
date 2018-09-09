@@ -200,6 +200,22 @@ for thing in MC_types:
     # Muon veto/selection
     if args.region == 'Signal':
         df_temp = df_temp.loc[(df_temp['nLooseMuons'] == 0)]
+    elif args.region == '1mu':
+        df_temp = df_temp.loc[(df_temp['nTightMuons'] == 1)]
+    elif args.region == '0b1mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 1) & (df_temp['NBJet'] == 0))]
+    elif args.region == '1b1mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 1) & (df_temp['NBJet'] == 0))]
+    elif args.region == '2b1mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 1) & (df_temp['NBJet'] == 0))]
+    elif args.region == '2mu':
+        df_temp = df_temp.loc[(df_temp['nTightMuons'] == 2)]
+    elif args.region == '0b2mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 2) & (df_temp['NBJet'] == 0))]
+    elif args.region == '1b2mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 2) & (df_temp['NBJet'] == 1))]
+    elif args.region == '2b2mu':
+        df_temp = df_temp.loc[((df_temp['nTightMuons'] == 2) & (df_temp['NBJet'] == 2))]
     else:
         print('Error: not implemented yet')
         exit()
