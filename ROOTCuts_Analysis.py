@@ -174,7 +174,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     for mhtBin in [200, 400, 600]:
         for htBin in [1500, 2500, 3500]:
             for nJetBin in [6]:
-                for nBJetbin in [0, 2]:
+                for nBJetbin in [0, 1, 2]:
                     for nDoubleBJetBin in [0,1,2]:
                         for nMuons in [-1, 0, 1, 2]:
                             binned_msq.append(args.Msq)
@@ -390,7 +390,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     print(df_DM1b)
 
     print('\n 2b2mu Control Region:')
-    df_DM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 1))]
+    df_DM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 2))]
     df_DM2b = df_DM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM2b.reset_index(inplace=True)
     print(df_DM2b)
