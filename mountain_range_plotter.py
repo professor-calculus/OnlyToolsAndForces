@@ -29,6 +29,7 @@ parser.add_argument('--DiBoson', default=None, nargs='*', help='Path to DiBoson 
 parser.add_argument('--SingleTop', default=None, nargs='*', help='Path to SingleTop dataframe file(s) from ROOTCuts')
 parser.add_argument('--TTW', default=None, nargs='*', help='Path to TTW dataframe file(s) from ROOTCuts')
 parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ dataframe file(s) from ROOTCuts')
+parser.add_argument('--OutDir', default=None, help='Output folder')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -50,7 +51,7 @@ print(args.signal)
 
 df_sig_list = []
 for file in args.signal:
-    df = pd.read_csv(file, delimiter=r'\s+')
+    df = pd.read_csv(file, delimiter=r'\s+', header='infer')
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
@@ -96,7 +97,7 @@ bkgWeights = []
 if args.QCD:
     df_list = []
     for file in args.QCD:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -108,7 +109,7 @@ if args.QCD:
 if args.TTJets:
     df_list = []
     for file in args.TTJets:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -120,7 +121,7 @@ if args.TTJets:
 if args.WJets:
     df_list = []
     for file in args.WJets:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -132,7 +133,7 @@ if args.WJets:
 if args.ZJets:
     df_list = []
     for file in args.ZJets:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -144,7 +145,7 @@ if args.ZJets:
 if args.DiBoson:
     df_list = []
     for file in args.DiBoson:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -156,7 +157,7 @@ if args.DiBoson:
 if args.SingleTop:
     df_list = []
     for file in args.SingleTop:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -168,7 +169,7 @@ if args.SingleTop:
 if args.TTW:
     df_list = []
     for file in args.TTW:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -180,7 +181,7 @@ if args.TTW:
 if args.TTZ:
     df_list = []
     for file in args.TTZ:
-        df = pd.read_csv(file, delimiter=r'\s+')
+        df = pd.read_csv(file, delimiter=r'\s+', header='infer')
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -220,7 +221,7 @@ plt.xticks(x+0.5, [''.join(str(t)) for t in df.index], rotation=90)
 plt.xlabel("HT, MHT, N_double-b bin", labelpad=20)
 plt.tight_layout()
 plt.ylim(0.005, None)
-leg = plt.legend(loc='upper right', fontsize='small')
+leg = plt.legend(loc='upper right', fontsize='x-small')
 leg.set_zorder(100)
 if not args.NoOutput:
     plt.savefig(os.path.join(temp_dir, 'MountainRange.pdf'))

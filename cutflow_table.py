@@ -40,7 +40,7 @@ else:
 
 print '\nCutflow Table Maker\n'
 
-variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
+variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
 types = {'MHT': np.float32,
          'HT': np.float32,
          'NJet': np.uint8,
@@ -111,7 +111,7 @@ if args.ZJets:
 if args.DiBoson:
     df_DiBoson = dd.read_csv(args.DiBoson, delimiter=r'\s+', usecols=columns, dtype=types)
     MC_types.append('DiBoson')
-    dataframe['DiBoson'] = df_DiBoson
+    dataframes['DiBoson'] = df_DiBoson
     if args.verbose:
         print('DiBoson:')
         print(df_DiBoson)

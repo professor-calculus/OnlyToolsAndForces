@@ -325,6 +325,8 @@ for var in variables:
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             if args.NMinusOne:
                 df_temp = df_NMinusOne(df_temp, var)
+            if df_temp[var].compute().shape[0] == 0:
+                continue
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_temp)
             df = h.pandas(normalized=args.norm).reset_index()[1:-1]
@@ -336,6 +338,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
             df_temp = df_NMinusOne(df_MSSM, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas(normalized=args.norm).reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -349,6 +353,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_QCD, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -359,6 +365,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTJets, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -369,6 +377,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_WJets, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -379,6 +389,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_ZJets, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -389,6 +401,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_DiBoson, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -399,6 +413,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_SingleTop, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -409,6 +425,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTW, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -419,6 +437,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTZ, var)
+        if df_temp[var].compute().shape[0] == 0:
+            continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
         df[var] = df[var].apply(lambda x: x.left)
@@ -438,7 +458,7 @@ for var in variables:
 
     plt.xlabel(dict[var]['title'], size=14)
     plt.yscale('log')
-    leg = plt.legend(loc='upper right', fontsize='x-small')
+    leg = plt.legend(loc='upper right', fontsize='xx-small')
     leg.set_zorder(100)
 #    if not args.norm:
 #        if var not in ['NJet', 'NBJet']:
