@@ -153,6 +153,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     maxFatJet_discrim = []
     fatDoubleBJet_maxDiscrim_mass = []
 
+    nH2bb = []
+    H2bb_1_DelR = []
+    H2bb_2_DelR = []
+
     n_loosemuons = []
     n_tightmuons = []
     muon_MHT_transverse_mass = []
@@ -191,10 +195,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     eventpass = 0.
     eventCounter = 0
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSlimBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs1"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
             n_doublebjet = 0
             NJet6 = False
             HT1500 = False
@@ -218,6 +222,9 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             N_fatJet.append(NFatJet_i)
             N_bjet.append(NSlimBJet_i)
             LeadJetPt.append(LeadSlimJet_p4_i.pt)
+            nH2bb.append(nHiggs2bb_i)
+            H2bb_1_DelR.append(Higgs2bb_1_DelR_i)
+            H2bb_2_DelR.append(Higgs2bb_2_DelR_i)
 
             # Set double-b-tag discrim to -2 (out of usual range) if fat jet does not exist.
             if NFatJet_i > 0:
@@ -438,6 +445,9 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'nTightMuons': n_tightmuons,
         'Muon_MHT_TransMass': muon_MHT_transverse_mass,
         'Muons_InvMass': muons_inv_mass,
+        'nHiggs2bb': nH2bb,
+        'Higgs2bb_DelR_1': H2bb_1_DelR,
+        'Higgs2bb_DelR_2': H2bb_2_DelR,
         })
 
     print(df)
@@ -445,7 +455,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-    plottables = ['MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'NFatJet', 'nLooseMuons', 'nTightMuons', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt']
+    plottables = ['MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'NFatJet', 'nLooseMuons', 'nTightMuons', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt', 'nHiggs2bb', 'Higgs2bb_DelR_1']
 
 
     bins_HT = np.linspace(0.,5000.,160)
@@ -469,6 +479,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             'MaxFatJetDoubleB_discrim': {'bins': bins_doublebdiscrim, 'title': 'Highest Double-b discriminator score'},
             'FatJet_MaxDoubleB_discrim_mass': {'bins': bins_BMass, 'title': 'Soft-Drop Mass of AK8 Jet with Highest Double-b discriminator score'},
             'LeadSlimJet_Pt': {'bins': bins_MHT, 'title': 'Lead AK4 Jet P_{T}'},
+            'nHiggs2bb': {'bins': bins_ndoublebjet, 'title': 'Number of Higgs bosons decaying to bb (MC Truth)'},
+            'Higgs2bb_DelR_1': {'bins': bins_DelR, 'title': 'Delta-R between bb pair from Higgs (MC Truth)'},
             }
 
     for thing in plottables:
