@@ -27,6 +27,7 @@ parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument
 parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('--region', default='Signal', help='Signal, 0b2mu etc region')
 parser.add_argument('--latex', action='store_true', help='Save LaTeX table')
+arser.add_argument('--Higgs2bb', action='store_true', help='Insist upon 2 Higgs to bb in SIGNAL at MC truth level')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
 args=parser.parse_args()
 
@@ -56,6 +57,8 @@ columns = variables
 columns.append('crosssec')
 columns.append('M_lsp')
 columns.append('M_sq')
+if args.Higgs2bb:
+    columns.append('nHiggs2bb')
 
 MC_types = []
 dataframes = {}
@@ -182,6 +185,11 @@ else:
 for thing in MC_types:
     temp_efficiencies = []
     df_temp = dataframes[thing]
+
+    # If requiring h->bb in Signal sample:
+    if args.Higgs2bb:
+        df_temp = df_temp.loc[(df_temp['nHiggs2bb'] == 2)]
+
     # Entries weighted by cross-section
     nentries = float(df_temp['crosssec'].compute().sum())
 
