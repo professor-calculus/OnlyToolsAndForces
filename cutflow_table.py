@@ -158,6 +158,8 @@ if args.Data:
 
 #Make the output directories
 directory = 'Cutflow_Table_{0}Region'.format(args.region)
+if args.Higgs2bb:
+    directory = directory + '_Higgs2bb'
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
