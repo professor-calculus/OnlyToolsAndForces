@@ -27,6 +27,7 @@ parser.add_argument('--minDiscrim', type=float, default=-1., help='Minimum doubl
 parser.add_argument('--maxDiscrim', type=float, default=1., help='Maximum double-b-tag discriminator output, default is 1.')
 parser.add_argument('--region', default='Signal', help='Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('--type', default='Signal', help='Type of sample: e.g. Signal, TTJets, QCD etc')
+parser.add_argument('--nHiggs2bb', action='store_true', help='Force all Higgs-->bb, Signal only')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -37,6 +38,8 @@ df = dd.read_csv(args.files, delimiter=r'\s+')
 
 #Make the output directories
 filepath = '2DFatJetMass_{0}_{1}RegionHT{2}_doubleBDiscrim{3}to{4}'.format(args.type, args.region, int(args.HT), args.minDiscrim, args.maxDiscrim)
+if args.nHiggs2bb:
+    filepath = filepath + 'Higgs2bb'
 temp_dir = filepath
 suffix = 1
 while os.path.exists(temp_dir):
@@ -50,6 +53,8 @@ minDiscrim = args.minDiscrim
 maxDiscrim = args.maxDiscrim
 
 df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > minDiscrim) & (df['FatDoubleBJetB_discrim'] > minDiscrim) & (df['FatDoubleBJetA_discrim'] < maxDiscrim) & (df['FatDoubleBJetB_discrim'] < maxDiscrim) & (df['HT'] > args.HT))]
+if args.nHiggs2bb:
+    df = df.loc[(df['nHiggs2bb'] == 2)]
 
 if args.region == '2b1mu':
     df = df.loc[((df['NBJet'] == 2) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]

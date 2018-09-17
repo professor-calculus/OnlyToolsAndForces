@@ -27,6 +27,7 @@ parser.add_argument('--minMass', type=float, default=0., help='Minimum fat jet m
 parser.add_argument('--maxMass', type=float, default=999999., help='Maximum fat jet mass, default is 999999.')
 parser.add_argument('--type', default='Signal', help='Type of sample: e.g. Signal, TTJets, QCD etc')
 parser.add_argument('--region', default='Signal', help='Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
+parser.add_argument('--nHiggs2bb', action='store_true', help='Force all Higgs-->bb, Signal only')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -37,6 +38,8 @@ df = dd.read_csv(args.files, delimiter=r'\s+')
 
 #Make the output directories
 filepath = '2DFatJetScore_{0}_{1}Region_HT{2}'.format(args.type, args.region, int(args.HT))
+if args.nHiggs2bb:
+    filepath = filepath + 'Higgs2bb'
 temp_dir = filepath
 suffix = 1
 while os.path.exists(temp_dir):
@@ -48,6 +51,8 @@ if not args.NoOutput:
 sns.set_style("white")
 
 df = df.loc[((df['FatDoubleBJetA_mass'] < args.maxMass) & (df['FatDoubleBJetB_mass'] < args.maxMass) & (df['FatDoubleBJetA_mass'] > args.minMass) & (df['FatDoubleBJetB_mass'] > args.minMass) & (df['HT'] > args.HT))]
+if args.nHiggs2bb:
+    df = df.loc[(df['nHiggs2bb'] == 2)]
 
 if args.region == '2b1mu':
     df = df.loc[((df['NBJet'] == 2) & (df['nMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
