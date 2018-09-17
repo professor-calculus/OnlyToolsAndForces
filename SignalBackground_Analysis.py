@@ -39,6 +39,7 @@ parser.add_argument('--NMinusOne', action='store_true', help='Make n-1 plots, i.
 parser.add_argument('--region', default='All', help='Applies no cut, lepton veto or lepton requirement. Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
+parser.add_argument('--Higgs2bb', action='store_true', help='Require both Higgs-->bb in signal')
 parser.add_argument('--XKCD', action='store_true', help='XKCD-like plots')
 parser.add_argument('--stackBKG', action='store_true', help='Stack the BKG histos')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
@@ -174,6 +175,8 @@ if args.signal:
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
     df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    if args.Higgs2bb:
+        df_sig = df_sig.loc[(df_sig['nHiggs2bb'] == 2)]
     #print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
 
 if args.MSSM:
@@ -279,6 +282,8 @@ if args.DBT and not args.Data:
     directory = directory + '_DBT{0}'.format(args.DBT)
 if args.norm:
     directory = directory + '_normalised'
+if args.Higgs2bb:
+    directory = directory + '_Higgs2bb'
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
