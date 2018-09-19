@@ -56,23 +56,23 @@ df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 2
 if args.nHiggs2bb:
     df = df.loc[(df['nHiggs2bb'] == 2)]
 
-if region == 'Signal':
+if args.region == 'Signal':
     df = df.loc[(df['nLooseMuons'] == 0)]
-elif region == '1mu':
+elif args.region == '1mu':
     df = df.loc[((df['nTightMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
-elif region == '1b1mu':
+elif args.region == '1b1mu':
     df = df.loc[((df['NBJet'] == 1) & (df['nTightMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
-elif region == '2b1mu':
+elif args.region == '2b1mu':
     df = df.loc[((df['NBJet'] == 2) & (df['nTightMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
-elif region == '0b1mu':
+elif args.region == '0b1mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nTightMuons'] == 1) & (df['Muon_MHT_TransMass'] < 100.))]
-elif region == '2mu':
+elif args.region == '2mu':
     df = df.loc[((df['nTightMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
-elif region == '2b2mu':
+elif args.region == '2b2mu':
     df = df.loc[((df['NBJet'] == 2) & (df['nTightMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
-elif region == '1b2mu':
+elif args.region == '1b2mu':
     df = df.loc[((df['NBJet'] == 1) & (df['nTightMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
-elif region == '0b2mu':
+elif args.region == '0b2mu':
     df = df.loc[((df['NBJet'] == 0) & (df['nTightMuons'] == 2) & (df['Muons_InvMass'] > 80.) & (df['Muons_InvMass'] < 100.))]
 
 df = df[['FatDoubleBJetA_mass', 'FatDoubleBJetB_mass', 'crosssec']]
