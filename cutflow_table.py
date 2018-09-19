@@ -27,6 +27,7 @@ parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument
 parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('--region', default='Signal', help='Signal, 0b2mu etc region')
 parser.add_argument('--latex', action='store_true', help='Save LaTeX table')
+parser.add_argument('-l', '--Lumi', type=float, default=1., help='Luminosity in pb')
 parser.add_argument('--Higgs2bb', action='store_true', help='Insist upon 2 Higgs to bb in SIGNAL at MC truth level')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
 args=parser.parse_args()
@@ -51,10 +52,12 @@ types = {'MHT': np.float32,
          'nTightMuons': np.uint8,
          'Muon_MHT_TransMass': np.float32,
          'Muons_InvMass': np.float32,
+         'NoEntries': np.float32,
         }
 
 columns = variables
 columns.append('crosssec')
+columns.append('NoEntries')
 columns.append('M_lsp')
 columns.append('M_sq')
 if args.Higgs2bb:
@@ -180,32 +183,48 @@ if not args.NoOutput:
 
 theDataframe = pd.DataFrame()
 if args.region == 'Signal':
-    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 else:
-    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 
 for thing in MC_types:
     temp_efficiencies = []
+    temp_yields = []
     df_temp = dataframes[thing]
 
     # If requiring h->bb in Signal sample:
-    if args.Higgs2bb:
+    if ((args.Higgs2bb) & (thing not in ['QCD', 'TTJets', 'SingleTop', 'DiBoson', 'TTW', 'TTZ', 'Data', 'ZJets', 'WJets'])):
         df_temp = df_temp.loc[(df_temp['nHiggs2bb'] == 2)]
 
     # Entries weighted by cross-section
     nentries = float(df_temp['crosssec'].compute().sum())
 
+    # Fraction and no of events before cuts:
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
+
     # HT
     df_temp = df_temp.loc[(df_temp['HT'] > 1500.)]
-    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
 
     # MHT
     df_temp = df_temp.loc[(df_temp['MHT'] > 200.)]
-    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
 
     # NJets
     df_temp = df_temp.loc[(df_temp['NJet'] > 5)]
-    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
 
     # Muon veto/selection
     if args.region == 'Signal':
@@ -229,19 +248,39 @@ for thing in MC_types:
     else:
         print('Error: not implemented yet')
         exit()
-    temp_efficiencies.append(float(df_temp['crosssec'].compute().sum())/nentries)
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
 
     # Double-b jets
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 0) & (df_temp['NBJet'] > 2))]
-    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
-    df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
-    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
-    df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] == 1))]
-    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
-    df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
-    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
 
+    df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
+
+    df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] == 1))]
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
+
+    df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
+    eff = df_temp['crosssec'].compute().sum())/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
+
+    thing_yield = thing + '_yield'
     theDataframe[thing] = temp_efficiencies
+    theDataframe[thing_yield] = temp_yields
 
 theDataframe.to_csv(os.path.join(directory, 'CutFlow.txt'), sep='\t', index=False)
 theDataframe.to_latex(os.path.join(directory, 'CutFlow.tex'), index=False, bold_rows=True)
