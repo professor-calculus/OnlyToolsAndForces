@@ -180,9 +180,9 @@ if not args.NoOutput:
 
 theDataframe = pd.DataFrame()
 if args.region == 'Signal':
-    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_0double-b', 'ge2b_1double-b', '2double-b']
+    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 else:
-    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_0double-b', 'ge2b_1double-b', '2double-b']
+    theDataframe['Cuts'] = ['HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 
 for thing in MC_types:
     temp_efficiencies = []
@@ -235,6 +235,8 @@ for thing in MC_types:
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 0) & (df_temp['NBJet'] > 2))]
     temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
+    temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
+    df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] == 1))]
     temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
     df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
     temp_efficiencies.append(float(df_temp_temp['crosssec'].compute().sum())/nentries)
