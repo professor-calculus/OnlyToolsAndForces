@@ -200,28 +200,28 @@ for thing in MC_types:
     nentries = float(df_temp['crosssec'].compute().sum())
 
     # Fraction and no of events before cuts:
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     # HT
     df_temp = df_temp.loc[(df_temp['HT'] > 1500.)]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     # MHT
     df_temp = df_temp.loc[(df_temp['MHT'] > 200.)]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     # NJets
     df_temp = df_temp.loc[(df_temp['NJet'] > 5)]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
@@ -248,32 +248,32 @@ for thing in MC_types:
     else:
         print('Error: not implemented yet')
         exit()
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     # Double-b jets
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 0) & (df_temp['NBJet'] > 2))]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] == 1))]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
-    eff = df_temp['crosssec'].compute().sum())/nentries
+    eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
