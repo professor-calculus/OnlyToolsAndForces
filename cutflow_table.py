@@ -27,7 +27,7 @@ parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument
 parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('--region', default='Signal', help='Signal, 0b2mu etc region')
 parser.add_argument('--latex', action='store_true', help='Save LaTeX table')
-parser.add_argument('-l', '--Lumi', type=float, default=1., help='Luminosity in pb')
+parser.add_argument('-l', '--lumi', type=float, default=35900., help='Luminosity in pb')
 parser.add_argument('--Higgs2bb', action='store_true', help='Insist upon 2 Higgs to bb in SIGNAL at MC truth level')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
 args=parser.parse_args()
