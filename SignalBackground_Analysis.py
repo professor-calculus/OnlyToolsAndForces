@@ -126,7 +126,7 @@ def df_NMinusOne(df=None, var=None):
     return df;
 
 if args.Data:
-    variables = ['MHT', 'HT', 'NJet', 'NBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['HT', 'MHT', 'NJet', 'NBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -140,7 +140,7 @@ if args.Data:
              'NoEntries': np.uint32,
             }
 else:
-    variables = ['MHT', 'HT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['HT', 'MHT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -297,7 +297,7 @@ if not args.NoOutput:
 commandString = ' '.join(sys.argv[0:])
 print(commandString)
 if not args.NoOutput:
-    f = open(os.path.join(directory, 'command.txt'), 'w')
+    f = open(os.path.join(temp_dir, 'command.txt'), 'w')
     f.write(commandString)
     f.close()
 
@@ -332,10 +332,15 @@ for var in variables:
                 df_temp = df_NMinusOne(df_temp, var)
             if df_temp[var].compute().shape[0] == 0:
                 continue
+            print(df_temp[var].compute().shape[0])
+            print(df_temp[var].compute())
             h = Hist(dict[var]['bin'], weight='weight')
             h.fill(df_temp)
             df = h.pandas(normalized=args.norm).reset_index()[1:-1]
+            if df.shape[0] == 0:
+                continue
             df[var] = df[var].apply(lambda x: x.left)
+            print(df)
             plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
@@ -346,7 +351,9 @@ for var in variables:
         if df_temp[var].compute().shape[0] == 0:
             continue
         h.fill(df_temp)
-        df = h.pandas(normalized=args.norm).reset_index()[1:-1]
+        df = h.pandas(normalized=args.norm).reset_index()[1:]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
@@ -362,6 +369,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -374,6 +383,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -386,6 +397,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -398,6 +411,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -410,6 +425,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -422,6 +439,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -434,6 +453,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -446,6 +467,8 @@ for var in variables:
             continue
         h.fill(df_temp)
         df = h.pandas().reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.left)
         theBkgs.append(df[var])
         bkgWeights.append(df['count()'])
@@ -458,6 +481,8 @@ for var in variables:
         h = Hist(dict[var]['bin'])
         h.fill(df_Data)
         df = h.pandas(normalized=args.norm).reset_index()[1:-1]
+        if df.shape[0] == 0:
+            continue
         df[var] = df[var].apply(lambda x: x.mid)
         plt.errorbar(df[var], df['count()'], yerr=df['err(count())'], fmt='o', markersize=4, label=label, zorder=35)
 
