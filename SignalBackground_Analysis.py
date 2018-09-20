@@ -336,13 +336,12 @@ for var in variables:
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             if args.NMinusOne:
                 df_temp = df_NMinusOne(df_temp, var)
-            if df_temp[var].compute().shape[0] == 0:
-                continue
-            h = Hist(dict[var]['bin'], weight='weight')
-            h.fill(df_temp)
-            df = h.pandas(normalized=args.norm).reset_index()[1:-1]
-            df[var] = df[var].apply(lambda x: x.left)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+            if df_temp[var].compute().shape[0] > 0:
+                h = Hist(dict[var]['bin'], weight='weight')
+                h.fill(df_temp)
+                df = h.pandas(normalized=args.norm).reset_index()[1:-1]
+                df[var] = df[var].apply(lambda x: x.left)
+                plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
@@ -350,12 +349,11 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
             df_temp = df_NMinusOne(df_MSSM, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas(normalized=args.norm).reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas(normalized=args.norm).reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
     theBkgs = []
     bkgLabels = []
@@ -366,104 +364,96 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_QCD, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.TTJets:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
         print('tt', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTJets, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.WJets:
         bkgLabels.append('$W$ + $jets$ background')
         print('w', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_WJets, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.ZJets:
         bkgLabels.append('$Z$ + $jets$ background')
         print('z', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_ZJets, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.DiBoson:
         bkgLabels.append('Di-Boson background')
         print('boson', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_DiBoson, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.SingleTop:
         bkgLabels.append('$t$ + $jets$ background')
         print('st', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_SingleTop, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.TTW:
         bkgLabels.append('$t\overline{t}W$ + $jets$ background')
         print('ttw', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTW, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
     if args.TTZ:
         bkgLabels.append('$t\overline{t}Z$ + $jets$ background')
         print('ttz', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTZ, var)
-        if df_temp[var].compute().shape[0] == 0:
-            continue
-        h.fill(df_temp)
-        df = h.pandas().reset_index()[1:-1]
-        df[var] = df[var].apply(lambda x: x.left)
-        theBkgs.append(df[var])
-        bkgWeights.append(df['count()'])
+        if df_temp[var].compute().shape[0] > 0:
+            h.fill(df_temp)
+            df = h.pandas().reset_index()[1:-1]
+            df[var] = df[var].apply(lambda x: x.left)
+            theBkgs.append(df[var])
+            bkgWeights.append(df['count()'])
 
     if ((args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ)):
         plt.hist(theBkgs, bins=df[var], weights=bkgWeights, label=bkgLabels, log=True, normed=args.norm, stacked=True, histtype="stepfilled", linewidth=0., zorder=5)
