@@ -119,7 +119,7 @@ def df_NMinusOne(df=None, var=None):
         }
     d_upper = {'MHT': 2000.,
                'HT': 6000.,
-               'NJet': 21}
+               'NJet': 20}
     if var not in ['NBJet', 'NDoubleBJet']:
         df = df.loc[(((df['NDoubleBJet'] == 0) & (df['NBJet'] > 2)) | ((df['NDoubleBJet'] == 1) & (df['NBJet'] > 1)) | (df['NDoubleBJet'] > 1))]
     theVars = ['MHT', 'HT', 'NJet']
@@ -332,6 +332,7 @@ for var in variables:
         for index, row in df_sig_masses.iterrows():
             temp_i += 5
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
+            print(label, var)
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             if args.NMinusOne:
                 df_temp = df_NMinusOne(df_temp, var)
@@ -345,6 +346,7 @@ for var in variables:
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
+        print(label, var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
             df_temp = df_NMinusOne(df_MSSM, var)
@@ -360,6 +362,7 @@ for var in variables:
     bkgWeights = []
     if args.QCD:
         bkgLabels.append('QCD background')
+        print('qcd', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_QCD, var)
@@ -372,6 +375,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.TTJets:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
+        print('tt', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTJets, var)
@@ -384,6 +388,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.WJets:
         bkgLabels.append('$W$ + $jets$ background')
+        print('w', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_WJets, var)
@@ -396,6 +401,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.ZJets:
         bkgLabels.append('$Z$ + $jets$ background')
+        print('z', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_ZJets, var)
@@ -408,6 +414,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.DiBoson:
         bkgLabels.append('Di-Boson background')
+        print('boson', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_DiBoson, var)
@@ -420,6 +427,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.SingleTop:
         bkgLabels.append('$t$ + $jets$ background')
+        print('st', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_SingleTop, var)
@@ -432,6 +440,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.TTW:
         bkgLabels.append('$t\overline{t}W$ + $jets$ background')
+        print('ttw', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTW, var)
@@ -444,6 +453,7 @@ for var in variables:
         bkgWeights.append(df['count()'])
     if args.TTZ:
         bkgLabels.append('$t\overline{t}Z$ + $jets$ background')
+        print('ttz', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTZ, var)
