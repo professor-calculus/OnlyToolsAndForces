@@ -171,6 +171,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     binned_MHT_bin = []
     binned_N_jet_bin = []
     binned_N_bJet_bin = []
+    binned_N_bJet_actual = []
     binned_N_doublebjet_bin = []
     binned_N_muons = []
     binned_yield = []
@@ -188,6 +189,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                             binned_MHT_bin.append(mhtBin)
                             binned_N_jet_bin.append(nJetBin)
                             binned_N_bJet_bin.append(nBJetbin)
+                            binned_N_bJet_actual.append(nBJetbin)
                             binned_N_doublebjet_bin.append(nDoubleBJetBin)
                             binned_N_muons.append(nMuons)
                             binned_yield.append(0.)
@@ -311,6 +313,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 nMuons_selected = -1
 
             All_Cuts = [NJet6, HT1500, MHT200, DoubleBJet_pass]
+            Most_Cuts = [NJet6, HT1500, MHT200]
             if args.verbose:
                 print(All_Cuts)
             if All_Cuts.count(False) == 0:
@@ -324,6 +327,29 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 binned_HT_bin.append(HT_bins[np.digitize([HT_i], HT_bins)[0] - 1])
                 binned_MHT_bin.append(MHT_bins[np.digitize([MHT_i], MHT_bins)[0] - 1])
                 binned_N_jet_bin.append(n_Jet_bins[np.digitize([NJet_i], n_Jet_bins)[0] - 1])
+                binned_N_bJet_actual.append(NSlimBJet_i)
+                if n_doublebjet == 0:
+                    binned_N_bJet_bin.append(3)
+                elif n_doublebjet == 1:
+                    binned_N_bJet_bin.append(2)
+                elif n_doublebjet == 2:
+                    binned_N_bJet_bin.append(0)
+                binned_N_doublebjet_bin.append(n_doubleBJet_bins[np.digitize([n_doublebjet], n_doubleBJet_bins)[0] - 1])
+                binned_N_muons.append(n_Muon_bins[np.digitize([nMuons_selected], n_Muon_bins)[0] - 1])
+                binned_yield.append(weight)
+                eventpass += 1.
+            elif ((Most_Cuts.count(False) == 0) & (n_doublebjet == 1) & (NSlimBJet_i == 1)):
+                #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
+                binned_msq.append(args.Msq)
+                binned_mlsp.append(args.Mlsp)
+                binned_type.append(args.type)
+                if args.verbose:
+                    print(HT)
+                    print(HT_bins)
+                binned_HT_bin.append(HT_bins[np.digitize([HT_i], HT_bins)[0] - 1])
+                binned_MHT_bin.append(MHT_bins[np.digitize([MHT_i], MHT_bins)[0] - 1])
+                binned_N_jet_bin.append(n_Jet_bins[np.digitize([NJet_i], n_Jet_bins)[0] - 1])
+                binned_N_bJet_actual.append(NSlimBJet_i)
                 binned_N_bJet_bin.append(NSlimBJet_i)
                 binned_N_doublebjet_bin.append(n_doubleBJet_bins[np.digitize([n_doublebjet], n_doubleBJet_bins)[0] - 1])
                 binned_N_muons.append(n_Muon_bins[np.digitize([nMuons_selected], n_Muon_bins)[0] - 1])
@@ -347,6 +373,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'HT_bin': binned_HT_bin,
         'MHT_bin': binned_MHT_bin,
         'n_Jet_bin': binned_N_jet_bin,
+        'n_bJet_actual': binned_N_bJet_actual,
         'n_bJet_bin': binned_N_bJet_bin,
         'n_DoubleBJet_bin': binned_N_doublebjet_bin,
         'n_Muons_bin': binned_N_muons,
@@ -356,55 +383,55 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     print('\n Signal Region:')
     df_SR = df_binned.loc[df_binned['n_Muons_bin'] == 0]
-    df_SR = df_SR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SR = df_SR.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_SR.reset_index(inplace=True)
     print(df_SR)
 
     print('\n 0b1mu Control Region:')
-    df_SM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 0))]
-    df_SM0b = df_SM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_actual'] == 0))]
+    df_SM0b = df_SM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_SM0b.reset_index(inplace=True)
     print(df_SM0b)
 
     print('\n 1b1mu Control Region:')
-    df_SM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 1))]
-    df_SM1b = df_SM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_actual'] == 1))]
+    df_SM1b = df_SM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_SM1b.reset_index(inplace=True)
     print(df_SM1b)
 
     print('\n 2b1mu Control Region:')
-    df_SM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_bin'] == 2))]
-    df_SM2b = df_SM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 1) & (df_binned['n_bJet_actual'] == 2))]
+    df_SM2b = df_SM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_SM2b.reset_index(inplace=True)
     print(df_SM2b)
 
     print('\n 1mu Control Region:')
     df_SM = df_binned.loc[((df_binned['n_Muons_bin'] == 1))]
-    df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_SM = df_SM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_SM.reset_index(inplace=True)
     print(df_SM)
 
     print('\n 0b2mu Control Region:')
-    df_DM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 0))]
-    df_DM0b = df_DM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM0b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_actual'] == 0))]
+    df_DM0b = df_DM0b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM0b.reset_index(inplace=True)
     print(df_DM0b)
 
     print('\n 1b2mu Control Region:')
-    df_DM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 1))]
-    df_DM1b = df_DM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM1b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_actual'] == 1))]
+    df_DM1b = df_DM1b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM1b.reset_index(inplace=True)
     print(df_DM1b)
 
     print('\n 2b2mu Control Region:')
-    df_DM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_bin'] == 2))]
-    df_DM2b = df_DM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM2b = df_binned.loc[((df_binned['n_Muons_bin'] == 2) & (df_binned['n_bJet_actual'] == 2))]
+    df_DM2b = df_DM2b.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM2b.reset_index(inplace=True)
     print(df_DM2b)
 
     print('\n 2mu Control Region:')
     df_DM = df_binned.loc[df_binned['n_Muons_bin'] == 2]
-    df_DM = df_DM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df_DM = df_DM.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df_DM.reset_index(inplace=True)
     print(df_DM)
 
