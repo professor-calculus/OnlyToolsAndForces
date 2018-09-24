@@ -112,7 +112,7 @@ def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
         df = df.loc[(df['MaxFatJetDoubleB_discrim'] > DBT)]
     return df;
 
-def df_NMinusOne(df=None, var=None):
+def df_NMinusOne(df=None, var=None, region=None):
     d = {'MHT': 200.,
          'HT': 1500.,
          'NJet': 5.,
@@ -120,7 +120,7 @@ def df_NMinusOne(df=None, var=None):
     d_upper = {'MHT': 2000.,
                'HT': 6000.,
                'NJet': 20}
-    if var not in ['NBJet', 'NDoubleBJet']:
+    if ((var not in ['NBJet', 'NDoubleBJet']) & (region == 'Signal')):
         df = df.loc[(((df['NDoubleBJet'] == 0) & (df['NBJet'] > 2)) | ((df['NDoubleBJet'] == 1) & (df['NBJet'] > 1)) | (df['NDoubleBJet'] > 1))]
     theVars = ['MHT', 'HT', 'NJet']
     for x in theVars:
@@ -335,25 +335,25 @@ for var in variables:
             print(label, var)
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             if args.NMinusOne:
-                df_temp = df_NMinusOne(df_temp, var)
+                df_temp = df_NMinusOne(df_temp, var, args.region)
             if df_temp[var].compute().shape[0] > 0:
                 h = Hist(dict[var]['bin'], weight='weight')
                 h.fill(df_temp)
                 df = h.pandas(normalized=args.norm).reset_index()[1:-1]
                 df[var] = df[var].apply(lambda x: x.left)
-                plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
+                plt.hist(df[var], bins=df[var], weights=df['count()'], normed=args.norm, label=label, log=True, histtype="step", linewidth=linewidth, zorder=35-temp_i)
 
     if args.MSSM:
         label='MSSM-like: $M_{\mathrm{Squark}}$ = ' + str(df_MSSM["M_sq"][0]) + ', $M_{\mathrm{LSP}}$ = ' + str(df_MSSM["M_lsp"][0])
         print(label, var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-            df_temp = df_NMinusOne(df_MSSM, var)
+            df_temp = df_NMinusOne(df_MSSM, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas(normalized=args.norm).reset_index()[1:-1]
             df[var] = df[var].apply(lambda x: x.left)
-            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, log=True, histtype="step", linewidth=linewidth, zorder=10)
+            plt.hist(df[var], bins=df[var], weights=df['count()'], label=label, normed=args.norm, log=True, histtype="step", linewidth=linewidth, zorder=10)
 
     theBkgs = []
     bkgLabels = []
@@ -363,7 +363,7 @@ for var in variables:
         print('qcd', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_QCD, var)
+       	    df_temp = df_NMinusOne(df_QCD, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -375,7 +375,7 @@ for var in variables:
         print('tt', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_TTJets, var)
+       	    df_temp = df_NMinusOne(df_TTJets, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -387,7 +387,7 @@ for var in variables:
         print('w', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_WJets, var)
+       	    df_temp = df_NMinusOne(df_WJets, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -399,7 +399,7 @@ for var in variables:
         print('z', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_ZJets, var)
+       	    df_temp = df_NMinusOne(df_ZJets, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -411,7 +411,7 @@ for var in variables:
         print('boson', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_DiBoson, var)
+       	    df_temp = df_NMinusOne(df_DiBoson, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -423,7 +423,7 @@ for var in variables:
         print('st', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_SingleTop, var)
+       	    df_temp = df_NMinusOne(df_SingleTop, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -435,7 +435,7 @@ for var in variables:
         print('ttw', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_TTW, var)
+       	    df_temp = df_NMinusOne(df_TTW, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -447,7 +447,7 @@ for var in variables:
         print('ttz', var)
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
-       	    df_temp = df_NMinusOne(df_TTZ, var)
+       	    df_temp = df_NMinusOne(df_TTZ, var, args.region)
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
