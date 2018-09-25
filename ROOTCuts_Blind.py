@@ -142,7 +142,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     eventWeight = []
     NoEntries = []
 
-    n_muons = []
+    n_loosemuons = []
+    n_tightmuons = []
     n_selectedMuons = []
     muon_MHT_transverse_mass = []
     muons_inv_mass = []
@@ -153,10 +154,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     DoubleBDiscrim = 0.3 #Set this to be loose, tight WP etc.
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrSlimBJets", "nrFatJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrMuons"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NBJet_i, NFatJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nMuons_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nMuons), initial=eventCounter, total=nentries, desc='Go go go!'):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrSlimBJets", "nrFatJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NBJet_i, NFatJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NBJet, NFatJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons), initial=eventCounter, total=nentries, desc='Go go go!'):
 
             weight = eventweight
             if args.verbose:
@@ -173,30 +174,31 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             N_jet.append(NJet_i)
             N_bjet.append(NBJet_i)
             N_fatJet.append(NFatJet_i)
-            n_muons.append(nMuons_i)
+            n_loosemuons.append(nLooseMuons_i)
+            n_tightmuons.append(nTightMuons_i)
             LeadJetPt.append(LeadSlimJet_p4_i.pt)
             NoEntries.append(nentries)
 
             # Transverse mass between Missing-HT and muon (in case of one muon)
-            if nMuons_i == 1:
+            if nTightMuons_i == 1:
                 muon_MHT_mT = Transverse_Mass(muonA_p4_i.pt, MHT_i, muonA_p4_i.phi(), MHT_phi_i)
             else:
                 muon_MHT_mT = 0.
             muon_MHT_transverse_mass.append(muon_MHT_mT)
 
             # Invariant mass of muons (if 2 muons)
-            if nMuons_i == 2:
+            if nTightMuons_i == 2:
                 muons_Minv = Invariant_Mass(muonA_p4_i.pt, muonB_p4_i.pt, muonA_p4_i.eta, muonB_p4_i.eta, muonA_p4_i.phi(), muonB_p4_i.phi())
             else:
                 muons_Minv = 0.
             muons_inv_mass.append(muons_Minv)
 
             # Number of selected muons (i.e. meets other cuts)
-            if nMuons_i == 0:
+            if nLooseMuons_i == 0:
                 nMuons_selected = 0
-            elif ((nMuons_i == 1) and (muon_MHT_mT < 100.)):
+            elif ((nTightMuons_i == 1) and (muon_MHT_mT < 100.)):
                 nMuons_selected = 1
-            elif ((nMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.)):
+            elif ((nTightMuons_i == 2) and (muons_Minv > 75.) and (muons_Minv < 105.)):
                 nMuons_selected = 2
             else:
                 nMuons_selected = -1
@@ -218,7 +220,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'NBJet': N_bjet,
         'NFatJet': N_fatJet,
         'LeadSlimJet_Pt': LeadJetPt,
-        'nMuons': n_muons,
+        'nLooseMuons': n_loosemuons,
+        'nTightMuons': n_tightmuons,
         'Muon_MHT_TransMass': muon_MHT_transverse_mass,
         'Muons_InvMass': muons_inv_mass,
         'NoEntries': NoEntries
@@ -241,7 +244,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     dict = {'MHT': {'bins': bins_MHT, 'title': 'Missing $H_{T}$ / GeV'},
             'HT': {'bins': bins_HT, 'title': 'Total $H_{T}$ / GeV'},
             'NJet': {'bins': bins_njet, 'title': 'Number of Jets'},
-            'nMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
+            'nLooseMuons': {'bins': bins_nmuons, 'title': 'Number of Loose ID/Iso Muons'},
+            'nTightMuons': {'bins': bins_nmuons, 'title': 'Number of Tight ID/Iso Muons'},
             'LeadSlimJet_Pt': {'bins': bins_MHT, 'title': 'Lead AK4 Jet P_{T}'},
             }
 
