@@ -182,10 +182,16 @@ if not args.NoOutput:
     f.close()
 
 theDataframe = pd.DataFrame()
+yieldDataFrame = pd.DataFrame()
+effDataFrame = pd.DataFrame()
 if args.region == 'Signal':
     theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 else:
     theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 
 for thing in MC_types:
     temp_efficiencies = []
@@ -282,5 +288,14 @@ for thing in MC_types:
     theDataframe[thing] = temp_efficiencies
     theDataframe[thing_yield] = temp_yields
 
+    effDataFrame[thing] = temp_efficiencies
+    yieldDataFrame[thing_yield] = temp_yields
+
 theDataframe.to_csv(os.path.join(directory, 'CutFlow.txt'), sep='\t', index=False)
 theDataframe.to_latex(os.path.join(directory, 'CutFlow.tex'), index=False, bold_rows=True)
+
+effDataFrame.to_csv(os.path.join(directory, 'CutFlow_eff.txt'), sep='\t', index=False)
+effDataFrame.to_latex(os.path.join(directory, 'CutFlow_eff.tex'), index=False, bold_rows=True)
+
+yieldDataFrame.to_csv(os.path.join(directory, 'CutFlow_yield.txt'), sep='\t', index=False)
+yieldDataFrame.to_latex(os.path.join(directory, 'CutFlow_yield.tex'), index=False, bold_rows=True)
