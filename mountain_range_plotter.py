@@ -30,6 +30,7 @@ parser.add_argument('--SingleTop', default=None, nargs='*', help='Path to Single
 parser.add_argument('--TTW', default=None, nargs='*', help='Path to TTW dataframe file(s) from ROOTCuts')
 parser.add_argument('--TTZ', default=None, nargs='*', help='Path to TTZ dataframe file(s) from ROOTCuts')
 parser.add_argument('--OutDir', default=None, help='Output folder')
+parser.add_argument('--region', default=None, help='Which region, Signal, 1mu, 0b2mu etc')
 parser.add_argument('-x', '--NoX', action='store_true', help='This argument suppresses showing plots via X-forwarding')
 parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument suppresses the output of PDF plots')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -54,11 +55,11 @@ for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+', header='infer')
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
-df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_sig.reset_index(inplace=True)
 
 # Number of bins as read from signal sample, assume bkg is the same else it's all nonsense anyway!
-df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin']).sum()
+df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin']).sum()
 print('{0} bins considered'.format(df_bins.shape[0]))
 x = np.arange(df_bins.shape[0])
 
@@ -70,6 +71,8 @@ print '\nSuccessfully read dataframe\n'
 
 #Make the output directories
 directory = 'Mountain_Range'
+if args.region:
+    directory = directory + '_{0}Region'.format(args.region)
 temp_dir = directory
 suffix = 1
 while os.path.exists(temp_dir):
@@ -101,7 +104,7 @@ if args.QCD:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -113,7 +116,7 @@ if args.TTJets:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -125,7 +128,7 @@ if args.WJets:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -137,7 +140,7 @@ if args.ZJets:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -149,7 +152,7 @@ if args.DiBoson:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -161,7 +164,7 @@ if args.SingleTop:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -173,7 +176,7 @@ if args.TTW:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -185,7 +188,7 @@ if args.TTZ:
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
-    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
+    df = df.groupby(by=['M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
     df.reset_index(inplace=True)
     theBkgs.append(x)
     bkgWeights.append(df['Yield'])
@@ -212,13 +215,13 @@ for index, row in df_sig_masses.iterrows():
 if (args.QCD) or (args.TTJets) or (args.WJets) or (args.ZJets) or (args.DiBoson) or (args.SingleTop) or (args.TTW) or (args.TTZ):
     plt.hist(theBkgs, bins=x, weights=bkgWeights, label=bkgLabels, stacked=True, log=True, histtype="stepfilled", linewidth=0., zorder=0)
 
-df = df.drop(['M_sq', 'M_lsp', 'n_Jet_bin', 'n_Muons_bin', 'n_bJet_bin'], axis=1)
-df = df.groupby(by=['HT_bin', 'MHT_bin', 'n_DoubleBJet_bin']).sum()
+df = df.drop(['M_sq', 'M_lsp', 'n_Jet_bin', 'n_Muons_bin'], axis=1)
+df = df.groupby(by=['HT_bin', 'MHT_bin', 'n_BJet_bin', 'n_DoubleBJet_bin']).sum()
 df = df.astype('int32')
 #print(df.index)
 
 plt.xticks(x+0.5, [''.join(str(t)) for t in df.index], rotation=90)
-plt.xlabel("HT, MHT, N_double-b bin", labelpad=20)
+plt.xlabel("HT, MHT, N_b, N_double-b bin", labelpad=20)
 plt.tight_layout()
 plt.ylim(0.005, None)
 leg = plt.legend(loc='upper right', fontsize='x-small')
