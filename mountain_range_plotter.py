@@ -128,7 +128,7 @@ def df_chop_chop(df=None, region='All'):
     elif region == 'SingleMuon_0b_Control':
         df = df.loc[((df['n_bJet_actual'] == 0) & (df['n_Muons_bin'] == 1))]
     elif region == 'DoubleMuon_Control':
-        df = df.loc[((df['n_bJet_actual'] == 2))]
+        df = df.loc[((df['n_Muons_bin'] == 2))]
     elif region == 'DoubleMuon_2b_Control':
         df = df.loc[((df['n_bJet_actual'] == 2) & (df['n_Muons_bin'] == 2))]
     elif region == 'DoubleMuon_1b_Control':
