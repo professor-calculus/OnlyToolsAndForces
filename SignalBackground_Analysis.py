@@ -120,7 +120,7 @@ def df_NMinusOne(df=None, var=None, region=None):
     d_upper = {'MHT': 2000.,
                'HT': 6000.,
                'NJet': 20}
-    if ((var not in ['NBJet', 'NDoubleBJet']) & (region == 'Signal')):
+    if ((var not in ['NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass']) & (region == 'Signal')):
         df = df.loc[(((df['NDoubleBJet'] == 0) & (df['NBJet'] > 2)) | ((df['NDoubleBJet'] == 1) & (df['NBJet'] > 1)) | (df['NDoubleBJet'] > 1))]
     theVars = ['MHT', 'HT', 'NJet']
     for x in theVars:
