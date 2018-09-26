@@ -327,6 +327,8 @@ dict = {'MHT': {'bin': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV
 linewidth = 2.
 
 for var in variables:
+    if var in ['nHiggs2bb', 'NoEntries', 'M_lsp', 'M_sq']:
+        continue
     plt.figure()
     temp_i = 0
     if args.signal:
