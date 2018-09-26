@@ -81,6 +81,8 @@ df_sig = pd.concat(df_sig_list)
 df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
 df_sig.reset_index(inplace=True)
 
+print(df_sig)
+
 # Number of bins as read from signal sample, assume bkg is the same else it's all nonsense anyway!
 df_bins = df_sig.groupby(by=['HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'n_DoubleBJet_bin']).sum()
 print('{0} bins considered'.format(df_bins.shape[0]))
