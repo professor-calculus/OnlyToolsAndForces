@@ -182,42 +182,45 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 for nMuons in [-1, 0, 1, 2]:
                     for nDoubleBJetBin in [0, 1, 2]:
                         if nDoubleBJetBin == 0:
-                            binned_msq.append(args.Msq)
-                            binned_mlsp.append(args.Mlsp)
-                            binned_type.append(args.type)
-                            binned_HT_bin.append(htBin)
-                            binned_MHT_bin.append(mhtBin)
-                            binned_N_jet_bin.append(nJetBin)
-                            binned_N_bJet_bin.append(3)
-                            binned_N_bJet_actual.append(3)
-                            binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                            binned_N_muons.append(nMuons)
-                            binned_yield.append(0.)
-                        elif nDoubleBJetBin == 1:
-                            for nBJetBin in [1,2]:
+                            for i in [0,1,2,3]:
                                 binned_msq.append(args.Msq)
                                 binned_mlsp.append(args.Mlsp)
                                 binned_type.append(args.type)
                                 binned_HT_bin.append(htBin)
                                 binned_MHT_bin.append(mhtBin)
                                 binned_N_jet_bin.append(nJetBin)
-                                binned_N_bJet_bin.append(nBJetBin)
-                                binned_N_bJet_actual.append(nBJetBin)
+                                binned_N_bJet_bin.append(3)
+                                binned_N_bJet_actual.append(i)
                                 binned_N_doublebjet_bin.append(nDoubleBJetBin)
                                 binned_N_muons.append(nMuons)
                                 binned_yield.append(0.)
+                        elif nDoubleBJetBin == 1:
+                            for nBJetBin in [1,2]:
+                                for i in [0,1,2,3]:
+                                    binned_msq.append(args.Msq)
+                                    binned_mlsp.append(args.Mlsp)
+                                    binned_type.append(args.type)
+                                    binned_HT_bin.append(htBin)
+                                    binned_MHT_bin.append(mhtBin)
+                                    binned_N_jet_bin.append(nJetBin)
+                                    binned_N_bJet_bin.append(nBJetBin)
+                                    binned_N_bJet_actual.append(i)
+                                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                    binned_N_muons.append(nMuons)
+                                    binned_yield.append(0.)
                         elif nDoubleBJetBin == 2:
-                            binned_msq.append(args.Msq)
-                            binned_mlsp.append(args.Mlsp)
-                            binned_type.append(args.type)
-                            binned_HT_bin.append(htBin)
-                            binned_MHT_bin.append(mhtBin)
-                            binned_N_jet_bin.append(nJetBin)
-                            binned_N_bJet_bin.append(0)
-                            binned_N_bJet_actual.append(0)
-                            binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                            binned_N_muons.append(nMuons)
-                            binned_yield.append(0.)
+                            for i in [0,1,2,3]:
+                                binned_msq.append(args.Msq)
+                                binned_mlsp.append(args.Mlsp)
+                                binned_type.append(args.type)
+                                binned_HT_bin.append(htBin)
+                                binned_MHT_bin.append(mhtBin)
+                                binned_N_jet_bin.append(nJetBin)
+                                binned_N_bJet_bin.append(0)
+                                binned_N_bJet_actual.append(i)
+                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                binned_N_muons.append(nMuons)
+                                binned_yield.append(0.)
 
     eventpass = 0.
     eventCounter = 0

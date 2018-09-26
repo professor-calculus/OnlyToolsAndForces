@@ -40,6 +40,52 @@ args=parser.parse_args()
 sns.set_palette(sns.color_palette("Paired", 20))
 
 def df_chop_chop(df=None, region='All'):
+    for mhtBin in [200, 400, 600]:
+        for htBin in [1500, 2500, 3500]:
+            for nJetBin in [6]:
+                for nMuons in [-1, 0, 1, 2]:
+                    for nDoubleBJetBin in [0, 1, 2]:
+                        if nDoubleBJetBin == 0:
+                            for i in [0,1,2,3]:
+                                binned_msq.append(args.Msq)
+                                binned_mlsp.append(args.Mlsp)
+                                binned_type.append(args.type)
+                                binned_HT_bin.append(htBin)
+                                binned_MHT_bin.append(mhtBin)
+                                binned_N_jet_bin.append(nJetBin)
+                                binned_N_bJet_bin.append(3)
+                                binned_N_bJet_actual.append(i)
+                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                binned_N_muons.append(nMuons)
+                                binned_yield.append(0.)
+                        elif nDoubleBJetBin == 1:
+                            for nBJetBin in [1,2]:
+                                for i in [0,1,2,3]:
+                                    binned_msq.append(args.Msq)
+                                    binned_mlsp.append(args.Mlsp)
+                                    binned_type.append(args.type)
+                                    binned_HT_bin.append(htBin)
+                                    binned_MHT_bin.append(mhtBin)
+                                    binned_N_jet_bin.append(nJetBin)
+                                    binned_N_bJet_bin.append(nBJetBin)
+                                    binned_N_bJet_actual.append(i)
+                                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                    binned_N_muons.append(nMuons)
+                                    binned_yield.append(0.)
+                        elif nDoubleBJetBin == 2:
+                            for i in [0,1,2,3]:
+                                binned_msq.append(args.Msq)
+                                binned_mlsp.append(args.Mlsp)
+                                binned_type.append(args.type)
+                                binned_HT_bin.append(htBin)
+                                binned_MHT_bin.append(mhtBin)
+                                binned_N_jet_bin.append(nJetBin)
+                                binned_N_bJet_bin.append(0)
+                                binned_N_bJet_actual.append(i)
+                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                binned_N_muons.append(nMuons)
+                                binned_yield.append(0.)
+
     if region == 'Signal':
         df = df.loc[(df['n_Muons_bin'] == 0)]
     elif region == 'SingleMuon_Control':
