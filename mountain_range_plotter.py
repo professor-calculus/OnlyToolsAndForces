@@ -44,6 +44,18 @@ def df_chop_chop(df=None, region='All'):
     mlsp = df['M_lsp'][0]
     theType = df['Type'][0]
 
+    binned_msq = []
+    binned_mlsp = []
+    binned_type = []
+    binned_HT_bin = []
+    binned_MHT_bin = []
+    binned_N_jet_bin = []
+    binned_N_bJet_bin = []
+    binned_N_bJet_actual = []
+    binned_N_doublebjet_bin = []
+    binned_N_muons = []
+    binned_yield = []
+
     for mhtBin in [200, 400, 600]:
         for htBin in [1500, 2500, 3500]:
             for nJetBin in [6]:
