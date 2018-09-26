@@ -339,6 +339,8 @@ for var in variables:
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
             if args.NMinusOne:
                 df_temp = df_NMinusOne(df_temp, var, args.region)
+            else:
+                df_temp = df_sig
             if df_temp[var].compute().shape[0] > 0:
                 h = Hist(dict[var]['bin'], weight='weight')
                 h.fill(df_temp)
@@ -352,6 +354,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
             df_temp = df_NMinusOne(df_MSSM, var, args.region)
+        else:
+            df_temp = df_MSSM
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas(normalized=args.norm).reset_index()[1:-1]
@@ -367,6 +371,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_QCD, var, args.region)
+        else:
+            df_temp = df_QCD
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -379,6 +385,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTJets, var, args.region)
+        else:
+            df_temp = df_TTJets
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -391,6 +399,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_WJets, var, args.region)
+        else:
+            df_temp = df_WJets
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -403,6 +413,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_ZJets, var, args.region)
+        else:
+            df_temp = df_ZJets
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -415,6 +427,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_DiBoson, var, args.region)
+        else:
+            df_temp = df_DiBoson
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -427,6 +441,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_SingleTop, var, args.region)
+        else:
+            df_temp = df_SingleTop
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -439,6 +455,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTW, var, args.region)
+        else:
+            df_temp = df_TTW
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
@@ -451,6 +469,8 @@ for var in variables:
         h = Hist(dict[var]['bin'], weight='weight')
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTZ, var, args.region)
+        else:
+            df_temp = df_TTZ
         if df_temp[var].compute().shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
