@@ -39,6 +39,28 @@ args=parser.parse_args()
 
 sns.set_palette(sns.color_palette("Paired", 20))
 
+def df_chop_chop(df=None, region='All'):
+    if region == 'Signal':
+        df = df.loc[(df['n_Muons_bin'] == 0)]
+    elif region == 'SingleMuon_Control':
+        df = df.loc[((df['n_Muons_bin'] == 1))]
+    elif region == 'SingleMuon_1b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 1) & (df['n_Muons_bin'] == 1))]
+    elif region == 'SingleMuon_2b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 2) & (df['n_Muons_bin'] == 1))]
+    elif region == 'SingleMuon_0b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 0) & (df['n_Muons_bin'] == 1))]
+    elif region == 'DoubleMuon_Control':
+        df = df.loc[((df['n_Muons_bin'] == 2))]
+    elif region == 'DoubleMuon_2b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 2) & (df['n_Muons_bin'] == 2))]
+    elif region == 'DoubleMuon_1b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 1) & (df['n_Muons_bin'] == 2))]
+    elif region == 'DoubleMuon_0b_Control':
+        df = df.loc[((df['n_bJet_bin'] == 0) & (df['n_Muons_bin'] == 2))]
+    
+    return df;
+
 if args.verbose:
     parser.print_help()
 else:
@@ -53,6 +75,7 @@ print(args.signal)
 df_sig_list = []
 for file in args.signal:
     df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+    df = df_chop_chop(df, args.region)
     df_sig_list.append(df)
 df_sig = pd.concat(df_sig_list)
 df_sig = df_sig.groupby(by=['Type', 'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_BJet_bin', 'n_DoubleBJet_bin', 'n_Muons_bin']).sum()
@@ -101,6 +124,7 @@ if args.QCD:
     df_list = []
     for file in args.QCD:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -113,6 +137,7 @@ if args.TTJets:
     df_list = []
     for file in args.TTJets:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -125,6 +150,7 @@ if args.WJets:
     df_list = []
     for file in args.WJets:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -137,6 +163,7 @@ if args.ZJets:
     df_list = []
     for file in args.ZJets:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -149,6 +176,7 @@ if args.DiBoson:
     df_list = []
     for file in args.DiBoson:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -161,6 +189,7 @@ if args.SingleTop:
     df_list = []
     for file in args.SingleTop:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -173,6 +202,7 @@ if args.TTW:
     df_list = []
     for file in args.TTW:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
@@ -185,6 +215,7 @@ if args.TTZ:
     df_list = []
     for file in args.TTZ:
         df = pd.read_csv(file, delimiter=r'\s+', header='infer')
+        df = df_chop_chop(df, args.region)
         df_list.append(df)
     df = pd.concat(df_list)
     df = df.drop('Type', axis=1)
