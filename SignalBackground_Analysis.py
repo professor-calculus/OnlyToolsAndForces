@@ -145,7 +145,7 @@ if args.Data:
              'NoEntries': np.uint32,
             }
 else:
-    variables = ['HT', 'MHT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['HT', 'MHT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'nHiggs2bb', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -154,6 +154,7 @@ else:
              'NDoubleBJet': np.uint8,
              'MaxFatJetDoubleB_discrim': np.float32,
              'FatJet_MaxDoubleB_discrim_mass': np.float32,
+             'nHiggs2bb': np.uint8,
              'nLooseMuons': np.uint8,
              'nTightMuons': np.uint8,
              'Muon_MHT_TransMass': np.float32,
