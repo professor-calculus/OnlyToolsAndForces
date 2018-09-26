@@ -40,6 +40,10 @@ args=parser.parse_args()
 sns.set_palette(sns.color_palette("Paired", 20))
 
 def df_chop_chop(df=None, region='All'):
+    msq = df['M_sq'][0]
+    mlsp = df['M_lsp'][0]
+    theType = df['Type'][0]
+
     for mhtBin in [200, 400, 600]:
         for htBin in [1500, 2500, 3500]:
             for nJetBin in [6]:
@@ -47,9 +51,9 @@ def df_chop_chop(df=None, region='All'):
                     for nDoubleBJetBin in [0, 1, 2]:
                         if nDoubleBJetBin == 0:
                             for i in [0,1,2,3]:
-                                binned_msq.append(args.Msq)
-                                binned_mlsp.append(args.Mlsp)
-                                binned_type.append(args.type)
+                                binned_msq.append(msq)
+                                binned_mlsp.append(mlsp)
+                                binned_type.append(theType)
                                 binned_HT_bin.append(htBin)
                                 binned_MHT_bin.append(mhtBin)
                                 binned_N_jet_bin.append(nJetBin)
@@ -61,9 +65,9 @@ def df_chop_chop(df=None, region='All'):
                         elif nDoubleBJetBin == 1:
                             for nBJetBin in [1,2]:
                                 for i in [0,1,2,3]:
-                                    binned_msq.append(args.Msq)
-                                    binned_mlsp.append(args.Mlsp)
-                                    binned_type.append(args.type)
+                                    binned_msq.append(msq)
+                                    binned_mlsp.append(mlsp)
+                                    binned_type.append(theType)
                                     binned_HT_bin.append(htBin)
                                     binned_MHT_bin.append(mhtBin)
                                     binned_N_jet_bin.append(nJetBin)
@@ -74,9 +78,9 @@ def df_chop_chop(df=None, region='All'):
                                     binned_yield.append(0.)
                         elif nDoubleBJetBin == 2:
                             for i in [0,1,2,3]:
-                                binned_msq.append(args.Msq)
-                                binned_mlsp.append(args.Mlsp)
-                                binned_type.append(args.type)
+                                binned_msq.append(msq)
+                                binned_mlsp.append(mlsp)
+                                binned_type.append(theType)
                                 binned_HT_bin.append(htBin)
                                 binned_MHT_bin.append(mhtBin)
                                 binned_N_jet_bin.append(nJetBin)
@@ -85,6 +89,22 @@ def df_chop_chop(df=None, region='All'):
                                 binned_N_doublebjet_bin.append(nDoubleBJetBin)
                                 binned_N_muons.append(nMuons)
                                 binned_yield.append(0.)
+
+    df_tmp = pd.DataFrame({
+        'Type': binned_type,
+        'M_sq': binned_msq,
+        'M_lsp': binned_mlsp,
+        'HT_bin': binned_HT_bin,
+        'MHT_bin': binned_MHT_bin,
+        'n_Jet_bin': binned_N_jet_bin,
+        'n_bJet_actual': binned_N_bJet_actual,
+        'n_bJet_bin': binned_N_bJet_bin,
+        'n_DoubleBJet_bin': binned_N_doublebjet_bin,
+        'n_Muons_bin': binned_N_muons,
+        'Yield': binned_yield,
+        })
+
+    df = pd.concat([df, df_tmp])
 
     if region == 'Signal':
         df = df.loc[(df['n_Muons_bin'] == 0)]
