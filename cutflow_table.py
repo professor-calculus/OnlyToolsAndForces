@@ -261,27 +261,27 @@ for thing in MC_types:
 
     # Double-b jets
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 0) & (df_temp['NBJet'] > 2))]
-    eff = df_temp['crosssec'].compute().sum()/nentries
+    eff = df_temp_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
-    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    theyield = (args.lumi*df_temp_temp['crosssec']/df_temp_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] > 1))]
-    eff = df_temp['crosssec'].compute().sum()/nentries
+    eff = df_temp_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
-    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    theyield = (args.lumi*df_temp_temp['crosssec']/df_temp_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[((df_temp['NDoubleBJet'] == 1) & (df_temp['NBJet'] == 1))]
-    eff = df_temp['crosssec'].compute().sum()/nentries
+    eff = df_temp_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
-    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    theyield = (args.lumi*df_temp_temp['crosssec']/df_temp_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     df_temp_temp = df_temp.loc[(df_temp['NDoubleBJet'] == 2)]
-    eff = df_temp['crosssec'].compute().sum()/nentries
+    eff = df_temp_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
-    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    theyield = (args.lumi*df_temp_temp['crosssec']/df_temp_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
     thing_yield = thing + '_yield'
