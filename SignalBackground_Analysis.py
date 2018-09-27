@@ -491,7 +491,10 @@ for var in variables:
 
     plt.xlabel(dict[var]['title'], size=14)
     plt.yscale('log')
-    leg = plt.legend(loc='upper right', fontsize='xx-small')
+    if var in ['MaxFatJetDoubleB_discrim' 'LeadSlimJet_Pt']:
+        leg = plt.legend(loc='upper left', fontsize='xx-small')
+    else:
+        leg = plt.legend(loc='upper right', fontsize='xx-small')
     leg.set_zorder(100)
 #    if not args.norm:
 #        if var not in ['NJet', 'NBJet']:
