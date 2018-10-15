@@ -50,6 +50,9 @@ if not args.NoOutput:
 
 sns.set_style("white")
 
+# Only events with 2 AK8 jets, otherwise doesn't make sense!
+df = df.loc[(df['NFatJet'] > 1)]
+
 df = df.loc[((df['FatDoubleBJetA_mass'] < args.maxMass) & (df['FatDoubleBJetB_mass'] < args.maxMass) & (df['FatDoubleBJetA_mass'] > args.minMass) & (df['FatDoubleBJetB_mass'] > args.minMass) & (df['HT'] > args.HT))]
 if args.nHiggs2bb:
     df = df.loc[(df['nHiggs2bb'] == 2)]

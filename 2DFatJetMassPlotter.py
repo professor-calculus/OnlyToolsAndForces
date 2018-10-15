@@ -52,6 +52,9 @@ sns.set_style("white")
 minDiscrim = args.minDiscrim
 maxDiscrim = args.maxDiscrim
 
+# Only events with 2 AK8 jets, otherwise doesn't make sense!
+df = df.loc[(df['NFatJet'] > 1)]
+
 df = df.loc[((df['FatDoubleBJetA_mass'] < 200.) & (df['FatDoubleBJetB_mass'] < 200.) & (df['FatDoubleBJetA_mass'] > 0.) & (df['FatDoubleBJetB_mass'] > 0.) & (df['FatDoubleBJetA_discrim'] > minDiscrim) & (df['FatDoubleBJetB_discrim'] > minDiscrim) & (df['FatDoubleBJetA_discrim'] < maxDiscrim) & (df['FatDoubleBJetB_discrim'] < maxDiscrim) & (df['HT'] > args.HT))]
 if args.nHiggs2bb:
     df = df.loc[(df['nHiggs2bb'] == 2)]
