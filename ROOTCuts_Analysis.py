@@ -342,7 +342,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             temp_nb = min(4, NSlimLooseBJet_i)
             if NSlimLooseBJet_i > 1:
                 for combo in combinations(vector_bjet[:temp_nb], 2):
-                    if (combo[0].pt < 10. | combo[1].pt < 10.): continue
+                    if ((combo[0].pt < 10.) or (combo[1].pt < 10.)): continue
                     dR_ = Delta_R(combo[0].eta, combo[0].phi, combo[1].eta, combo[1].phi)
                     if dR_ < temp_dR:
                         temp_dR = dR_
@@ -353,7 +353,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                             for temp_bjet in vector_bjet:
                                 if (temp_bjet != combo[0] and temp_bjet != combo[1]): other_bjets.append(temp_bjet)
                             if len(other_bjets) < 2: continue
-                            if (other_bjets[0].pt < 10. | other_bjets[1].pt < 10.): continue
+                            if ((other_bjets[0].pt < 10.) or (other_bjets[1].pt < 10.)): continue
                             temp_Mbb[1] = Invariant_Mass(other_bjets[0].pt, other_bjets[1].pt, other_bjets[0].eta, other_bjets[1].eta, other_bjets[0].phi, other_bjets[1].phi)
                             temp_dR_both[1] = Delta_R(other_bjets[0].eta, other_bjets[0].phi, other_bjets[1].eta, other_bjets[1].phi)
             bb_Pair_1_Mass.append(temp_Mbb[0])
