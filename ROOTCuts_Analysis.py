@@ -234,10 +234,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     eventpass = 0.
     eventCounter = 0
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_p4", "fatJetB_p4", "bJetA_p4", "bJetB_p4", "bJetC_p4", "bJetD_p4", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_p4_i, fatJetB_p4_i, bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi", "bJetA_p4", "bJetB_p4", "bJetC_p4", "bJetD_p4", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i, bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
             n_doublebjet = 0
             NJet6 = False
             HT1500 = False
@@ -316,7 +316,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
             #Angular separation of AK8 jets:
             if NFatJet_i > 1:
-                dR = Delta_R(fatJetA_p4_i.eta, fatJetA_p4_i.phi, fatJetB_p4_i.eta, fatJetB_p4_i.phi)
+                dR = Delta_R(fatJetA_eta, fatJetA_phi, fatJetB_eta, fatJetB_phi)
             else:
                 dR = -1.
             AK8DelR.append(dR)
@@ -342,6 +342,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             temp_nb = min(4, NSlimLooseBJet_i)
             if NSlimLooseBJet_i > 1:
                 for combo in combinations(vector_bjet[:temp_nb], 2):
+                    if (combo[0].pt < 10 | combo[1].pt < 10.): continue
                     dR_ = Delta_R(combo[0].eta, combo[0].phi, combo[1].eta, combo[1].phi)
                     if dR_ < temp_dR:
                         temp_dR = dR_

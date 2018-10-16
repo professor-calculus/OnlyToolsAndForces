@@ -196,8 +196,6 @@ if args.MSSM:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
-    df_QCD_entries = df_QCD[['NoEntries', 'crosssec']].drop_duplicates().compute()
-    df_QCD['NoEntries'] = df_QCD_entries['NoEntries'].sum()
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
     df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
     if args.verbose:
