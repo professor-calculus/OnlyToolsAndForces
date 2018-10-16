@@ -20,6 +20,7 @@ import argparse as a
 import warnings
 from tqdm import tqdm
 from text_histogram import histogram
+from itertools import combinations
 
 
 parser = a.ArgumentParser(description='ROOTCuts for Experimental Analysis')
@@ -158,6 +159,11 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     H2bb_1_DelR = []
     H2bb_2_DelR = []
 
+    bb_Pair_1_DelR = []
+    bb_Pair_2_DelR = []
+    bb_Pair_1_Mass = []
+    bb_Pair_2_Mass = []
+
     n_loosemuons = []
     n_tightmuons = []
     n_electrons = []
@@ -228,10 +234,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     eventpass = 0.
     eventCounter = 0
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_p4", "fatJetB_p4", "bJetA_p4", "bJetB_p4", "bJetC_p4", "bJetD_p4", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_p4_i, fatJetB_p4_i, bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
             n_doublebjet = 0
             NJet6 = False
             HT1500 = False
@@ -310,7 +316,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
             #Angular separation of AK8 jets:
             if NFatJet_i > 1:
-                dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
+                dR = Delta_R(fatJetA_p4_i.eta, fatJetA_p4_i.phi, fatJetB_p4_i.eta, fatJetB_p4_i.phi)
             else:
                 dR = -1.
             AK8DelR.append(dR)
@@ -326,16 +332,42 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 0 and NSlimLooseBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet_i > 2 and NSlimLooseBJet_i > 3)):
                 DoubleBJet_pass = True
 
+            # Invariant mass between single b (one pair if 1 double b jet, 2 if no double b)
+            # Arranged such that if 1 double b then single b pair is 2 closest in dR from top 4 tags
+            # If no double b then pick closest pair in dR, then other pair from top 4 tag scores
+            temp_dR = 9999.
+            temp_Mbb = [-1., -1.]
+            temp_dR_both = [-1., -1.]
+            vector_bjet = [bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i]
+            temp_nb = min(4, NSlimLooseBJet_i)
+            if NSlimLooseBJet_i > 1:
+                for combo in combinations(vector_bjet[:temp_nb], 2):
+                    dR_ = Delta_R(combo[0].eta, combo[0].phi, combo[1].eta, combo[1].phi)
+                    if dR_ < temp_dR:
+                        temp_dR = dR_
+                        temp_dR_both[0] = dR_
+                        temp_Mbb[0] = Invariant_Mass(combo[0].pt, combo[1].pt, combo[0].eta, combo[1].eta, combo[0].phi, combo[1].phi)
+                        if NSlimLooseBJet_i > 3:
+                            other_bjets = []
+                            for temp_bjet in vector_bjet:
+                                if (temp_bjet != combo[0] and temp_bjet != combo[1]): other_bjets.append(temp_bjet)
+                            temp_Mbb[1] = Invariant_Mass(other_bjets[0].pt, other_bjets[1].pt, other_bjets[0].eta, other_bjets[1].eta, other_bjets[0].phi, other_bjets[1].phi)
+                            temp_dR_both[1] = Delta_R(other_bjets[0].eta, other_bjets[0].phi, other_bjets[1].eta, other_bjets[1].phi)
+            bb_Pair_1_Mass.append(temp_Mbb[0])
+            bb_Pair_1_DelR.append(temp_dR_both[0])
+            bb_Pair_2_Mass.append(temp_Mbb[1])
+            bb_Pair_2_DelR.append(temp_dR_both[1])
+
             # Transverse mass between Missing-HT and muon (in case of one muon)
             if nTightMuons_i == 1:
-                muon_MHT_mT = Transverse_Mass(muonA_p4_i.pt, MHT_i, muonA_p4_i.phi(), MHT_phi_i)
+                muon_MHT_mT = Transverse_Mass(muonA_p4_i.pt, MHT_i, muonA_p4_i.phi, MHT_phi_i)
             else:
                 muon_MHT_mT = 0.
             muon_MHT_transverse_mass.append(muon_MHT_mT)
 
             # Invariant mass of muons (if 2 muons)
             if nTightMuons_i == 2:
-                muons_Minv = Invariant_Mass(muonA_p4_i.pt, muonB_p4_i.pt, muonA_p4_i.eta, muonB_p4_i.eta, muonA_p4_i.phi(), muonB_p4_i.phi())
+                muons_Minv = Invariant_Mass(muonA_p4_i.pt, muonB_p4_i.pt, muonA_p4_i.eta, muonB_p4_i.eta, muonA_p4_i.phi, muonB_p4_i.phi)
             else:
                 muons_Minv = 0.
             muons_inv_mass.append(muons_Minv)
@@ -527,6 +559,10 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         'nHiggs2bb': nH2bb,
         'Higgs2bb_DelR_1': H2bb_1_DelR,
         'Higgs2bb_DelR_2': H2bb_2_DelR,
+        'bb_Pair1_Mass': bb_Pair_1_Mass,
+        'bb_Pair2_Mass': bb_Pair_2_Mass,
+        'bb_Pair1_DelR': bb_Pair_1_DelR,
+        'bb_Pair2_DelR': bb_Pair_2_DelR,
         })
 
     print(df)
@@ -534,7 +570,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
         df.to_csv(os.path.join(directory, 'ROOTAnalysis.txt'), sep='\t', index=False)
 
 
-    plottables = ['MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'NFatJet', 'nLooseMuons', 'nTightMuons', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt', 'nHiggs2bb', 'Higgs2bb_DelR_1']
+    plottables = ['MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'NFatJet', 'nLooseMuons', 'nTightMuons', 'nElectrons', 'nPhotons', 'nTracks', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'LeadSlimJet_Pt', 'nHiggs2bb', 'Higgs2bb_DelR_1', 'bb_Pair1_Mass', 'bb_Pair2_Mass', 'bb_Pair1_DelR', 'bb_Pair2_DelR']
 
 
     bins_HT = np.linspace(0.,5000.,160)
@@ -553,13 +589,20 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             'NBJet': {'bins': bins_njet, 'title': 'Number of $b$-tagged Jets'},
             'NDoubleBJet': {'bins': bins_ndoublebjet, 'title': 'Number of Double-$b$-tagged Fat Jets'},
             'NFatJet': {'bins': bins_nfatjet, 'title': 'Number of AK8 Fat Jets'},
-            'nLooseMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
-            'nTightMuons': {'bins': bins_nmuons, 'title': 'Number of Muons'},
+            'nLooseMuons': {'bins': bins_nmuons, 'title': 'Number of Loose Muons'},
+            'nTightMuons': {'bins': bins_nmuons, 'title': 'Number of Tight Muons'},
+            'nElectrons': {'bins': bins_nmuons, 'title': 'Number of Electrons'},
+            'nPhotons': {'bins': bins_nmuons, 'title': 'Number of Photons'},
+            'nTracks': {'bins': bins_nmuons, 'title': 'Number of Isolated Tracks'},
             'MaxFatJetDoubleB_discrim': {'bins': bins_doublebdiscrim, 'title': 'Highest Double-b discriminator score'},
             'FatJet_MaxDoubleB_discrim_mass': {'bins': bins_BMass, 'title': 'Soft-Drop Mass of AK8 Jet with Highest Double-b discriminator score'},
             'LeadSlimJet_Pt': {'bins': bins_MHT, 'title': 'Lead AK4 Jet P_{T}'},
             'nHiggs2bb': {'bins': bins_ndoublebjet, 'title': 'Number of Higgs bosons decaying to bb (MC Truth)'},
             'Higgs2bb_DelR_1': {'bins': bins_DelR, 'title': 'Delta-R between bb pair from Higgs (MC Truth)'},
+            'bb_Pair1_Mass': {'bins': bins_BMass, 'title': 'Inv. mass of best bb pair'},
+            'bb_Pair2_Mass': {'bins': bins_BMass, 'title': 'Inv. mass of other bb pair'},
+            'bb_Pair1_DelR': {'bins': bins_DelR, 'title': 'Delta-R between best bb pair'},
+            'bb_Pair2_DelR': {'bins': bins_DelR, 'title': 'Delta-R between other bb pair'},
             }
 
     for thing in plottables:
