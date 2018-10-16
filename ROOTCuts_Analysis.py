@@ -237,6 +237,9 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             HT1500 = False
             MHT200 = False
             DoubleBJet_pass = False
+            Pass_ElectronVeto = False
+            Pass_PhotonVeto = False
+            Pass_TrackVeto = False
 
             weight = eventweight
             if args.verbose:
@@ -320,7 +323,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 NJet6 = True
 
             # Require at least 2 b-jets if only one double-b-jet and at least 3 b-jets if no double-b-jets.
-            if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet_i > 2)):
+            if ((n_doublebjet > 1) or (n_doublebjet == 1 and NSlimBJet_i > 0 and NSlimLooseBJet_i > 1) or (n_doublebjet == 0 and NSlimBJet_i > 2 and NSlimLooseBJet_i > 3)):
                 DoubleBJet_pass = True
 
             # Transverse mass between Missing-HT and muon (in case of one muon)
@@ -347,8 +350,16 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             else:
                 nMuons_selected = -1
 
-            All_Cuts = [NJet6, HT1500, MHT200, DoubleBJet_pass]
-            Most_Cuts = [NJet6, HT1500, MHT200]
+            # Electron, Photon, Track vetoes
+            if nrElectrons_i == 0:
+                Pass_ElectronVeto = True
+            if nrPhotons_i == 0:
+                Pass_PhotonVeto = True
+            if nrTracks_i == 0:
+                Pass_TrackVeto = True
+
+            All_Cuts = [NJet6, HT1500, MHT200, DoubleBJet_pass, Pass_ElectronVeto, Pass_PhotonVeto, Pass_TrackVeto]
+            Most_Cuts = [NJet6, HT1500, MHT200, Pass_ElectronVeto, Pass_PhotonVeto, Pass_TrackVeto]
             if args.verbose:
                 print(All_Cuts)
             if All_Cuts.count(False) == 0:
@@ -373,6 +384,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 binned_N_muons.append(n_Muon_bins[np.digitize([nMuons_selected], n_Muon_bins)[0] - 1])
                 binned_yield.append(weight)
                 eventpass += 1.
+            '''
             elif ((Most_Cuts.count(False) == 0) & (n_doublebjet == 1) & (NSlimBJet_i == 1)):
                 #'M_sq', 'M_lsp', 'HT_bin', 'MHT_bin', 'n_Jet_bin', 'n_bJet_bin', 'Yield'
                 binned_msq.append(args.Msq)
@@ -390,6 +402,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                 binned_N_muons.append(n_Muon_bins[np.digitize([nMuons_selected], n_Muon_bins)[0] - 1])
                 binned_yield.append(weight)
                 eventpass += 1.
+            '''
 
             if args.verbose:
                 print('{0} events passed so far...'.format(eventpass))
