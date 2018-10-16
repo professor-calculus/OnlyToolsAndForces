@@ -316,7 +316,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
             #Angular separation of AK8 jets:
             if NFatJet_i > 1:
-                dR = Delta_R(fatJetA_eta, fatJetA_phi, fatJetB_eta, fatJetB_phi)
+                dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
             else:
                 dR = -1.
             AK8DelR.append(dR)
