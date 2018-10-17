@@ -264,7 +264,7 @@ if args.SingleTop:
     df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
     if args.LowStats:
         df_SingleTop = df_SingleTop.sample(frac=0.1, replace=True)
-        df_SingleTop = df_SingleTop.repartition(npartitions=int(df_WJets.npartitions/10.))
+        df_SingleTop = df_SingleTop.repartition(npartitions=int(df_SingleTop.npartitions/10.))
         df_SingleTop['weight'] = 10.*df_SingleTop['weight']
     df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
