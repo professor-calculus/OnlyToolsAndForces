@@ -75,7 +75,7 @@ def df_chop_chop(df=None, region='All'):
                                 binned_N_muons.append(nMuons)
                                 binned_yield.append(0.)
                         elif nDoubleBJetBin == 1:
-                            for nBJetBin in [1,2]:
+                            for nBJetBin in [2]:
                                 binned_msq.append(msq)
                                 binned_mlsp.append(mlsp)
                                 binned_type.append(theType)
@@ -334,7 +334,7 @@ plt.xticks(x+0.5, [''.join(str(t)) for t in df.index], rotation=90)
 plt.xlabel("HT, MHT, N_b, N_double-b bin", labelpad=20)
 plt.tight_layout()
 plt.ylim(0.005, None)
-leg = plt.legend(loc='upper right', fontsize='x-small')
+leg = plt.legend(loc='upper right', fontsize='xx-small')
 leg.set_zorder(100)
 if not args.NoOutput:
     plt.savefig(os.path.join(temp_dir, 'MountainRange.pdf'))

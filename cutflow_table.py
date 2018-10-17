@@ -88,7 +88,7 @@ if args.QCD:
     if args.LowStats:
         df_QCD = df_QCD.sample(frac=0.1, replace=True)
         df_QCD = df_QCD.repartition(npartitions=int(df_QCD.npartitions/10.))
-        df_QCD['NoEntries'] = 0.1.*df_QCD['NoEntries']
+        df_QCD['NoEntries'] = 0.1*df_QCD['NoEntries']
     MC_types.append('QCD')
     dataframes['QCD'] = df_QCD
     if args.verbose:
@@ -100,7 +100,7 @@ if args.TTJets:
     if args.LowStats:
         df_TTJets = df_TTJets.sample(frac=0.01, replace=True)
         df_TTJets = df_TTJets.repartition(npartitions=int(df_TTJets.npartitions/100.))
-        df_TTJets['NoEntries'] = 0.01.*df_TTJets['NoEntries']
+        df_TTJets['NoEntries'] = 0.01*df_TTJets['NoEntries']
     MC_types.append('TTJets')
     dataframes['TTJets'] = df_TTJets
     if args.verbose:

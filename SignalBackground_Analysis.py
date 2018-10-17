@@ -202,9 +202,9 @@ if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
     if args.LowStats:
-        df_QCD = df_QCD.sample(frac=0.1, replace=True)
-        df_QCD = df_QCD.repartition(npartitions=int(df_QCD.npartitions/10.))
-        df_QCD['weight'] = 10.*df_QCD['weight']
+        df_QCD = df_QCD.sample(frac=0.01, replace=True)
+        df_QCD = df_QCD.repartition(npartitions=max(1, int(df_QCD.npartitions/100.)))
+        df_QCD['weight'] = 100.*df_QCD['weight']
     df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('QCD:')
@@ -216,7 +216,7 @@ if args.TTJets:
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
     if args.LowStats:
         df_TTJets = df_TTJets.sample(frac=0.01, replace=True)
-        df_TTJets = df_TTJets.repartition(npartitions=int(df_TTJets.npartitions/100.))
+        df_TTJets = df_TTJets.repartition(npartitions=max(1, int(df_TTJets.npartitions/100.)))
         df_TTJets['weight'] = 100.*df_TTJets['weight']
     df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
@@ -263,9 +263,9 @@ if args.SingleTop:
     df_SingleTop = dd.read_csv(args.SingleTop, delimiter=r'\s+', usecols=columns, dtype=types)
     df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
     if args.LowStats:
-        df_SingleTop = df_SingleTop.sample(frac=0.1, replace=True)
-        df_SingleTop = df_SingleTop.repartition(npartitions=int(df_SingleTop.npartitions/10.))
-        df_SingleTop['weight'] = 10.*df_SingleTop['weight']
+        df_SingleTop = df_SingleTop.sample(frac=0.02, replace=True)
+        df_SingleTop = df_SingleTop.repartition(npartitions=max(1, int(df_SingleTop.npartitions/50.)))
+        df_SingleTop['weight'] = 50.*df_SingleTop['weight']
     df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('SingleTop:')
