@@ -27,6 +27,7 @@ parser.add_argument('-o', '--NoOutput', action='store_true', help='This argument
 parser.add_argument('--Threads', type=int, default=None, help='Optional: Set max number of cores for Dask to use')
 parser.add_argument('--region', default='Signal', help='Signal, 0b2mu etc region')
 parser.add_argument('--latex', action='store_true', help='Save LaTeX table')
+parser.add_argument('--LowStats', action='store_true', help='Use fewer events for TTJets, QCD to speed up')
 parser.add_argument('-l', '--lumi', type=float, default=35900., help='Luminosity in pb')
 parser.add_argument('--Higgs2bb', action='store_true', help='Insist upon 2 Higgs to bb in SIGNAL at MC truth level')
 parser.add_argument('-v', '--verbose', action='store_true', help='Increased verbosity level')
@@ -42,7 +43,7 @@ else:
 
 print '\nCutflow Table Maker\n'
 
-variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass']
+variables = ['Type', 'MHT', 'HT', 'NJet', 'NBJet', 'NDoubleBJet', 'nLooseMuons', 'nTightMuons', 'nElectrons', 'nPhotons', 'nTracks', 'Muon_MHT_TransMass', 'Muons_InvMass']
 types = {'MHT': np.float32,
          'HT': np.float32,
          'NJet': np.uint8,
@@ -50,6 +51,9 @@ types = {'MHT': np.float32,
          'NDoubleBJet': np.uint8,
          'nLooseMuons': np.uint8,
          'nTightMuons': np.uint8,
+         'nElectrons': np.uint8,
+         'nPhotons': np.uint8,
+         'nTracks': np.uint8,
          'Muon_MHT_TransMass': np.float32,
          'Muons_InvMass': np.float32,
          'NoEntries': np.float32,
@@ -81,6 +85,10 @@ if args.signal:
 
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
+    if args.LowStats:
+        df_QCD = df_QCD.sample(frac=0.1, replace=True)
+        df_QCD = df_QCD.repartition(npartitions=int(df_QCD.npartitions/10.))
+        df_QCD['NoEntries'] = 0.1.*df_QCD['NoEntries']
     MC_types.append('QCD')
     dataframes['QCD'] = df_QCD
     if args.verbose:
@@ -89,6 +97,10 @@ if args.QCD:
 
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
+    if args.LowStats:
+        df_TTJets = df_TTJets.sample(frac=0.01, replace=True)
+        df_TTJets = df_TTJets.repartition(npartitions=int(df_TTJets.npartitions/100.))
+        df_TTJets['NoEntries'] = 0.01.*df_TTJets['NoEntries']
     MC_types.append('TTJets')
     dataframes['TTJets'] = df_TTJets
     if args.verbose:
@@ -185,13 +197,13 @@ theDataframe = pd.DataFrame()
 yieldDataFrame = pd.DataFrame()
 effDataFrame = pd.DataFrame()
 if args.region == 'Signal':
-    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
-    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
-    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Veto', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Veto', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Veto', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Veto', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 else:
-    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
-    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
-    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'MHT > 200GeV', 'Number of Jets > 5', 'Muon Selection', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    theDataframe['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Selection', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    effDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Selection', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
+    yieldDataFrame['Cuts'] = ['Before Cuts', 'HT > 1500GeV', 'Number of Jets > 5', 'Lepton, Photon, Track Veto', 'Muon Selection', 'MHT > 200GeV', 'ge3b_ge0double-b', 'ge2b_ge1double-b', 'ge2b_eq1double-b', '2double-b']
 
 for thing in MC_types:
     temp_efficiencies = []
@@ -218,15 +230,15 @@ for thing in MC_types:
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
-    # MHT
-    df_temp = df_temp.loc[(df_temp['MHT'] > 200.)]
+    # NJets
+    df_temp = df_temp.loc[(df_temp['NJet'] > 5)]
     eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
     temp_yields.append(theyield)
 
-    # NJets
-    df_temp = df_temp.loc[(df_temp['NJet'] > 5)]
+    # Electron/Photon/Tracks veto
+    df_temp = df_temp.loc[((df_temp['nElectrons'] == 0) & (df_temp['nPhotons'] == 0) & (df_temp['nTracks'] == 0))]
     eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
@@ -254,6 +266,13 @@ for thing in MC_types:
     else:
         print('Error: not implemented yet')
         exit()
+    eff = df_temp['crosssec'].compute().sum()/nentries
+    temp_efficiencies.append(eff)
+    theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()
+    temp_yields.append(theyield)
+
+    # MHT
+    df_temp = df_temp.loc[(df_temp['MHT'] > 200.)]
     eff = df_temp['crosssec'].compute().sum()/nentries
     temp_efficiencies.append(eff)
     theyield = (args.lumi*df_temp['crosssec']/df_temp['NoEntries']).compute().sum()

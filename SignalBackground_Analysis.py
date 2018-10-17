@@ -38,6 +38,7 @@ parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT
 parser.add_argument('--NMinusOne', action='store_true', help='Make n-1 plots, i.e. all cuts except those on the x-axis')
 parser.add_argument('--region', default='All', help='Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
 parser.add_argument('--LepVeto', action='store_true', help='Vetoes events with isolated photons, electrons, tracks')
+parser.add_argument('--LowStats', action='store_true', help='Reduces stats by a factor, different for different samples.')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
 parser.add_argument('--Higgs2bb', action='store_true', help='Require both Higgs-->bb in signal')
@@ -200,6 +201,10 @@ if args.MSSM:
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
+    if args.LowStats:
+        df_QCD = df_QCD.sample(frac=0.1, replace=True)
+        df_QCD = df_QCD.repartition(npartitions=int(df_QCD.npartitions/10.))
+        df_QCD['weight'] = 10.*df_QCD['weight']
     df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('QCD:')
@@ -209,6 +214,10 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
+    if args.LowStats:
+        df_TTJets = df_TTJets.sample(frac=0.01, replace=True)
+        df_TTJets = df_TTJets.repartition(npartitions=int(df_TTJets.npartitions/100.))
+        df_TTJets['weight'] = 100.*df_TTJets['weight']
     df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('TTJets:')
@@ -218,6 +227,10 @@ if args.TTJets:
 if args.WJets:
     df_WJets = dd.read_csv(args.WJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_WJets['weight'] = args.Lumi*df_WJets['crosssec']/df_WJets['NoEntries']
+    if args.LowStats:
+        df_WJets = df_WJets.sample(frac=0.1, replace=True)
+        df_WJets = df_WJets.repartition(npartitions=int(df_WJets.npartitions/10.))
+        df_WJets['weight'] = 10.*df_WJets['weight']
     df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('WJets:')
@@ -227,6 +240,10 @@ if args.WJets:
 if args.ZJets:
     df_ZJets = dd.read_csv(args.ZJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_ZJets['weight'] = args.Lumi*df_ZJets['crosssec']/df_ZJets['NoEntries']
+    if args.LowStats:
+        df_ZJets = df_ZJets.sample(frac=0.1, replace=True)
+        df_ZJets = df_ZJets.repartition(npartitions=int(df_ZJets.npartitions/10.))
+        df_ZJets['weight'] = 10.*df_ZJets['weight']
     df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('ZJets:')
@@ -245,6 +262,10 @@ if args.DiBoson:
 if args.SingleTop:
     df_SingleTop = dd.read_csv(args.SingleTop, delimiter=r'\s+', usecols=columns, dtype=types)
     df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
+    if args.LowStats:
+        df_SingleTop = df_SingleTop.sample(frac=0.1, replace=True)
+        df_SingleTop = df_SingleTop.repartition(npartitions=int(df_WJets.npartitions/10.))
+        df_SingleTop['weight'] = 10.*df_SingleTop['weight']
     df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('SingleTop:')
