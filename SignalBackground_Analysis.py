@@ -36,7 +36,8 @@ parser.add_argument('-d', '--Data', default=None, nargs='*', help='Path to Data 
 parser.add_argument('-l', '--Lumi', type=float, default=35900., help='Luminosity in pb-1')
 parser.add_argument('--HT_cut', type=float, default=None, help='Apply minimum HT cut')
 parser.add_argument('--NMinusOne', action='store_true', help='Make n-1 plots, i.e. all cuts except those on the x-axis')
-parser.add_argument('--region', default='All', help='Applies no cut, lepton veto or lepton requirement. Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
+parser.add_argument('--region', default='All', help='Choose: All, Signal, 2b1mu, 0b1mu, 2mu, 0b2mu')
+parser.add_argument('--LepVeto', action='store_true', help='Vetoes events with isolated photons, electrons, tracks')
 parser.add_argument('--DBT', type=float, default=None, help='Apply minimum DBT score cut (when no Data sources)')
 parser.add_argument('--norm', action='store_true', help='Normalise each histogram')
 parser.add_argument('--Higgs2bb', action='store_true', help='Require both Higgs-->bb in signal')
@@ -87,7 +88,7 @@ def mem_usage(pandas_obj):
     usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
     return "{:03.2f} MB".format(usage_mb)
 
-def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
+def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None, lepVeto = None):
     if region == 'Signal':
         df = df.loc[(df['nLooseMuons'] == 0)]
     elif region == '1mu':
@@ -110,6 +111,8 @@ def df_chop_chop(df=None, region='All', HT=None, DBT=None, isData=None):
         df = df.loc[(df['HT'] > HT)]
     if DBT and not isData:
         df = df.loc[(df['MaxFatJetDoubleB_discrim'] > DBT)]
+    if lepVeto:
+        df = df.loc[( (df['nElectrons'] == 0) and (df['nPhotons'] == 0) and (df['nTracks == 0']) )]
     return df;
 
 def df_NMinusOne(df=None, var=None, region=None):
@@ -120,8 +123,8 @@ def df_NMinusOne(df=None, var=None, region=None):
     d_upper = {'MHT': 2000.,
                'HT': 6000.,
                'NJet': 20}
-    if ((var not in ['NBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass']) & (region == 'Signal')):
-        df = df.loc[(((df['NDoubleBJet'] == 0) & (df['NBJet'] > 2)) | ((df['NDoubleBJet'] == 1) & (df['NBJet'] > 1)) | (df['NDoubleBJet'] > 1))]
+    if ((var not in ['NBJet', 'NLooseBJet', 'NDoubleBJet', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass']) & (region == 'Signal')):
+        df = df.loc[(((df['NDoubleBJet'] == 0) & (df['NBJet'] > 2) & (df['NLooseBJet'] > 3)) | ((df['NDoubleBJet'] == 1) & (df['NBJet'] > 0) & (df['NLooseBJet'] > 1)) | (df['NDoubleBJet'] > 1))]
     theVars = ['MHT', 'HT', 'NJet']
     for x in theVars:
         if x != var:
@@ -131,7 +134,7 @@ def df_NMinusOne(df=None, var=None, region=None):
     return df;
 
 if args.Data:
-    variables = ['HT', 'MHT', 'NJet', 'NBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['HT', 'MHT', 'NJet', 'NBJet', 'NLooseBJet', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt', 'nElectrons', 'nPhotons', 'nTracks']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -145,7 +148,7 @@ if args.Data:
              'NoEntries': np.uint32,
             }
 else:
-    variables = ['HT', 'MHT', 'FatJetAngularSeparation', 'NJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'nHiggs2bb', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt']
+    variables = ['HT', 'MHT', 'FatJetAngularSeparation', 'NJet', 'NLooseBJet', 'NFatJet', 'NBJet', 'NDoubleBJet', 'nHiggs2bb', 'MaxFatJetDoubleB_discrim', 'FatJet_MaxDoubleB_discrim_mass', 'nLooseMuons', 'nTightMuons', 'Muon_MHT_TransMass', 'Muons_InvMass', 'LeadSlimJet_Pt', 'nElectrons', 'nPhotons', 'nTracks', 'bb_Pair1_Mass', 'bb_Pair2_Mass', 'bb_Pair1_DelR', 'bb_Pair2_DelR']
     types = {'MHT': np.float32,
              'HT': np.float32,
              'NJet': np.uint8,
@@ -180,7 +183,7 @@ if args.signal:
     df_sig_masses = df_sig[['M_sq', 'M_lsp']].drop_duplicates().compute()
     df_sig_masses = df_sig_masses.sort_values(by=['M_sq', 'M_lsp'])
     print(df_sig_masses.head())
-    df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_sig = df_chop_chop(df=df_sig, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.Higgs2bb:
         df_sig = df_sig.loc[(df_sig['nHiggs2bb'] == 2)]
     #print('Signal df read, memory used: {0}'.format(mem_usage(df_sig)))
@@ -188,7 +191,7 @@ if args.signal:
 if args.MSSM:
     df_MSSM = dd.read_csv(args.MSSM, delimiter=r'\s+', usecols=columns, dtype=types)
     df_MSSM['weight'] = args.Lumi*df_MSSM['crosssec']/df_MSSM['NoEntries']
-    df_MSSM = df_chop_chop(df=df_MSSM, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_MSSM = df_chop_chop(df=df_MSSM, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('MSSM:')
         print(df_MSSM)
@@ -197,7 +200,7 @@ if args.MSSM:
 if args.QCD:
     df_QCD = dd.read_csv(args.QCD, delimiter=r'\s+', usecols=columns, dtype=types)
     df_QCD['weight'] = args.Lumi*df_QCD['crosssec']/df_QCD['NoEntries']
-    df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_QCD = df_chop_chop(df=df_QCD, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('QCD:')
         print(df_QCD)
@@ -206,7 +209,7 @@ if args.QCD:
 if args.TTJets:
     df_TTJets = dd.read_csv(args.TTJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTJets['weight'] = args.Lumi*df_TTJets['crosssec']/df_TTJets['NoEntries']
-    df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_TTJets = df_chop_chop(df=df_TTJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('TTJets:')
         print(df_TTJets)
@@ -215,7 +218,7 @@ if args.TTJets:
 if args.WJets:
     df_WJets = dd.read_csv(args.WJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_WJets['weight'] = args.Lumi*df_WJets['crosssec']/df_WJets['NoEntries']
-    df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_WJets = df_chop_chop(df=df_WJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('WJets:')
         print(df_WJets)
@@ -224,7 +227,7 @@ if args.WJets:
 if args.ZJets:
     df_ZJets = dd.read_csv(args.ZJets, delimiter=r'\s+', usecols=columns, dtype=types)
     df_ZJets['weight'] = args.Lumi*df_ZJets['crosssec']/df_ZJets['NoEntries']
-    df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_ZJets = df_chop_chop(df=df_ZJets, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('ZJets:')
         print(df_ZJets)
@@ -233,7 +236,7 @@ if args.ZJets:
 if args.DiBoson:
     df_DiBoson = dd.read_csv(args.DiBoson, delimiter=r'\s+', usecols=columns, dtype=types)
     df_DiBoson['weight'] = args.Lumi*df_DiBoson['crosssec']/df_DiBoson['NoEntries']
-    df_DiBoson = df_chop_chop(df=df_DiBoson, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_DiBoson = df_chop_chop(df=df_DiBoson, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('DiBoson:')
         print(df_DiBoson)
@@ -242,7 +245,7 @@ if args.DiBoson:
 if args.SingleTop:
     df_SingleTop = dd.read_csv(args.SingleTop, delimiter=r'\s+', usecols=columns, dtype=types)
     df_SingleTop['weight'] = args.Lumi*df_SingleTop['crosssec']/df_SingleTop['NoEntries']
-    df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_SingleTop = df_chop_chop(df=df_SingleTop, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('SingleTop:')
         print(df_SingleTop)
@@ -251,7 +254,7 @@ if args.SingleTop:
 if args.TTW:
     df_TTW = dd.read_csv(args.TTW, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTW['weight'] = args.Lumi*df_TTW['crosssec']/df_TTW['NoEntries']
-    df_TTW = df_chop_chop(df=df_TTW, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_TTW = df_chop_chop(df=df_TTW, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('TTW:')
         print(df_TTW)
@@ -260,7 +263,7 @@ if args.TTW:
 if args.TTZ:
     df_TTZ = dd.read_csv(args.TTZ, delimiter=r'\s+', usecols=columns, dtype=types)
     df_TTZ['weight'] = args.Lumi*df_TTZ['crosssec']/df_TTZ['NoEntries']
-    df_TTZ = df_chop_chop(df=df_TTZ, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data)
+    df_TTZ = df_chop_chop(df=df_TTZ, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=args.Data, lepVeto=args.LepVeto)
     if args.verbose:
         print('TTZ:')
         print(df_TTZ)
@@ -268,7 +271,7 @@ if args.TTZ:
 
 if args.Data:
     df_Data = dd.read_csv(args.Data, delimiter=r'\s+', usecols=columns, dtype=types)
-    df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=True)
+    df_Data = df_chop_chop(df=df_Data, region=args.region, HT=args.HT_cut, DBT=args.DBT, isData=True, lepVeto=args.LepVeto)
     if args.verbose:
         print('Data:')
         print(df_Data)
@@ -311,21 +314,29 @@ dict = {'MHT': {'bin': bin('MHT', 50, 0., 1000.), 'title': 'Missing $H_{T}$ [GeV
         'FatJetAngularSeparation': {'bin': bin('FatJetAngularSeparation', 50, 0., 5.), 'title': 'AK8 Jets $\Delta R$'},
         'NJet': {'bin': bin('NJet', 20, 0, 20), 'title': 'Number of Jets'},
         'NFatJet': {'bin': bin('NFatJet', 8, 0, 8), 'title': 'Number of AK8 FatJets'},
-        'NBJet': {'bin': bin('NBJet', 14, 0, 14), 'title': 'Number of $b$-tagged Jets'},
+        'NBJet': {'bin': bin('NBJet', 14, 0, 14), 'title': 'Number of Medium ID $b$-tagged Jets'},
+        'NLooseBJet': {'bin': bin('NLooseBJet', 14, 0, 14), 'title': 'Number of Loose ID $b$-tagged Jets'},
         'NDoubleBJet': {'bin': bin('NDoubleBJet', 3, 0, 3), 'title': 'Number of double-$b$-tagged AK8 Jets'},
         'MaxFatJetDoubleB_discrim': {'bin': bin('MaxFatJetDoubleB_discrim', 50, -1., 1,), 'title': 'AK8 Fat Jet Double-$b$-tag score'},
         'FatJet_MaxDoubleB_discrim_mass': {'bin': bin('FatJet_MaxDoubleB_discrim_mass', 50, 0., 500.), 'title': 'AK8 SoftDrop Mass [GeV/$c^{2}$]'},
         'nLooseMuons': {'bin': bin('nLooseMuons', 6, 0, 6), 'title': 'Number of Loose ID/isolation Muons'},
         'nTightMuons': {'bin': bin('nTightMuons', 6, 0, 6), 'title': 'Number of Tight ID/isolation Muons'},
+        'nElectrons': {'bin': bin('nElectrons', 6, 0, 6), 'title': 'Number of isolated Electrons'},
+        'nPhotons': {'bin': bin('nPhotons', 6, 0, 6), 'title': 'Number of isolated Electrons'},
+        'nTracks': {'bin': bin('nTracks', 6, 0, 6), 'title': 'Number of isolated Electrons'},
         'Muon_MHT_TransMass': {'bin': bin('Muon_MHT_TransMass', 50, 0., 400.), 'title': 'Muon-Missing $H_{T}$ Transverse Mass [GeV/$c^{2}$]'},
         'Muons_InvMass': {'bin': bin('Muons_InvMass', 50, 0., 400.), 'title': "Di-Muon Invariant Mass [GeV/$c^{2}$]"},
         'LeadSlimJet_Pt': {'bin': bin('LeadSlimJet_Pt', 50, 0., 1000.), 'title': "Lead Jet $p_{T}$ [GeV/$c$]"},
+        'bb_Pair1_Mass': {'bin': bin('bb_Pair1_Mass', 50, 0., 400.), 'title': "Inv Mass of bb pair closest in dR [GeV/$c^{2}$]"},
+        'bb_Pair2_Mass': {'bin': bin('bb_Pair2_Mass', 50, 0., 400.), 'title': "Inv Mass of remaining bb pair [GeV/$c^{2}$]"},
+        'bb_Pair1_DelR': {'bin': bin('bb_Pair1_DelR', 50, 0., 5.), 'title': "dR between closest bb pair"},
+        'bb_Pair2_DelR': {'bin': bin('bb_Pair2_DelR', 50, 0., 5.), 'title': "dR between other bb pair"},
         }
 
 linewidth = 2.
 
 for var in variables:
-    if var in ['nHiggs2bb', 'NoEntries', 'M_lsp', 'M_sq']:
+    if var in ['nHiggs2bb', 'NoEntries', 'M_lsp', 'M_sq', 'crosssec']:
         continue
     plt.figure()
     temp_i = 0
