@@ -333,7 +333,7 @@ df = df.astype('int32')
 plt.xticks(x+0.5, [''.join(str(t)) for t in df.index], rotation=90)
 plt.xlabel("HT, MHT, N_b, N_double-b bin", labelpad=20)
 plt.tight_layout()
-plt.ylim(0.005, None)
+plt.ylim(0.05, None)
 leg = plt.legend(loc='upper right', fontsize='xx-small')
 leg.set_zorder(100)
 if not args.NoOutput:

@@ -212,7 +212,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
                                 binned_HT_bin.append(htBin)
                                 binned_MHT_bin.append(mhtBin)
                                 binned_N_jet_bin.append(nJetBin)
-                                binned_N_bJet_bin.append(nDoubleBJetBin)
+                                binned_N_bJet_bin.append(2)
                                 binned_N_bJet_actual.append(i)
                                 binned_N_doublebjet_bin.append(nDoubleBJetBin)
                                 binned_N_muons.append(nMuons)
