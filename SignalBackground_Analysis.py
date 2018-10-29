@@ -368,11 +368,12 @@ for var in variables:
             label='$M_{\mathrm{Squark}}$ = ' + str(row["M_sq"]) + ', $M_{\mathrm{LSP}}$ = ' + str(row["M_lsp"])
             print(label, var)
             df_temp = df_sig.loc[(df_sig['M_sq'] == row['M_sq']) & (df_sig['M_lsp'] == row['M_lsp'])]
+            df_temp = df_temp.compute()
             if args.NMinusOne:
                 df_temp = df_NMinusOne(df_temp, var, args.region)
             else:
-                df_temp = df_sig[[var, 'weight']]
-            if df_temp[var].compute().shape[0] > 0:
+                df_temp = df_temp[[var, 'weight']]
+            if df_temp[var].shape[0] > 0:
                 h = Hist(dict[var]['bin'], weight='weight')
                 h.fill(df_temp)
                 df = h.pandas(normalized=args.norm).reset_index()[1:-1]
@@ -400,11 +401,12 @@ for var in variables:
         bkgLabels.append('QCD background')
         print('qcd', var)
         h = Hist(dict[var]['bin'], weight='weight')
+        df_QCD = df_QCD.compute()
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_QCD, var, args.region)
         else:
             df_temp = df_QCD[[var, 'weight']]
-        if df_temp[var].compute().shape[0] > 0:
+        if df_temp[var].shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
             df[var] = df[var].apply(lambda x: x.left)
@@ -414,11 +416,12 @@ for var in variables:
         bkgLabels.append('$t \overline{t}$ + $jets$ background')
         print('tt', var)
         h = Hist(dict[var]['bin'], weight='weight')
+        df_TTJets = df_TTJets.compute()
         if args.NMinusOne:
        	    df_temp = df_NMinusOne(df_TTJets, var, args.region)
         else:
             df_temp = df_TTJets[[var, 'weight']]
-        if df_temp[var].compute().shape[0] > 0:
+        if df_temp[var].shape[0] > 0:
             h.fill(df_temp)
             df = h.pandas().reset_index()[1:-1]
             df[var] = df[var].apply(lambda x: x.left)
