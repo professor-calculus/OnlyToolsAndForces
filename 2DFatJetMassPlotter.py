@@ -89,6 +89,8 @@ df.loc[(df['Sample'] == 'B'), ['FatDoubleBJetA_mass','FatDoubleBJetB_mass']] = d
 if df.shape[0] == 0:
     sys.exit('Error: No events left after cuts! Cannot plot.')
 
+plt.figure()
+
 g = sns.JointGrid(x=df['FatDoubleBJetA_mass'], y=df['FatDoubleBJetB_mass'], space=0.)
 
 g.plot_joint(plt.hexbin, norm=LogNorm(), cmap=args.cmap, gridsize=90, C=df['crosssec'], reduce_C_function=np.sum)
@@ -107,9 +109,9 @@ for c, p in zip(coly, patchesy):
 
 g.set_axis_labels('AK8 Double-$b$-tagged Jet A SoftDrop Mass', 'AK8 Double-$b$-tagged Jet B SoftDrop Mass', fontsize=14)
 
-sns.plt.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.15)
+plt.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.15)
 cax = g.fig.add_axes([.91, .3, .02, .3])  # x, y, width, height
-sns.plt.colorbar(cax=cax)
+plt.colorbar(cax=cax)
 
 if not args.NoOutput:
     plt.savefig('{0}.pdf'.format(temp_dir))
