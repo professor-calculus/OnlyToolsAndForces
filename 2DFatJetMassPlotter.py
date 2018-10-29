@@ -81,6 +81,11 @@ elif args.region == '0b2mu':
 df = df[['FatDoubleBJetA_mass', 'FatDoubleBJetB_mass', 'crosssec']]
 df = df.compute()
 
+# Switch fat jet A and B half of the time (randomly) in order to generate symmetric 2D plot
+df['Sample'] = 'A'
+df.loc[df.sample(frac=0.5, replace=False).index,'Sample'] = 'B'
+df.loc[(df['Sample'] == 'B'), ['FatDoubleBJetA_mass','FatDoubleBJetB_mass']] = df.loc[(df['Sample'] == 'B'), ['FatDoubleBJetB_mass','FatDoubleBJetA_mass']].values
+
 if df.shape[0] == 0:
     sys.exit('Error: No events left after cuts! Cannot plot.')
 
