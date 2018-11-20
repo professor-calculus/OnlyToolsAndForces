@@ -6,6 +6,7 @@ import argparse as a
 
 parser = a.ArgumentParser(description='Thing to get mu values from HiggsCombine output')
 parser.add_argument('-f', '--files', nargs='*', required=True, help='Path to HiggsCombine output root files')
+parser.add_argument('-p', '--prefix', required=True, help='Output file prefix')
 args = parser.parse_args()
 
 Msq = []
@@ -15,8 +16,8 @@ mu_exp = []
 
 for file in args.files:
 
-    temp_Msq = float(file.split('_')[1][:-2])
-    R = file.split('_')[2][:-5]
+    temp_Msq = float(file.split('_')[-2][:-2])
+    R = file.split('_')[-1][:-5]
     Msq.append(temp_Msq)
     if R == 'R0p99':
         Mlsp.append(1.16)
@@ -50,5 +51,10 @@ print(df_obs)
 print('Expected mu values:')
 print(df_exp)
 
-df_obs.to_csv('mu_observed.txt', header=False, index=False, sep='\t', columns=['Msq', 'Mlsp', 'mu'])
-df_exp.to_csv('mu_expected.txt', header=False, index=False, sep='\t', columns=['Msq', 'Mlsp', 'mu'])
+if args.prefix:
+    prefix = args.prefix + '_mu'
+else:
+    prefix = 'mu'
+
+df_obs.to_csv(prefix + '_observed.txt', header=False, index=False, sep='\t', columns=['Msq', 'Mlsp', 'mu'])
+df_exp.to_csv(prefix + '_expected.txt', header=False, index=False, sep='\t', columns=['Msq', 'Mlsp', 'mu'])
