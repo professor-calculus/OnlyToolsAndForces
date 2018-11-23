@@ -18,7 +18,6 @@ import sys
 import argparse as a
 import warnings
 from tqdm import tqdm
-from text_histogram import histogram
 
 
 parser = a.ArgumentParser(description='ROOTCuts in Python')
@@ -631,7 +630,6 @@ dict = {'MET': {'bins': bins_MHT, 'title': 'Missing $E_{T}$ / GeV'},
 
 for thing in plottables:
     print('Plot of ' + thing)
-    histogram(df[thing], buckets=20)
     plt.clf()
     if args.kdeplot or args.kdeplot_fill:
         sns.kdeplot(df[thing], shade=args.kdeplot_fill)

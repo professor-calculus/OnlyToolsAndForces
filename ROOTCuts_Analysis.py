@@ -140,6 +140,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     met = []
     ht = []
     N_doubleBJet = []
+    N_doublejet_mass_window = []
     N_jet = []
     N_fatJet = []
     N_bjet = []
@@ -150,6 +151,8 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
     fatDoubleBJet_A_mass = []
     fatDoubleBJet_B_mass = []
+    fatDoubleBJet_A_pt = []
+    fatDoubleBJet_B_pt = []
     fatDoubleBJet_A_discrim = []
     fatDoubleBJet_B_discrim = []
     maxFatJet_discrim = []
@@ -183,6 +186,7 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
     binned_N_bJet_bin = []
     binned_N_bJet_actual = []
     binned_N_doublebjet_bin = []
+    binned_N_doublebjet_masswindow_bin = []
     binned_N_muons = []
     binned_yield = []
 
@@ -191,54 +195,59 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
             for nJetBin in [6]:
                 for nMuons in [-1, 0, 1, 2]:
                     for nDoubleBJetBin in [0, 1, 2]:
-                        if nDoubleBJetBin == 0:
-                            for i in [3,4,5]:
-                                binned_msq.append(args.Msq)
-                                binned_mlsp.append(args.Mlsp)
-                                binned_type.append(args.type)
-                                binned_HT_bin.append(htBin)
-                                binned_MHT_bin.append(mhtBin)
-                                binned_N_jet_bin.append(nJetBin)
-                                binned_N_bJet_bin.append(3)
-                                binned_N_bJet_actual.append(i)
-                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                                binned_N_muons.append(nMuons)
-                                binned_yield.append(0.)
-                        elif nDoubleBJetBin == 1:
-                            for i in [1,2,3,4,5]:
-                                binned_msq.append(args.Msq)
-                                binned_mlsp.append(args.Mlsp)
-                                binned_type.append(args.type)
-                                binned_HT_bin.append(htBin)
-                                binned_MHT_bin.append(mhtBin)
-                                binned_N_jet_bin.append(nJetBin)
-                                binned_N_bJet_bin.append(2)
-                                binned_N_bJet_actual.append(i)
-                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                                binned_N_muons.append(nMuons)
-                                binned_yield.append(0.)
-                        elif nDoubleBJetBin == 2:
-                            for i in [0,1,2,3,4]:
-                                binned_msq.append(args.Msq)
-                                binned_mlsp.append(args.Mlsp)
-                                binned_type.append(args.type)
-                                binned_HT_bin.append(htBin)
-                                binned_MHT_bin.append(mhtBin)
-                                binned_N_jet_bin.append(nJetBin)
-                                binned_N_bJet_bin.append(0)
-                                binned_N_bJet_actual.append(i)
-                                binned_N_doublebjet_bin.append(nDoubleBJetBin)
-                                binned_N_muons.append(nMuons)
-                                binned_yield.append(0.)
+                        for nFatJetMass in [0, 1, 2]:
+                            if nDoubleBJetBin == 0:
+                                for i in [3,4,5]:
+                                    binned_msq.append(args.Msq)
+                                    binned_mlsp.append(args.Mlsp)
+                                    binned_type.append(args.type)
+                                    binned_HT_bin.append(htBin)
+                                    binned_MHT_bin.append(mhtBin)
+                                    binned_N_jet_bin.append(nJetBin)
+                                    binned_N_bJet_bin.append(3)
+                                    binned_N_bJet_actual.append(i)
+                                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                    binned_N_doublebjet_masswindow_bin.append(nFatJetMass)
+                                    binned_N_muons.append(nMuons)
+                                    binned_yield.append(0.)
+                            elif nDoubleBJetBin == 1:
+                                for i in [1,2,3,4,5]:
+                                    binned_msq.append(args.Msq)
+                                    binned_mlsp.append(args.Mlsp)
+                                    binned_type.append(args.type)
+                                    binned_HT_bin.append(htBin)
+                                    binned_MHT_bin.append(mhtBin)
+                                    binned_N_jet_bin.append(nJetBin)
+                                    binned_N_bJet_bin.append(2)
+                                    binned_N_bJet_actual.append(i)
+                                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                    binned_N_doublebjet_masswindow_bin.append(nFatJetMass)
+                                    binned_N_muons.append(nMuons)
+                                    binned_yield.append(0.)
+                            elif nDoubleBJetBin == 2:
+                                for i in [0,1,2,3,4]:
+                                    binned_msq.append(args.Msq)
+                                    binned_mlsp.append(args.Mlsp)
+                                    binned_type.append(args.type)
+                                    binned_HT_bin.append(htBin)
+                                    binned_MHT_bin.append(mhtBin)
+                                    binned_N_jet_bin.append(nJetBin)
+                                    binned_N_bJet_bin.append(0)
+                                    binned_N_bJet_actual.append(i)
+                                    binned_N_doublebjet_bin.append(nDoubleBJetBin)
+                                    binned_N_doublebjet_masswindow_bin.append(nFatJetMass)
+                                    binned_N_muons.append(nMuons)
+                                    binned_yield.append(0.)
 
     eventpass = 0.
     eventCounter = 0
 
-    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
-                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_eta", "fatJetB_eta", "fatJetA_phi", "fatJetB_phi", "bJetA_p4", "bJetB_p4", "bJetC_p4", "bJetD_p4", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
-        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_eta_i, fatJetB_eta_i, fatJetA_phi_i, fatJetB_phi_i, bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
-                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_eta, fatJetB_eta, fatJetA_phi, fatJetB_phi, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
+    for combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR \
+                                                    in tqdm(uproot.iterate(thefile, "doubleBFatJetPairTree", ["weight_combined", "ht", "mht", "mht_phi", "nrSlimJets", "nrFatJets", "nrSepSlimLooseBJets", "nrSepSlimMediumBJets", "slimJetA_p4", "muonA_p4", "muonB_p4", "nrLooseMuons", "nrTightMuons", "nrElectrons", "nrPhotons", "nrTracks", "fatJetA_doubleBtagDiscrim", "fatJetB_doubleBtagDiscrim", "fatJetA_softDropMassPuppi", "fatJetB_softDropMassPuppi", "fatJetA_p4", "fatJetB_p4", "bJetA_p4", "bJetB_p4", "bJetC_p4", "bJetD_p4", "nHiggsTobb", "DelR_bb_Higgs1", "DelR_bb_Higgs2"], entrysteps=10000, outputtype=tuple)):
+        for combined_weight_i, HT_i, MHT_i, MHT_phi_i, NJet_i, NFatJet_i, NSlimLooseBJet_i, NSlimBJet_i, LeadSlimJet_p4_i, muonA_p4_i, muonB_p4_i, nLooseMuons_i, nTightMuons_i, nrElectrons_i, nrPhotons_i, nrTracks_i, fatJetA_bTagDiscrim_i, fatJetB_bTagDiscrim_i, fatJetA_mass_i, fatJetB_mass_i, fatJetA_p4_i, fatJetB_p4_i, bJetA_p4_i, bJetB_p4_i, bJetC_p4_i, bJetD_p4_i, nHiggs2bb_i, Higgs2bb_1_DelR_i, Higgs2bb_2_DelR_i \
+                                                        in tqdm(zip(combined_weight, HT, MHT, MHT_phi, NJet, NFatJet, NSlimLooseBJet, NSlimBJet, LeadSlimJet_p4, muonA_p4, muonB_p4, nLooseMuons, nTightMuons, nrElectrons, nrPhotons, nrTracks, fatJetA_bTagDiscrim, fatJetB_bTagDiscrim, fatJetA_mass, fatJetB_mass, fatJetA_p4, fatJetB_p4, bJetA_p4, bJetB_p4, bJetC_p4, bJetD_p4, nHiggs2bb, Higgs2bb_1_DelR, Higgs2bb_2_DelR), initial=eventCounter, total=nentries, desc='{0} events passed'.format(eventpass)):
             n_doublebjet = 0
+            n_doublejet_mass_window = 0
             NJet6 = False
             HT1500 = False
             MHT200 = False
@@ -303,20 +312,24 @@ for thefile in tqdm(args.files, total=len(args.files), desc='File:'):
 
             # Number of double b-tagged jets
             fatDoubleBJet_A_mass.append(fatJetA_mass_val)
-            if fatJetA_discrim_val > DoubleBDiscrim:
-                if (85. < fatJetA_mass_val < 145.):
+            if (fatJetB_p4_i.pt > 300.):
+                if fatJetB_discrim_val > DoubleBDiscrim:
                     n_doublebjet += 1
+                if (85. < fatJetB_mass_val < 145.):
+                    n_doublejet_mass_window += 1
 
             fatDoubleBJet_B_mass.append(fatJetB_mass_val)
-            if fatJetB_discrim_val > DoubleBDiscrim:
-                if (85. < fatJetB_mass_val < 145.):
+            if (fatJetB_p4_i.pt > 300.):
+                if fatJetB_discrim_val > DoubleBDiscrim:
                     n_doublebjet += 1
+                if (85. < fatJetB_mass_val < 145.):
+                    n_doublejet_mass_window += 1
             
             N_doubleBJet.append(n_doublebjet)
 
             #Angular separation of AK8 jets:
             if NFatJet_i > 1:
-                dR = Delta_R(fatJetA_eta_i, fatJetA_phi_i, fatJetB_eta_i, fatJetB_phi_i)
+                dR = Delta_R(fatJetA_p4_i.eta, fatJetA_p4_i.phi, fatJetB_p4_i.eta, fatJetB_p4_i.phi)
             else:
                 dR = -1.
             AK8DelR.append(dR)
