@@ -3,21 +3,9 @@
                 -- C. Montgomery Burns
 
 # OnlyToolsAndForces toolkit:
+A very simple bunch of python scripts to run over LHC MC/Data and make plots etc for data analysis
 
 ![alt text](https://github.com/professor-calculus/OnlyToolsAndForces/raw/master/Logo.jpg)
-
-To download it just do "git clone https://github.com/professor-calculus/OnlyToolsAndForces.git'' in whatever directory you want to install it. 
-
-This is generally used with Python2.7 but I'm sure later versions will work ok.
-
-Packaged used (pip install):
-- pandas
-- matplotlib
-- seaborn
-- uproot
-- pydoop
-- numpy
-
 
 
 -----------------------
